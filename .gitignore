@@ -1,0 +1,22 @@
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated files
+/vendor/
+/coverage/
+*.log
+
+# Local database files and exports
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.sql.bak
+*.sql.gz
+
+# Legacy FuelPHP generated files
+/fuel/app/logs/*/*/*
+/fuel/app/cache/*/*
+/fuel/app/config/crypt.php
