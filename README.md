@@ -1,6 +1,7 @@
 # Gestión de Cursos y Talleres
 
-Sistema web MVC para la gestión de cursos y talleres.
+Sistema de gestión de cursos y talleres, desarrollado como aplicación web
+mediante el patrón MVC.
 
 ## Configuración de la base de datos
 
