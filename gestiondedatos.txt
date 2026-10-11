@@ -1,0 +1,503 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+-- Tiempo de generación: 11-10-2026 a las 05:46:55
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de datos: `gestiondedatos`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `administradores`
+--
+
+CREATE TABLE `administradores` (
+  `id_admin` int(10) UNSIGNED NOT NULL,
+  `id_usuario` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `administradores`
+--
+
+INSERT INTO `administradores` (`id_admin`, `id_usuario`) VALUES
+(9, 28);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `categorias`
+--
+
+CREATE TABLE `categorias` (
+  `id_categoria` int(10) UNSIGNED NOT NULL,
+  `nombre` varchar(150) NOT NULL,
+  `descripcion` varchar(500) DEFAULT NULL,
+  `estado` enum('Activo','Inactivo') NOT NULL DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `categorias`
+--
+
+INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `estado`) VALUES
+(2, 'IIIPRGO', 'curso dedicado a la contabilidad de costos', 'Activo'),
+(8, 'Comunicación y Habilidades Blandas', 'Curso orientada en la formación de habilidades de comunicación para los estudiantes', 'Activo'),
+(9, 'Electrónica de Potencia', 'Curso orientada en la formación de habilidades de comunicación para los estudiantes', 'Activo');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cursos`
+--
+
+CREATE TABLE `cursos` (
+  `id_curso` int(10) UNSIGNED NOT NULL,
+  `id_categoria` int(10) UNSIGNED NOT NULL,
+  `id_instructor` int(10) UNSIGNED NOT NULL,
+  `id_admin` int(10) UNSIGNED NOT NULL,
+  `nombre_curso` varchar(200) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `duracion` varchar(100) NOT NULL,
+  `modalidad` enum('Presencial','Virtual','Hibrido') NOT NULL,
+  `requisitos` text DEFAULT NULL,
+  `costo_curso` decimal(10,2) NOT NULL,
+  `maximo_cupos` int(10) UNSIGNED NOT NULL,
+  `estado` enum('Activo','Cerrado','Lleno','Cancelado') NOT NULL DEFAULT 'Activo'
+) ;
+
+--
+-- Volcado de datos para la tabla `cursos`
+--
+
+INSERT INTO `cursos` (`id_curso`, `id_categoria`, `id_instructor`, `id_admin`, `nombre_curso`, `descripcion`, `duracion`, `modalidad`, `requisitos`, `costo_curso`, `maximo_cupos`, `estado`) VALUES
+(8, 8, 14, 9, 'Pilates', 'Curso', '95', 'Presencial', 'que me pagen xd', 10.00, 25, 'Activo'),
+(9, 9, 16, 9, 'Circuitos II', 'Curso orientada al manejo de circuitos eléctricos de bases 6.', '80', 'Hibrido', '1-que me paguen\r\n2-x\r\n3-', 50.00, 25, 'Activo');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `estudiantes`
+--
+
+CREATE TABLE `estudiantes` (
+  `id_estudiante` int(10) UNSIGNED NOT NULL,
+  `id_usuario` int(10) UNSIGNED NOT NULL,
+  `carnet` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `estudiantes`
+--
+
+INSERT INTO `estudiantes` (`id_estudiante`, `id_usuario`, `carnet`) VALUES
+(12, 31, 'AC9915'),
+(13, 32, 'RO2760'),
+(14, 42, 'JB1213'),
+(15, 43, 'CH7546');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `horarios`
+--
+
+CREATE TABLE `horarios` (
+  `id_horario` int(10) UNSIGNED NOT NULL,
+  `id_curso` int(10) UNSIGNED NOT NULL,
+  `dia` enum('Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo') NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_finalizacion` time NOT NULL
+) ;
+
+--
+-- Volcado de datos para la tabla `horarios`
+--
+
+INSERT INTO `horarios` (`id_horario`, `id_curso`, `dia`, `hora_inicio`, `hora_finalizacion`) VALUES
+(8, 8, 'Martes', '07:00:00', '10:00:00'),
+(9, 9, 'Lunes', '07:45:00', '08:45:00'),
+(10, 9, 'Martes', '19:47:00', '21:47:00'),
+(11, 9, 'Sabado', '06:49:00', '10:49:00');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `inscripciones`
+--
+
+CREATE TABLE `inscripciones` (
+  `id_inscripcion` int(10) UNSIGNED NOT NULL,
+  `id_estudiante` int(10) UNSIGNED NOT NULL,
+  `id_curso` int(10) UNSIGNED NOT NULL,
+  `id_admin` int(10) UNSIGNED DEFAULT NULL,
+  `fecha_inscripcion` datetime NOT NULL DEFAULT current_timestamp(),
+  `estado_inscripcion` enum('Confirmada','Pendiente','Cancelada','Rechazada') NOT NULL DEFAULT 'Pendiente',
+  `motivo_rechazo` varchar(1000) DEFAULT NULL,
+  `estudiante_activo_id` int(10) UNSIGNED GENERATED ALWAYS AS (case when `estado_inscripcion` in ('Confirmada','Pendiente') then `id_estudiante` else NULL end) STORED,
+  `curso_activo_id` int(10) UNSIGNED GENERATED ALWAYS AS (case when `estado_inscripcion` in ('Confirmada','Pendiente') then `id_curso` else NULL end) STORED
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `inscripciones`
+--
+
+INSERT INTO `inscripciones` (`id_inscripcion`, `id_estudiante`, `id_curso`, `id_admin`, `fecha_inscripcion`, `estado_inscripcion`, `motivo_rechazo`) VALUES
+(7, 12, 8, 9, '2026-09-29 10:19:11', 'Confirmada', NULL),
+(8, 13, 8, NULL, '2026-09-29 10:25:58', 'Cancelada', NULL),
+(9, 15, 8, NULL, '2026-10-10 18:34:40', 'Rechazada', 'por que no cumple con los pagos'),
+(10, 15, 9, NULL, '2026-10-10 18:55:28', 'Cancelada', NULL),
+(11, 15, 8, NULL, '2026-10-10 18:55:38', 'Rechazada', 'no cumple para pilates, diseñe circuitos');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `instructores`
+--
+
+CREATE TABLE `instructores` (
+  `id_instructor` int(10) UNSIGNED NOT NULL,
+  `id_usuario` int(10) UNSIGNED NOT NULL,
+  `carnet` varchar(50) NOT NULL,
+  `especialidad` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `instructores`
+--
+
+INSERT INTO `instructores` (`id_instructor`, `id_usuario`, `carnet`, `especialidad`) VALUES
+(14, 37, 'AA3142', 'Master en CNA-ELECTRIC'),
+(15, 41, 'AA1122', 'lenguas modernas'),
+(16, 44, 'RO4949', 'Master en CNA-ELECTRIC');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `periodos_inscripcion`
+--
+
+CREATE TABLE `periodos_inscripcion` (
+  `id_periodo` int(10) UNSIGNED NOT NULL,
+  `id_curso` int(10) UNSIGNED NOT NULL,
+  `id_admin` int(10) UNSIGNED NOT NULL,
+  `fecha_inicio` date NOT NULL,
+  `fecha_cierre` date NOT NULL
+) ;
+
+--
+-- Volcado de datos para la tabla `periodos_inscripcion`
+--
+
+INSERT INTO `periodos_inscripcion` (`id_periodo`, `id_curso`, `id_admin`, `fecha_inicio`, `fecha_cierre`) VALUES
+(7, 8, 9, '2026-10-10', '2026-10-31'),
+(8, 9, 9, '2026-10-10', '2026-10-31');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `solicitudes_estudiante`
+--
+
+CREATE TABLE `solicitudes_estudiante` (
+  `id_solicitud_estudiante` int(10) UNSIGNED NOT NULL,
+  `correo` varchar(254) NOT NULL,
+  `password_hash` varchar(255) DEFAULT NULL,
+  `nombres` varchar(100) NOT NULL,
+  `apellidos` varchar(100) NOT NULL,
+  `telefono` varchar(30) DEFAULT NULL,
+  `edad` int(10) UNSIGNED DEFAULT NULL,
+  `genero` enum('Masculino','Femenino','Otro') DEFAULT NULL,
+  `estado_solicitud` enum('Pendiente','Aprobada','Rechazada') NOT NULL DEFAULT 'Pendiente',
+  `id_admin_revisor` int(10) UNSIGNED DEFAULT NULL,
+  `creada_en` datetime NOT NULL DEFAULT current_timestamp(),
+  `revisada_en` datetime DEFAULT NULL,
+  `correo_pendiente` varchar(254) GENERATED ALWAYS AS (case when `estado_solicitud` = 'Pendiente' then `correo` else NULL end) STORED
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `solicitudes_estudiante`
+--
+
+INSERT INTO `solicitudes_estudiante` (`id_solicitud_estudiante`, `correo`, `password_hash`, `nombres`, `apellidos`, `telefono`, `edad`, `genero`, `estado_solicitud`, `id_admin_revisor`, `creada_en`, `revisada_en`) VALUES
+(1, 'aa32334@ues.edu.sv', NULL, 'María Mari', 'Acevedo Ayala', '123312232', 25, 'Femenino', 'Aprobada', 9, '2026-09-29 09:54:43', '2026-09-29 10:12:32'),
+(2, 'ronne@gmail.com', NULL, 'Toto', 'Ronnen', '22345232', 19, 'Masculino', 'Aprobada', 9, '2026-09-29 10:17:53', '2026-09-29 10:23:28'),
+(3, 'erickonder@gmail.com', NULL, 'Erick Olexander', 'juares bonilla', '3232309293', 16, 'Masculino', 'Aprobada', 9, '2026-10-10 18:25:47', '2026-10-10 18:27:11');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `id_usuario` int(10) UNSIGNED NOT NULL,
+  `correo` varchar(254) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `nombres` varchar(100) NOT NULL,
+  `apellidos` varchar(100) NOT NULL,
+  `telefono` varchar(30) DEFAULT NULL,
+  `edad` int(10) UNSIGNED DEFAULT NULL,
+  `genero` enum('Masculino','Femenino','Otro') DEFAULT NULL,
+  `estado_cuenta` enum('Activo','Inactivo','Bloqueado') NOT NULL DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id_usuario`, `correo`, `password_hash`, `nombres`, `apellidos`, `telefono`, `edad`, `genero`, `estado_cuenta`) VALUES
+(28, 'jb23006@ues.edu.sv', '$2y$10$fEhSaZBQ95ScoI4HkUROo.VGtnHCmGtQJBUI5hgXCf4.WMbUsVScC', 'Kevin', 'Jorge', NULL, NULL, NULL, 'Activo'),
+(31, 'aa32334@ues.edu.sv', '$2y$10$2jFJ7ZGsfPoBXR.JkMXXa.yfg70OIuNozcOAZbsbFxku5O6WULbmi', 'María Mari', 'Acevedo Ayala', '123312232', 25, 'Femenino', 'Activo'),
+(32, 'ronne@gmail.com', '$2y$10$/xXhzTy1AGUH4iPQrcZ7.uKoZBEYKoA.ODhvQYGDnJqyVvpq0uHCe', 'Toto', 'Ronnen', '22345232', 20, 'Femenino', 'Activo'),
+(37, 'kant@gmail.com', '$2y$10$fgfWJjZHP8SZ9kFD9jVmMOUR3L9dLlyZDobpmAvjhS8jpsB/U2772', 'Erick Olexander', 'Acevedo Ayala', '7003 6309', NULL, NULL, 'Activo'),
+(41, 'ronn1e@gmail.com', '$2y$10$GMpwXcEnE8aMi9TLR48qaOfQbydxfEgnE1U5S7rN43xQhttj3uky2', 'luni nuna', 'Acevedo Ayala', '7003 6309', NULL, NULL, 'Activo'),
+(42, 'erickonder@gmail.com', '$2y$10$8kbHdLtjw5Hv82PIvHJsn.x9YWzII7ncNRmXFvwdppw9V2zL2R5R.', 'Erick Olexander', 'juares bonilla', '3232309293', 16, 'Masculino', 'Activo'),
+(43, 'umas@gmail.com', '$2y$10$JundXnwDtgD4oc9B5koAXuNvlMYzvabn.uuy8j0INMN7vgBO2y2ie', 'oscar', 'chaves', '324234234', 21, 'Masculino', 'Activo'),
+(44, 'umas2@gmail.com', '$2y$10$Qvu9tlr8PFWMPY1ZjP.gjevsZs.iZLfTMmrwyO7LTyV1W0soQwcki', 'Juan Oscar', 'Rodrigues', '23342342', NULL, NULL, 'Activo');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vw_cursos_disponibilidad`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vw_cursos_disponibilidad` (
+`id_curso` int(10) unsigned
+,`maximo_cupos` int(10) unsigned
+,`inscritos_activos` bigint(21)
+,`cupos_disponibles` decimal(21,0)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vw_cursos_disponibilidad`
+--
+DROP TABLE IF EXISTS `vw_cursos_disponibilidad`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_cursos_disponibilidad`  AS SELECT `c`.`id_curso` AS `id_curso`, `c`.`maximo_cupos` AS `maximo_cupos`, count(`i`.`id_inscripcion`) AS `inscritos_activos`, greatest(`c`.`maximo_cupos` - count(`i`.`id_inscripcion`),0) AS `cupos_disponibles` FROM (`cursos` `c` left join `inscripciones` `i` on(`i`.`id_curso` = `c`.`id_curso` and `i`.`estado_inscripcion` in ('Confirmada','Pendiente'))) GROUP BY `c`.`id_curso`, `c`.`maximo_cupos` ;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `administradores`
+--
+ALTER TABLE `administradores`
+  ADD PRIMARY KEY (`id_admin`),
+  ADD UNIQUE KEY `uq_administradores_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `categorias`
+--
+ALTER TABLE `categorias`
+  ADD PRIMARY KEY (`id_categoria`),
+  ADD UNIQUE KEY `uq_categorias_nombre` (`nombre`);
+
+--
+-- Indices de la tabla `cursos`
+--
+ALTER TABLE `cursos`
+  ADD PRIMARY KEY (`id_curso`),
+  ADD KEY `ix_cursos_categoria` (`id_categoria`),
+  ADD KEY `ix_cursos_instructor` (`id_instructor`),
+  ADD KEY `ix_cursos_admin` (`id_admin`);
+
+--
+-- Indices de la tabla `estudiantes`
+--
+ALTER TABLE `estudiantes`
+  ADD PRIMARY KEY (`id_estudiante`),
+  ADD UNIQUE KEY `uq_estudiantes_usuario` (`id_usuario`),
+  ADD UNIQUE KEY `uq_estudiantes_carnet` (`carnet`);
+
+--
+-- Indices de la tabla `horarios`
+--
+ALTER TABLE `horarios`
+  ADD PRIMARY KEY (`id_horario`),
+  ADD KEY `ix_horarios_curso_dia` (`id_curso`,`dia`);
+
+--
+-- Indices de la tabla `inscripciones`
+--
+ALTER TABLE `inscripciones`
+  ADD PRIMARY KEY (`id_inscripcion`),
+  ADD UNIQUE KEY `uq_inscripciones_activas` (`estudiante_activo_id`,`curso_activo_id`),
+  ADD KEY `ix_inscripciones_curso_estado` (`id_curso`,`estado_inscripcion`),
+  ADD KEY `ix_inscripciones_admin` (`id_admin`),
+  ADD KEY `fk_inscripciones_estudiante` (`id_estudiante`);
+
+--
+-- Indices de la tabla `instructores`
+--
+ALTER TABLE `instructores`
+  ADD PRIMARY KEY (`id_instructor`),
+  ADD UNIQUE KEY `uq_instructores_usuario` (`id_usuario`),
+  ADD UNIQUE KEY `uq_instructores_carnet` (`carnet`);
+
+--
+-- Indices de la tabla `periodos_inscripcion`
+--
+ALTER TABLE `periodos_inscripcion`
+  ADD PRIMARY KEY (`id_periodo`),
+  ADD KEY `ix_periodos_curso_fechas` (`id_curso`,`fecha_inicio`,`fecha_cierre`),
+  ADD KEY `ix_periodos_admin` (`id_admin`);
+
+--
+-- Indices de la tabla `solicitudes_estudiante`
+--
+ALTER TABLE `solicitudes_estudiante`
+  ADD PRIMARY KEY (`id_solicitud_estudiante`),
+  ADD UNIQUE KEY `uq_solicitudes_estudiante_correo_pendiente` (`correo_pendiente`),
+  ADD KEY `ix_solicitudes_estudiante_estado` (`estado_solicitud`,`creada_en`),
+  ADD KEY `ix_solicitudes_estudiante_admin` (`id_admin_revisor`);
+
+--
+-- Indices de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id_usuario`),
+  ADD UNIQUE KEY `uq_usuarios_correo` (`correo`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `administradores`
+--
+ALTER TABLE `administradores`
+  MODIFY `id_admin` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de la tabla `categorias`
+--
+ALTER TABLE `categorias`
+  MODIFY `id_categoria` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de la tabla `cursos`
+--
+ALTER TABLE `cursos`
+  MODIFY `id_curso` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `estudiantes`
+--
+ALTER TABLE `estudiantes`
+  MODIFY `id_estudiante` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de la tabla `horarios`
+--
+ALTER TABLE `horarios`
+  MODIFY `id_horario` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `inscripciones`
+--
+ALTER TABLE `inscripciones`
+  MODIFY `id_inscripcion` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT de la tabla `instructores`
+--
+ALTER TABLE `instructores`
+  MODIFY `id_instructor` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT de la tabla `periodos_inscripcion`
+--
+ALTER TABLE `periodos_inscripcion`
+  MODIFY `id_periodo` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `solicitudes_estudiante`
+--
+ALTER TABLE `solicitudes_estudiante`
+  MODIFY `id_solicitud_estudiante` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id_usuario` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `administradores`
+--
+ALTER TABLE `administradores`
+  ADD CONSTRAINT `fk_administradores_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `cursos`
+--
+ALTER TABLE `cursos`
+  ADD CONSTRAINT `fk_cursos_admin` FOREIGN KEY (`id_admin`) REFERENCES `administradores` (`id_admin`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_cursos_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_cursos_instructor` FOREIGN KEY (`id_instructor`) REFERENCES `instructores` (`id_instructor`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `estudiantes`
+--
+ALTER TABLE `estudiantes`
+  ADD CONSTRAINT `fk_estudiantes_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `horarios`
+--
+ALTER TABLE `horarios`
+  ADD CONSTRAINT `fk_horarios_curso` FOREIGN KEY (`id_curso`) REFERENCES `cursos` (`id_curso`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `inscripciones`
+--
+ALTER TABLE `inscripciones`
+  ADD CONSTRAINT `fk_inscripciones_admin` FOREIGN KEY (`id_admin`) REFERENCES `administradores` (`id_admin`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_inscripciones_curso` FOREIGN KEY (`id_curso`) REFERENCES `cursos` (`id_curso`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_inscripciones_estudiante` FOREIGN KEY (`id_estudiante`) REFERENCES `estudiantes` (`id_estudiante`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `instructores`
+--
+ALTER TABLE `instructores`
+  ADD CONSTRAINT `fk_instructores_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `periodos_inscripcion`
+--
+ALTER TABLE `periodos_inscripcion`
+  ADD CONSTRAINT `fk_periodos_admin` FOREIGN KEY (`id_admin`) REFERENCES `administradores` (`id_admin`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_periodos_curso` FOREIGN KEY (`id_curso`) REFERENCES `cursos` (`id_curso`) ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `solicitudes_estudiante`
+--
+ALTER TABLE `solicitudes_estudiante`
+  ADD CONSTRAINT `fk_solicitudes_estudiante_admin` FOREIGN KEY (`id_admin_revisor`) REFERENCES `administradores` (`id_admin`) ON UPDATE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
