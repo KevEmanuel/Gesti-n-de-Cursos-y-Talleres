@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Escapa un valor para insertarlo de forma segura en HTML.
+ * Funcion para insertar contenido de forma segura en HTML.
  */
 function e(string|int|float|null $value): string
 {
