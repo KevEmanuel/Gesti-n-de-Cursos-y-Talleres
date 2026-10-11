@@ -1,0 +1,22 @@
+Nota: crear una carpte con el name de config, dentro de ella crear un archivo database.php , e incluir el siguiente codigo, reemplazar el Hots de la maquina local, el nombre de la bd, pw = null
+
+<?php
+
+declare(strict_types=1);
+
+// Crea una conexion PDO segura usando la configuracion local
+function getDatabaseConnection(): PDO
+{
+    $host = getenv('DB_HOST') ?: '000.0.0.0';
+    $database = getenv('DB_NAME') ?: 'null';
+    $username = getenv('DB_USER') ?: 'root';
+    $password = getenv('DB_PASSWORD') ?: '';
+
+    $dsn = "mysql:host={$host};dbname={$database};charset=utf8mb4";
+
+    return new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ]);
+}
