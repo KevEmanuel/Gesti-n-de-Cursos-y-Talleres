@@ -8,7 +8,8 @@ $isAdministrator = is_array($user) && ($user['role'] ?? null) === 'administrator
 $isStudent = is_array($user) && ($user['role'] ?? null) === 'student';
 $isInstructor = is_array($user) && ($user['role'] ?? null) === 'instructor';
 ?>
-<main class="container">
+<!-- <main class="container"> cambio efectuado -->
+    <main class="container home-page">
         <header class="page-header">
             <div>
                 <p class="eyebrow">Formación y aprendizaje</p>
