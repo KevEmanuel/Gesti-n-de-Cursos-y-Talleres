@@ -1,5 +1,9 @@
 <?php
 
+/*
+Función que permiterte restablece la contraseña del admintrador.
+nota: en su momento se olvido la contraseña y el guardado en la bd es mediante un hash, por que esta función permite restablecer la contraseña del administrador, para poder ingresar al sistema.
+*/ 
 declare(strict_types=1);
 
 if (PHP_SAPI !== 'cli') {
