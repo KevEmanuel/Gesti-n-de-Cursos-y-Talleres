@@ -5,7 +5,8 @@ declare(strict_types=1);
 /** Formulario unico de acceso para todos los roles. */
 
 ?>
-<main class="container auth-container">
+<!-- <main class="container auth-container"> cambio efectuado -->
+<main class="container auth-container login-page">
          <a href="/">Inicio</a>
         <section class="card">
             <h1>Iniciar sesión</h1>
