@@ -5,7 +5,10 @@ declare(strict_types=1);
 /** Listado publico de cursos con filtros de busqueda. */
 
 ?>
-<main class="container">
+
+<!-- cambio de <main class="container catalog-page"> -->
+<main class="container catalog-page">
+    <main class="container catalog-page">
         <header class="page-header">
             <div><a href="/">Inicio</a><h1><?= e($title) ?></h1><p>Busca por curso, categoría, modalidad o instructor.</p></div>
             <div class="session-actions">
