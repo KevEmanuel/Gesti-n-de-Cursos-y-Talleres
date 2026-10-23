@@ -76,13 +76,28 @@ final class EstudianteAuthController extends BaseController
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
             return 'Ingresa un correo electrónico válido.';
         }
-        if ($data['nombres'] === '' || preg_match('/\p{L}/u', $data['apellidos']) !== 1) {
-            return 'Ingresa nombres y un apellido que contenga letras.';
+        // Validar los nombres del estudiante.
+        // Solo se permiten letras, espacios, guiones y apóstrofes.
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['nombres']) !== 1) {
+            return 'Los nombres no pueden contener números ni símbolos inválidos.';
         }
+
+        // Validar los apellidos del estudiante.
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['apellidos']) !== 1) {
+           return 'Los apellidos no pueden contener números ni símbolos inválidos.';
+        }
+
         if (strlen($data['correo']) > 254 || strlen($data['nombres']) > 100
             || strlen($data['apellidos']) > 100 || strlen($data['telefono']) > 30) {
             return 'Uno o más campos exceden la longitud permitida.';
         }
+
+        // Validar el celular del estudiante.
+        // Si se proporciona, debe contener 8 dígitos y comenzar con 5, 6 o 7.
+        if ($data['telefono'] !== '' && preg_match('/\A[567][0-9]{7}\z/', $data['telefono']) !== 1) {
+            return 'El celular debe tener 8 dígitos y comenzar con 5, 6 o 7.';
+        }
+
         if ($data['edad'] !== '' && (!ctype_digit($data['edad']) || (int) $data['edad'] > 150)) {
             return 'La edad debe ser un número entre 0 y 150.';
         }

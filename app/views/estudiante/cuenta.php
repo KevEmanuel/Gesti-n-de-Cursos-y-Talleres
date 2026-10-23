@@ -32,7 +32,8 @@ $statusLabels = [
                 <label>Nombres<input maxlength="100" value="<?= e((string) $student['nombres']) ?>" readonly></label>
                 <label>Apellidos<input maxlength="100" value="<?= e((string) $student['apellidos']) ?>" readonly></label>
                 <label>Correo<input type="email" value="<?= e((string) $student['correo']) ?>" disabled><small>Para cambiar el correo, solicita apoyo a administración.</small></label>
-                <label>Teléfono<input name="telefono" maxlength="30" value="<?= e((string) ($student['telefono'] ?? '')) ?>"></label>
+                <!-- Validación del celular en el perfil del estudiante -->
+                <label>Teléfono<input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="El celular debe tener 8 dígitos y comenzar con 5, 6 o 7" value="<?= e((string) ($student['telefono'] ?? '')) ?>"></label>
                 <label>Edad<input type="number" name="edad" min="0" max="150" value="<?= e((string) ($student['edad'] ?? '')) ?>"></label>
                 <label>Género
                     <select name="genero">

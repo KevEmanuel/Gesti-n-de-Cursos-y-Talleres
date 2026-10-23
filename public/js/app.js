@@ -45,25 +45,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     search?.addEventListener('input', filterRows);
     statusFilter?.addEventListener('change', filterRows);
+
+    // Validar los celulares de estudiantes e instructores.
+    // Permite únicamente números y un máximo de 8 dígitos.
+    document.querySelectorAll(".celular-sv").forEach(function (campo) {
+    campo.addEventListener("input", function () {
+        campo.value = campo.value.replace(/\D/g, "").slice(0, 8);
+    });
 });
 
-//funciones para validar telefono
-if (campoTelefono) {
-    campoTelefono.addEventListener("input", function () {
-        let numeros = campoTelefono.value.replace(/\D/g, "").slice(0, 8);
+    // Validar fechas al crear y modificar períodos de inscripción.
+    // La fecha de cierre no puede ser anterior a la fecha de inicio.
+    document.querySelectorAll(".period-form, .period-edit-form")
+    .forEach(function (formulario) {
 
-        if (numeros.length > 4) {
-            numeros = numeros.slice(0, 4) + "-" + numeros.slice(4);
+        const inicio = formulario.querySelector(
+            'input[name="fecha_inicio"]'
+        );
+
+        const cierre = formulario.querySelector(
+            'input[name="fecha_cierre"]'
+        );
+
+        if (!inicio || !cierre) return;
+
+        function validarFechas() {
+            if (inicio.value && cierre.value &&
+                cierre.value < inicio.value) {
+
+                cierre.setCustomValidity(
+                    "La fecha de cierre no puede ser anterior a la fecha de inicio."
+                );
+
+            } else {
+                cierre.setCustomValidity("");
+            }
         }
 
-        campoTelefono.value = numeros;
-    });
-}
+        inicio.addEventListener("input", validarFechas);
+        cierre.addEventListener("input", validarFechas);
 
-//funcion para validar letras
+        formulario.addEventListener("submit", function (event) {
+            validarFechas();
+
+            if (!formulario.reportValidity()) {
+                event.preventDefault();
+            }
+        });
+
+        validarFechas();
+    });
+});
+////////////////////////
+
+// Validar nombres y apellidos.
+// Permite letras, espacios, guiones y apóstrofes.
 function permitirSoloLetras(event) {
     event.target.value = event.target.value.replace(
-        /[^A-Za-zÁÉÍÓÚáéíóúÜüÑñ\s]/g,
+        /[^\p{L} '-]/gu,
         ""
     );
 }

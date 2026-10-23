@@ -37,6 +37,8 @@ final class CuentaEstudianteController extends BaseController
             'solicitud_cancelada' => 'Te diste de baja del curso y el cupo quedó disponible.',
         ];
         $errors = [
+            // Mensaje cuando el estudiante introduce un celular incorrecto.
+            'telefono_invalido' => 'El celular debe tener exactamente 8 dígitos y comenzar con 5, 6 o 7.',
             'perfil_invalido' => 'Revisa los datos del perfil; algunos campos son obligatorios o no válidos.',
             'curso_no_disponible' => 'El curso ya no está disponible para inscripción.',
             'horario' => 'El horario del curso se cruza con otra inscripción activa.',
@@ -69,9 +71,10 @@ final class CuentaEstudianteController extends BaseController
             'edad' => trim((string) ($_POST['edad'] ?? '')),
             'genero' => trim((string) ($_POST['genero'] ?? '')),
         ];
-
-        if (strlen($data['telefono']) > 30) {
-            $this->redirect('/mi-cuenta?error=perfil_invalido');
+        // Validar el celular al modificar el perfil del estudiante.
+        // Debe tener 8 dígitos y comenzar con 5, 6 o 7.
+        if ($data['telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['telefono']) !== 1) {
+            $this->redirect('/mi-cuenta?error=telefono_invalido');
         }
         if ($data['edad'] !== '' && (!ctype_digit($data['edad']) || (int) $data['edad'] > 150)) {
             $this->redirect('/mi-cuenta?error=perfil_invalido');

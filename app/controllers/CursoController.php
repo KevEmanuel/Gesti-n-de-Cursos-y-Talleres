@@ -136,6 +136,26 @@ final class CursoController extends BaseController
         if ($data['nombre_curso'] === '' || $data['duracion'] === '') {
             return 'El nombre y la duración son obligatorios.';
         }
+        // Validar nombre del curso
+        if (preg_match('/\p{L}/u', $data['nombre_curso']) !== 1) {
+           return 'El nombre del curso debe contener al menos una letra.';
+        }
+
+        // Validar duración
+        if (!preg_match('/^[1-9]\d*(?:\s+horas?)?$/iu', $data['duracion'])) {
+            return 'La duración debe ser mayor que cero. Ejemplo: 50 o 50 horas.';
+        }
+
+        // Validar descripción (opcional)
+        if ($data['descripcion'] !== '' && preg_match('/\p{L}/u', $data['descripcion']) !== 1) {
+           return 'La descripción debe contener al menos una letra.';
+        }
+
+        // Validar requisitos (opcional)
+        if ($data['requisitos'] !== '' && preg_match('/\p{L}/u', $data['requisitos']) !== 1) {
+           return 'Los requisitos deben contener al menos una letra.';
+        }
+
         if (strlen($data['nombre_curso']) > 200 || strlen($data['duracion']) > 100) {
             return 'El nombre o la duración exceden la longitud permitida.';
         }

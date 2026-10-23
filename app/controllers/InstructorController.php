@@ -202,9 +202,26 @@ final class InstructorController extends BaseController
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
             return 'Ingresa un correo electrónico válido.';
         }
-        if ($data['nombres'] === '' || preg_match('/\p{L}/u', $data['apellidos']) !== 1) {
-            return 'Ingresa un nombre y un apellido que contenga letras.';
+        // Validar nombres
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['nombres']) !== 1) {
+            return 'El nombre solo puede contener letras, espacios, guiones y apóstrofes.';
         }
+
+        // Validar apellidos
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['apellidos']) !== 1) {
+           return 'El apellido solo puede contener letras, espacios, guiones y apóstrofes.';
+        }
+
+        // Validar especialidad (opcional)
+        if ($data['especialidad'] !== '' && preg_match('/\p{L}/u', $data['especialidad']) !== 1) {
+           return 'La especialidad debe contener al menos una letra.';
+        }
+
+        // Validar número de celular salvadoreño
+        if ($data['telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['telefono']) !== 1) {
+           return 'El celular debe tener 8 dígitos y comenzar con 5, 6 o 7.';
+        }
+
         if (strlen($data['correo']) > 254 || strlen($data['nombres']) > 100
             || strlen($data['apellidos']) > 100 || strlen($data['telefono']) > 30
             || strlen($data['especialidad']) > 255) {

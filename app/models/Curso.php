@@ -182,11 +182,13 @@ final class Curso extends BaseModel
         $this->database->beginTransaction();
 
         try {
-            $statement = $this->database->prepare(
-                'SELECT id_curso FROM cursos WHERE id_curso = :id_curso FOR UPDATE'
-            );
+            // Obtener el instructor actual antes de modificar el curso.
+            $statement = $this->database->prepare('SELECT id_instructor FROM cursos WHERE id_curso = :id_curso FOR UPDATE');
             $statement->execute(['id_curso' => $id]);
-            if ($statement->fetchColumn() === false) {
+
+            $currentInstructor = $statement->fetchColumn();
+
+            if ($currentInstructor === false) {
                 $this->database->rollBack();
                 return false;
             }
@@ -205,6 +207,37 @@ final class Curso extends BaseModel
                     'La capacidad no puede ser menor que las inscripciones activas (' . $activeEnrollments . ').'
                 );
             }
+            // Validar conflictos de horario al cambiar el instructor de un curso.
+            // Impide asignar un profesor que ya imparte otra clase en el mismo horario.
+            if ((int) $currentInstructor !== (int) $data['id_instructor']) {
+
+            $statement = $this->database->prepare(
+        'SELECT 1
+         FROM horarios AS actual
+         INNER JOIN horarios AS otro
+             ON otro.dia = actual.dia
+            AND actual.hora_inicio < otro.hora_finalizacion
+            AND actual.hora_finalizacion > otro.hora_inicio
+         INNER JOIN cursos AS curso_otro
+             ON curso_otro.id_curso = otro.id_curso
+         WHERE actual.id_curso = :id_curso
+           AND otro.id_curso <> :id_curso_diferente
+           AND curso_otro.id_instructor = :id_instructor
+         LIMIT 1'
+    );
+
+    $statement->execute([
+        'id_curso' => $id,
+        'id_curso_diferente' => $id,
+        'id_instructor' => $data['id_instructor'],
+    ]);
+
+    if ($statement->fetchColumn() !== false) {
+        throw new DomainException(
+            'No se puede asignar este instructor porque ya tiene una clase en ese horario.'
+        );
+    }
+}
 
             $statement = $this->database->prepare(
                 'UPDATE cursos
