@@ -118,6 +118,18 @@ final class CategoriaController extends BaseController
 
     private function validate(string $name, string $description, ?int $excludedId = null): ?string
     {
+        // VALIDACIÓN AGREGADA: Comprueba que el nombre de la categoría
+        // contenga al menos una letra, evitando nombres solo numéricos o símbolos.
+        if (preg_match('/\p{L}/u', $name) !== 1) {
+            return 'El nombre debe contener al menos una letra.';
+        }
+
+        // VALIDACIÓN AGREGADA: Comprueba que la descripción contenga al menos
+        // una letra si el usuario la proporciona. Permite dejarla vacía.
+        if ($description !== '' &&
+            preg_match('/\p{L}/u', $description) !== 1) {
+            return 'La descripción debe contener texto válido.';
+        }
         if ($name === '') {
             return 'El nombre de la categoría es obligatorio.';
         }

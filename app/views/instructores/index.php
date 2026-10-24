@@ -20,7 +20,8 @@ declare(strict_types=1);
                 <label>Correo<input type="email" name="correo" maxlength="254" required value="<?= e($old['correo'] ?? '') ?>"></label>
                 <label>Nombres<input name="nombres" maxlength="100" required value="<?= e($old['nombres'] ?? '') ?>"></label>
                 <label>Apellidos<input name="apellidos" maxlength="100" required value="<?= e($old['apellidos'] ?? '') ?>"></label>
-                <label>Teléfono<input name="telefono" maxlength="30" value="<?= e($old['telefono'] ?? '') ?>"></label>
+                <!-- Validación del celular al registrar un instructor -->
+                <label>Teléfono<input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="El celular debe tener 8 dígitos y comenzar con 5, 6 o 7" value="<?= e($old['telefono'] ?? '') ?>"></label>
                 <label>Especialidad<input name="especialidad" maxlength="255" value="<?= e($old['especialidad'] ?? '') ?>"></label>
                 <label>Contraseña inicial (mínimo 12 caracteres)<input type="password" name="password" minlength="12" required autocomplete="new-password"></label>
                 <button type="submit" class="button">Crear instructor</button>
@@ -46,7 +47,8 @@ declare(strict_types=1);
                                         <label><span class="visually-hidden">Nombres</span><input name="nombres" maxlength="100" required value="<?= e((string) $instructor['nombres']) ?>"></label>
                                         <label><span class="visually-hidden">Apellidos</span><input name="apellidos" maxlength="100" required value="<?= e((string) $instructor['apellidos']) ?>"></label>
                                         <label><span class="visually-hidden">Correo</span><input type="email" name="correo" maxlength="254" required value="<?= e((string) $instructor['correo']) ?>"></label>
-                                        <label><span class="visually-hidden">Teléfono</span><input name="telefono" maxlength="30" value="<?= e((string) ($instructor['telefono'] ?? '')) ?>"></label>
+                                        <!-- Validación del celular al modificar un instructor -->
+                                        <label><span class="visually-hidden">Teléfono</span><input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="El celular debe tener 8 dígitos y comenzar con 5, 6 o 7" value="<?= e((string) ($instructor['telefono'] ?? '')) ?>"></label>
                                         <label><span class="visually-hidden">Especialidad</span><input name="especialidad" maxlength="255" value="<?= e((string) ($instructor['especialidad'] ?? '')) ?>"></label>
                                         <span><?= e((string) $instructor['estado_cuenta']) ?></span>
                                         <button type="submit" class="button">Guardar</button>

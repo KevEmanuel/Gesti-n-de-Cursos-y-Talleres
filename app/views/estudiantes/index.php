@@ -65,7 +65,8 @@ declare(strict_types=1);
                 <label>Correo<input type="email" name="correo" maxlength="254" required value="<?= e($old['correo'] ?? '') ?>"></label>
                 <label>Nombres<input name="nombres" maxlength="100" required value="<?= e($old['nombres'] ?? '') ?>"></label>
                 <label>Apellidos<input name="apellidos" maxlength="100" required value="<?= e($old['apellidos'] ?? '') ?>"></label>
-                <label>Teléfono<input name="telefono" maxlength="30" value="<?= e($old['telefono'] ?? '') ?>"></label>
+                <!-- Validación del celular al registrar un estudiante -->
+                <label>Teléfono<input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="El celular debe tener 8 dígitos y comenzar con 5, 6 o 7" value="<?= e($old['telefono'] ?? '') ?>"></label>
                 <label>Edad<input type="number" name="edad" min="0" max="150" value="<?= e((string) ($old['edad'] ?? '')) ?>"></label>
                 <label>Género
                     <select name="genero">
@@ -99,7 +100,8 @@ declare(strict_types=1);
                                         <label><span class="visually-hidden">Nombre</span><input name="nombres" maxlength="100" required value="<?= e((string) $student['nombres']) ?>"></label>
                                         <label><span class="visually-hidden">Apellidos</span><input name="apellidos" maxlength="100" required value="<?= e((string) $student['apellidos']) ?>"></label>
                                         <label><span class="visually-hidden">Correo</span><input type="email" name="correo" maxlength="254" required value="<?= e((string) $student['correo']) ?>"></label>
-                                        <label><span class="visually-hidden">Teléfono</span><input name="telefono" maxlength="30" value="<?= e((string) ($student['telefono'] ?? '')) ?>"></label>
+                                        <!-- Validación del celular al modificar un estudiante -->
+                                        <label><span class="visually-hidden">Teléfono</span><input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="El celular debe tener 8 dígitos y comenzar con 5, 6 o 7" value="<?= e((string) ($student['telefono'] ?? '')) ?>"></label>
                                         <label><span class="visually-hidden">Edad</span><input type="number" name="edad" min="0" max="150" value="<?= e((string) ($student['edad'] ?? '')) ?>"></label>
                                         <label><span class="visually-hidden">Género</span>
                                             <select name="genero"><option value="">Sin especificar</option>

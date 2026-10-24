@@ -223,9 +223,17 @@ final class EstudianteController extends BaseController
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
             return 'Ingresa un correo electrónico válido.';
         }
-        if ($data['nombres'] === '' || preg_match('/\p{L}/u', $data['apellidos']) !== 1) {
-            return 'Ingresa un nombre y un apellido que contenga letras.';
+        // Validar que los nombres contengan únicamente letras,
+        // espacios, guiones y apóstrofes.
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['nombres']) !== 1) {
+            return 'El nombre solo puede contener letras, espacios, guiones y apóstrofes.';
         }
+
+         // Validar que los apellidos no contengan números ni símbolos inválidos.
+         if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['apellidos']) !== 1) {
+            return 'El apellido solo puede contener letras, espacios, guiones y apóstrofes.';
+        }
+
         if (strlen($data['correo']) > 254 || strlen($data['nombres']) > 100
             || strlen($data['apellidos']) > 100 || strlen($data['telefono']) > 30) {
             return 'Uno o más campos exceden la longitud permitida.';
@@ -238,6 +246,12 @@ final class EstudianteController extends BaseController
         }
         if ($withPassword && strlen($data['password']) < 12) {
             return 'La contraseña inicial debe tener al menos 12 caracteres.';
+        }
+
+        // Validar que el celular tenga exactamente 8 dígitos
+        // y comience con 5, 6 o 7.
+        if ($data['telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['telefono']) !== 1) {
+            return 'El celular debe tener 8 dígitos y comenzar con 5, 6 o 7.';
         }
 
         $data['telefono'] = $data['telefono'] === '' ? null : $data['telefono'];

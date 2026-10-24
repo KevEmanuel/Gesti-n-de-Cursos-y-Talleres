@@ -266,6 +266,11 @@ final class Solicitud extends BaseModel
         if ($newStatus === 'Rechazada' && $rejectionReason === '') {
             throw new DomainException('Describe el motivo por el que se rechaza la solicitud.');
         }
+        // Validar que el motivo de rechazo contenga al menos una letra.
+        // Evita guardar únicamente números o símbolos.
+        if ($newStatus === 'Rechazada' && preg_match('/\p{L}/u', $rejectionReason) !== 1) {
+            throw new DomainException('El motivo de rechazo debe contener texto válido.');
+        }
         if (strlen($rejectionReason) > 1000) {
             throw new DomainException('El motivo de rechazo no puede superar 1000 caracteres.');
         }
@@ -304,6 +309,12 @@ final class Solicitud extends BaseModel
                 $statement->execute(['id_curso' => $courseId]);
                 if ((int) $statement->fetchColumn() >= $capacity) {
                     throw new DomainException('No se puede reactivar la inscripción: el curso está lleno.');
+                }
+
+                // Validar conflictos de horarios al reactivar una inscripción.
+                // Evita que un estudiante tenga dos cursos en horas superpuestas.
+                if ($this->hasScheduleConflict((int) $enrollment['id_estudiante'],$courseId)) {
+                    throw new DomainException('No se puede reactivar la inscripción porque el estudiante tiene otro curso en ese horario.');
                 }
             }
 
