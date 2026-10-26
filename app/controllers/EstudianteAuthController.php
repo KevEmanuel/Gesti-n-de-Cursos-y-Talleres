@@ -9,6 +9,7 @@ final class EstudianteAuthController extends BaseController
 {
     private SolicitudEstudiante $applications;
 
+    /** Prepara el modelo que registra y consulta solicitudes de cuenta estudiantil. */
     public function __construct()
     {
         $this->applications = new SolicitudEstudiante(getDatabaseConnection());
@@ -51,7 +52,7 @@ final class EstudianteAuthController extends BaseController
             return;
         }
 
-        $data['edad'] = $data['edad'] === '' ? null : (int) $data['edad'];
+        $data['edad'] = (int) $data['edad'];
         $data['telefono'] = $data['telefono'] === '' ? null : $data['telefono'];
         $data['genero'] = $data['genero'] === '' ? null : $data['genero'];
 
@@ -71,6 +72,12 @@ final class EstudianteAuthController extends BaseController
         $this->redirect('/login?registro=solicitud_enviada');
     }
 
+    /**
+     * Valida los datos personales y credenciales de una solicitud de estudiante.
+     *
+     * @param array<string, mixed> $data Datos enviados por el formulario de registro.
+     * @return string|null Mensaje de error o null cuando los datos son válidos.
+     */
     private function validateRegistration(array $data): ?string
     {
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
@@ -87,8 +94,8 @@ final class EstudianteAuthController extends BaseController
            return 'Los apellidos no pueden contener números ni símbolos inválidos.';
         }
 
-        if (strlen($data['correo']) > 254 || strlen($data['nombres']) > 100
-            || strlen($data['apellidos']) > 100 || strlen($data['telefono']) > 30) {
+        if (mb_strlen($data['correo'], 'UTF-8') > 254 || mb_strlen($data['nombres'], 'UTF-8') > 100
+            || mb_strlen($data['apellidos'], 'UTF-8') > 100 || mb_strlen($data['telefono'], 'UTF-8') > 30) {
             return 'Uno o más campos exceden la longitud permitida.';
         }
 
@@ -98,13 +105,13 @@ final class EstudianteAuthController extends BaseController
             return 'El celular debe tener 8 dígitos y comenzar con 5, 6 o 7.';
         }
 
-        if ($data['edad'] !== '' && (!ctype_digit($data['edad']) || (int) $data['edad'] > 150)) {
-            return 'La edad debe ser un número entre 0 y 150.';
+        if (!ctype_digit($data['edad']) || (int) $data['edad'] < 17 || (int) $data['edad'] > 70) {
+            return 'La edad es obligatoria y debe estar entre 17 y 70 años.';
         }
         if ($data['genero'] !== '' && !in_array($data['genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
             return 'Selecciona un género válido.';
         }
-        if (strlen($data['password']) < 12) {
+        if (mb_strlen($data['password'], 'UTF-8') < 12) {
             return 'La contraseña debe tener al menos 12 caracteres.';
         }
         if ($data['password'] !== $data['password_confirmation']) {
@@ -114,6 +121,7 @@ final class EstudianteAuthController extends BaseController
         return null;
     }
 
+    /** Renderiza nuevamente el registro y elimina las contraseñas de los datos de vista. */
     private function renderRegistrationError(string $error, array $data): void
     {
         http_response_code(422);

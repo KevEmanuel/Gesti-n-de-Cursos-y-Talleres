@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Funcion para insertar contenido de forma segura en HTML.
+ * Escapa un valor para mostrarlo como texto en un documento HTML.
  */
 function e(string|int|float|null $value): string
 {

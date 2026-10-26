@@ -10,6 +10,7 @@ final class CatalogoController extends BaseController
     private Curso $courses;
     private Categoria $categories;
 
+    /** Prepara los modelos de cursos y categorías con una conexión compartida. */
     public function __construct()
     {
         $database = getDatabaseConnection();
@@ -17,9 +18,7 @@ final class CatalogoController extends BaseController
         $this->categories = new Categoria($database);
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Filtra cursos públicos por búsqueda, categoría y modalidad, y carga el catálogo. */
     public function index(): void
     {
         $csrfToken = $this->csrfToken();
@@ -35,7 +34,7 @@ final class CatalogoController extends BaseController
         } elseif ($filters['modalidad'] !== ''
             && !in_array($filters['modalidad'], ['Presencial', 'Virtual', 'Hibrido'], true)) {
             $error = 'Selecciona una modalidad válida.';
-        } elseif (strlen($filters['busqueda']) > 150) {
+        } elseif (mb_strlen($filters['busqueda'], 'UTF-8') > 150) {
             $error = 'La búsqueda no puede exceder 150 caracteres.';
         }
 
@@ -56,7 +55,7 @@ final class CatalogoController extends BaseController
     }
 
     /**
-     * Muestra la informacion detallada de un curso publicado.
+     * Muestra el detalle y los horarios de un curso disponible para consulta pública.
      */
     public function detail(): void
     {

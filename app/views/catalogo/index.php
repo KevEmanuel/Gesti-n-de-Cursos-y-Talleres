@@ -6,28 +6,16 @@ declare(strict_types=1);
 
 ?>
 
-<!-- cambio de <main class="container catalog-page"> -->
 <main class="container catalog-page">
-    <main class="container catalog-page">
-        <header class="page-header">
-            <div><a href="/">Inicio</a><h1><?= e($title) ?></h1><p>Busca por curso, categoría, modalidad o instructor.</p></div>
-            <div class="session-actions">
-                <?php if ($isAdministrator): ?>
-                    <a class="button" href="/">Volver al panel</a>
-                <?php elseif ($isStudent): ?>
-                    <a class="button" href="/mi-cuenta">Mi cuenta</a>
-                <?php elseif ($isInstructor): ?>
-                    <a class="button" href="/instructor">Mis cursos</a>
-                <?php else: ?>
-                    <a href="/login">Iniciar sesión</a>
-                <?php endif; ?>
-            </div>
-        </header>
+    <?php require __DIR__ . '/../shared/public-navigation.php'; ?>
+    <header class="page-header catalog-heading">
+        <div><p class="eyebrow">FORMACIÓN PARA TU FUTURO</p><h1><?= e($title) ?></h1><p>Busca por curso, categoría, modalidad o instructor.</p></div>
+    </header>
 
         <?php if ($error !== null): ?><p class="notice notice-error" role="alert"><?= e($error) ?></p><?php endif; ?>
 
-        <form action="/catalogo" method="get" class="catalog-filter card">
-            <label>Buscar<input type="search" name="busqueda" value="<?= e($filters['busqueda']) ?>" placeholder="Nombre, categoría o instructor"></label>
+        <form action="/catalogo" method="get" class="catalog-filter card" id="catalog-filter">
+            <label>Buscar<input type="search" name="busqueda" maxlength="150" value="<?= e($filters['busqueda']) ?>" placeholder="Nombre, categoría o instructor"></label>
             <label>Categoría
                 <select name="id_categoria">
                     <option value="">Todas</option>
@@ -78,4 +66,3 @@ declare(strict_types=1);
                 <p class="empty-state card catalog-empty">No hay cursos que coincidan con estos filtros.</p>
             <?php endif; ?>
         </section>
-    </main>

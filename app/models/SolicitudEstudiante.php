@@ -7,14 +7,7 @@ declare(strict_types=1);
  */
 final class SolicitudEstudiante extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'solicitudes_estudiante';
-    }
-
-    /**
-     * Obtiene los registros del modulo para su consulta.
-     */
+    /** Obtiene solicitudes de cuenta ordenadas primero por las pendientes de revisión. */
     public function all(): array
     {
         return $this->database->query(
@@ -26,9 +19,7 @@ final class SolicitudEstudiante extends BaseModel
         )->fetchAll();
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Registra una nueva solicitud de cuenta estudiantil con contraseña cifrada. */
     public function create(array $data): void
     {
         $statement = $this->database->prepare(

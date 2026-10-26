@@ -8,24 +8,24 @@ declare(strict_types=1);
 final class InstructorController extends BaseController
 {
     private Instructor $instructors;
+    private Usuario $users;
 
+    /** Prepara los modelos de instructores y usuarios con la misma conexión PDO. */
     public function __construct()
     {
-        $this->instructors = new Instructor(getDatabaseConnection());
+        $database = getDatabaseConnection();
+        $this->instructors = new Instructor($database);
+        $this->users = new Usuario($database);
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra instructores, cursos asignados y acciones de administración. */
     public function index(): void
     {
         $this->requireAdministrator();
         $this->render('instructores', $this->viewData());
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Valida los datos y crea el perfil y la cuenta de un instructor. */
     public function create(): void
     {
         $this->requireAdministrator();
@@ -54,9 +54,7 @@ final class InstructorController extends BaseController
         $this->redirect('/instructores?mensaje=creado');
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza los datos personales, especialidad y carnet del instructor. */
     public function update(): void
     {
         $this->requireAdministrator();
@@ -93,9 +91,7 @@ final class InstructorController extends BaseController
         $this->redirect('/instructores?mensaje=actualizado');
     }
 
-    /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
-     */
+    /** Activa o desactiva la cuenta y reasigna cursos cuando sea necesario. */
     public function setStatus(): void
     {
         $this->requireAdministrator();
@@ -141,8 +137,41 @@ final class InstructorController extends BaseController
     }
 
     /**
-     * Valida y elimina el elemento seleccionado y sus relaciones permitidas.
+     * Asigna una nueva contraseña a la cuenta de un instructor.
      */
+    public function setPassword(): void
+    {
+        $this->requireAdministrator();
+        $this->verifyCsrfToken();
+        $id = filter_var($_POST['id_instructor'] ?? null, FILTER_VALIDATE_INT);
+        $password = (string) ($_POST['password'] ?? '');
+        $confirmation = (string) ($_POST['password_confirmation'] ?? '');
+
+        if ($id === false || $id === null || $id < 1) {
+            http_response_code(400);
+            echo 'Identificador de instructor no válido.';
+            return;
+        }
+
+        if (mb_strlen($password, 'UTF-8') < 12 || $password !== $confirmation) {
+            $this->renderError(
+                $password !== $confirmation
+                    ? 'Las contraseñas no coinciden.'
+                    : 'La contraseña debe tener al menos 12 caracteres.'
+            );
+            return;
+        }
+
+        if (!$this->users->setManagedPassword('instructor', $id, password_hash($password, PASSWORD_DEFAULT))) {
+            http_response_code(404);
+            echo 'El instructor solicitado no existe.';
+            return;
+        }
+
+        $this->redirect('/instructores?mensaje=contrasena_actualizada');
+    }
+
+    /** Elimina la cuenta del instructor y reasigna sus cursos si corresponde. */
     public function delete(): void
     {
         $this->requireAdministrator();
@@ -180,6 +209,7 @@ final class InstructorController extends BaseController
         $this->redirect('/instructores?mensaje=eliminado');
     }
 
+    /** Normaliza los datos del formulario y añade la contraseña únicamente al crear. */
     private function submittedData(bool $withPassword): array
     {
         $data = [
@@ -197,6 +227,12 @@ final class InstructorController extends BaseController
         return $data;
     }
 
+    /**
+     * Valida datos personales, contacto, especialidad y la contraseña de alta.
+     *
+     * @param array<string, mixed> $data Datos del instructor enviados por el formulario.
+     * @return string|null Mensaje de validación o null si los datos son válidos.
+     */
     private function validate(array &$data, bool $withPassword): ?string
     {
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
@@ -222,12 +258,12 @@ final class InstructorController extends BaseController
            return 'El celular debe tener 8 dígitos y comenzar con 5, 6 o 7.';
         }
 
-        if (strlen($data['correo']) > 254 || strlen($data['nombres']) > 100
-            || strlen($data['apellidos']) > 100 || strlen($data['telefono']) > 30
-            || strlen($data['especialidad']) > 255) {
+        if (mb_strlen($data['correo'], 'UTF-8') > 254 || mb_strlen($data['nombres'], 'UTF-8') > 100
+            || mb_strlen($data['apellidos'], 'UTF-8') > 100 || mb_strlen($data['telefono'], 'UTF-8') > 30
+            || mb_strlen($data['especialidad'], 'UTF-8') > 255) {
             return 'Uno o más campos exceden la longitud permitida.';
         }
-        if ($withPassword && strlen($data['password']) < 12) {
+        if ($withPassword && mb_strlen($data['password'], 'UTF-8') < 12) {
             return 'La contraseña inicial debe tener al menos 12 caracteres.';
         }
 
@@ -237,11 +273,13 @@ final class InstructorController extends BaseController
         return null;
     }
 
+    /** Obtiene instructores, cursos asignados y mensajes para la vista administrativa. */
     private function viewData(): array
     {
         $messages = [
             'creado' => 'Instructor creado. El carnet generado se muestra en la lista.',
             'actualizado' => 'Instructor actualizado correctamente.',
+            'contrasena_actualizada' => 'Contraseña actualizada. Comparte la nueva contraseña con el instructor por un canal seguro.',
             'activado' => 'Cuenta de instructor activada.',
             'desactivado' => 'Cuenta de instructor desactivada.',
             'cursos_reasignados' => 'Cursos reasignados a otro instructor; la cuenta anterior permanece inactiva.',
@@ -258,6 +296,7 @@ final class InstructorController extends BaseController
         ];
     }
 
+    /** Renderiza la gestión de instructores con el error y los datos no sensibles. */
     private function renderError(string $error, array $old = []): void
     {
         http_response_code(422);

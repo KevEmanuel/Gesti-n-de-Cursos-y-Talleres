@@ -9,23 +9,20 @@ final class CursoController extends BaseController
 {
     private Curso $courses;
 
+    /** Prepara el modelo de cursos con la conexión PDO de la aplicación. */
     public function __construct()
     {
         $this->courses = new Curso(getDatabaseConnection());
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra cursos, categorías e instructores disponibles en la gestión administrativa. */
     public function index(): void
     {
         $this->requireAdministrator();
         $this->render('cursos', $this->viewData());
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Valida y crea un curso asociado a la categoría y al instructor elegidos. */
     public function create(): void
     {
         $this->requireAdministrator();
@@ -44,9 +41,7 @@ final class CursoController extends BaseController
         $this->redirect('/cursos?mensaje=creado');
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Valida y actualiza los datos y el estado del curso seleccionado. */
     public function update(): void
     {
         $this->requireAdministrator();
@@ -86,9 +81,7 @@ final class CursoController extends BaseController
         $this->redirect('/cursos?mensaje=actualizado');
     }
 
-    /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
-     */
+    /** Cambia el estado de un curso existente a uno de los estados permitidos. */
     public function setStatus(): void
     {
         $this->requireAdministrator();
@@ -112,6 +105,7 @@ final class CursoController extends BaseController
         $this->redirect('/cursos?mensaje=estado_actualizado');
     }
 
+    /** Normaliza y tipa los valores recibidos del formulario de cursos. */
     private function submittedData(): array
     {
         return [
@@ -127,6 +121,12 @@ final class CursoController extends BaseController
         ];
     }
 
+    /**
+     * Valida los campos del curso y normaliza sus valores para persistencia.
+     *
+     * @param array<string, mixed> $data Datos enviados por el formulario.
+     * @return string|null Mensaje de validación o null si los datos son válidos.
+     */
     private function validate(array &$data): ?string
     {
         if ($data['id_categoria'] === false || $data['id_categoria'] === null || $data['id_categoria'] < 1
@@ -156,17 +156,25 @@ final class CursoController extends BaseController
            return 'Los requisitos deben contener al menos una letra.';
         }
 
-        if (strlen($data['nombre_curso']) > 200 || strlen($data['duracion']) > 100) {
+        if (mb_strlen($data['nombre_curso'], 'UTF-8') > 200 || mb_strlen($data['duracion'], 'UTF-8') > 100) {
             return 'El nombre o la duración exceden la longitud permitida.';
         }
         if (!in_array($data['modalidad'], ['Presencial', 'Virtual', 'Hibrido'], true)) {
             return 'Selecciona una modalidad válida.';
         }
-        if (!is_numeric($data['costo_curso']) || (float) $data['costo_curso'] < 0) {
-            return 'El costo debe ser un número igual o mayor que cero.';
+        if (
+            preg_match('/\A\d{1,8}(?:\.\d{1,2})?\z/', $data['costo_curso']) !== 1
+            || (float) $data['costo_curso'] > 99999999.99
+        ) {
+            return 'El costo debe ser de 0 a 99,999,999.99 y puede tener hasta dos decimales.';
         }
-        if ($data['maximo_cupos'] === false || $data['maximo_cupos'] === null || $data['maximo_cupos'] < 1) {
-            return 'La capacidad debe ser un número mayor que cero.';
+        if (
+            $data['maximo_cupos'] === false
+            || $data['maximo_cupos'] === null
+            || $data['maximo_cupos'] < 1
+            || $data['maximo_cupos'] > 4294967295
+        ) {
+            return 'La capacidad debe ser un número entero entre 1 y 4,294,967,295.';
         }
 
         $data['costo_curso'] = number_format((float) $data['costo_curso'], 2, '.', '');
@@ -177,6 +185,7 @@ final class CursoController extends BaseController
         return null;
     }
 
+    /** Obtiene los datos comunes necesarios para renderizar el módulo de cursos. */
     private function viewData(): array
     {
         $messages = [
@@ -197,6 +206,7 @@ final class CursoController extends BaseController
         ];
     }
 
+    /** Renderiza el módulo de cursos con el error y los datos ingresados. */
     private function renderError(string $error, array $old = []): void
     {
         http_response_code(422);

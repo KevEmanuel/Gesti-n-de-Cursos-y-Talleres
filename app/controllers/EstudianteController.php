@@ -9,26 +9,26 @@ final class EstudianteController extends BaseController
 {
     private Estudiante $students;
     private SolicitudEstudiante $applications;
+    private Usuario $users;
 
+    /** Prepara los modelos de estudiantes, solicitudes y usuarios con una conexión común. */
     public function __construct()
     {
         $database = getDatabaseConnection();
         $this->students = new Estudiante($database);
         $this->applications = new SolicitudEstudiante($database);
+        $this->users = new Usuario($database);
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra las solicitudes de cuenta y los perfiles estudiantiles al administrador. */
     public function index(): void
     {
         $this->requireAdministrator();
         $this->render('estudiantes', $this->viewData());
     }
 
-//funcion para crear un nuevo registro de estudiante 
     /**
-     * Valida y registra un nuevo elemento del modulo.
+     * Valida los datos personales y la contraseña inicial y registra un estudiante.
      */
     public function create(): void
     {
@@ -57,9 +57,8 @@ final class EstudianteController extends BaseController
 
         $this->redirect('/estudiantes?mensaje=creado');
     }
-//funcion para actualizar un registro del estudiante 
     /**
-     * Valida y guarda los cambios del elemento seleccionado.
+     * Actualiza los datos personales y el carnet del estudiante seleccionado.
      */
     public function update(): void
     {
@@ -97,9 +96,8 @@ final class EstudianteController extends BaseController
         $this->redirect('/estudiantes?mensaje=actualizado');
     }
 
-    //función que permite verificar el estado de la cuenta
     /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
+     * Activa o desactiva la cuenta del estudiante seleccionado.
      */
     public function setStatus(): void
     {
@@ -122,9 +120,43 @@ final class EstudianteController extends BaseController
 
         $this->redirect('/estudiantes?mensaje=estado_actualizado');
     }
-//funcion para eliminar registros 
+
     /**
-     * Valida y elimina el elemento seleccionado y sus relaciones permitidas.
+     * Asigna una nueva contraseña a la cuenta de un estudiante.
+     */
+    public function setPassword(): void
+    {
+        $this->requireAdministrator();
+        $this->verifyCsrfToken();
+        $id = filter_var($_POST['id_estudiante'] ?? null, FILTER_VALIDATE_INT);
+        $password = (string) ($_POST['password'] ?? '');
+        $confirmation = (string) ($_POST['password_confirmation'] ?? '');
+
+        if ($id === false || $id === null || $id < 1) {
+            http_response_code(400);
+            echo 'Identificador de estudiante no válido.';
+            return;
+        }
+
+        if (mb_strlen($password, 'UTF-8') < 12 || $password !== $confirmation) {
+            $this->renderError(
+                $password !== $confirmation
+                    ? 'Las contraseñas no coinciden.'
+                    : 'La contraseña debe tener al menos 12 caracteres.'
+            );
+            return;
+        }
+
+        if (!$this->users->setManagedPassword('student', $id, password_hash($password, PASSWORD_DEFAULT))) {
+            http_response_code(404);
+            echo 'El estudiante solicitado no existe.';
+            return;
+        }
+
+        $this->redirect('/estudiantes?mensaje=contrasena_actualizada');
+    }
+    /**
+     * Elimina un estudiante cuando sus relaciones permiten hacerlo.
      */
     public function delete(): void
     {
@@ -158,7 +190,6 @@ final class EstudianteController extends BaseController
         $this->redirect('/estudiantes?mensaje=eliminado');
     }
 
-    //funcion para validar en envio de datos de solicitudes
     /**
      * Aprueba o rechaza una solicitud de cuenta estudiantil.
      */
@@ -200,6 +231,7 @@ final class EstudianteController extends BaseController
         $this->redirect('/estudiantes?mensaje=' . ($status === 'Aprobada' ? 'solicitud_aprobada' : 'solicitud_rechazada'));
     }
 
+    /** Normaliza los campos del formulario y agrega la contraseña solo durante el alta. */
     private function submittedData(bool $withPassword): array
     {
         $data = [
@@ -218,6 +250,12 @@ final class EstudianteController extends BaseController
         return $data;
     }
 
+    /**
+     * Valida campos y reglas del estudiante y normaliza valores vacíos para la base.
+     *
+     * @param array<string, mixed> $data Datos enviados por el formulario.
+     * @return string|null Mensaje de validación o null si los datos son válidos.
+     */
     private function validate(array &$data, bool $withPassword): ?string
     {
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
@@ -234,17 +272,17 @@ final class EstudianteController extends BaseController
             return 'El apellido solo puede contener letras, espacios, guiones y apóstrofes.';
         }
 
-        if (strlen($data['correo']) > 254 || strlen($data['nombres']) > 100
-            || strlen($data['apellidos']) > 100 || strlen($data['telefono']) > 30) {
+        if (mb_strlen($data['correo'], 'UTF-8') > 254 || mb_strlen($data['nombres'], 'UTF-8') > 100
+            || mb_strlen($data['apellidos'], 'UTF-8') > 100 || mb_strlen($data['telefono'], 'UTF-8') > 30) {
             return 'Uno o más campos exceden la longitud permitida.';
         }
-        if ($data['edad'] !== '' && (!ctype_digit($data['edad']) || (int) $data['edad'] > 150)) {
-            return 'La edad debe ser un número entre 0 y 150.';
+        if (!ctype_digit($data['edad']) || (int) $data['edad'] < 17 || (int) $data['edad'] > 70) {
+            return 'La edad es obligatoria y debe estar entre 17 y 70 años.';
         }
         if ($data['genero'] !== '' && !in_array($data['genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
             return 'Selecciona un género válido.';
         }
-        if ($withPassword && strlen($data['password']) < 12) {
+        if ($withPassword && mb_strlen($data['password'], 'UTF-8') < 12) {
             return 'La contraseña inicial debe tener al menos 12 caracteres.';
         }
 
@@ -255,18 +293,20 @@ final class EstudianteController extends BaseController
         }
 
         $data['telefono'] = $data['telefono'] === '' ? null : $data['telefono'];
-        $data['edad'] = $data['edad'] === '' ? null : (int) $data['edad'];
+        $data['edad'] = (int) $data['edad'];
         $data['genero'] = $data['genero'] === '' ? null : $data['genero'];
 
         return null;
     }
 
+    /** Prepara estudiantes, solicitudes y mensajes para la vista administrativa. */
     private function viewData(): array
     {
         $messages = [
             'creado' => 'Estudiante creado. El carnet generado se muestra en la lista.',
             'actualizado' => 'Estudiante actualizado correctamente.',
             'estado_actualizado' => 'Estado del estudiante actualizado.',
+            'contrasena_actualizada' => 'Contraseña actualizada. Comparte la nueva contraseña con el estudiante por un canal seguro.',
             'eliminado' => 'Estudiante eliminado.',
             'solicitud_aprobada' => 'Solicitud aprobada. El carnet generado se muestra en la lista y en la cuenta del estudiante.',
             'solicitud_rechazada' => 'Solicitud rechazada.',
@@ -283,6 +323,7 @@ final class EstudianteController extends BaseController
         ];
     }
 
+    /** Vuelve a mostrar la gestión de estudiantes con el error y datos no sensibles. */
     private function renderError(string $error, array $old = []): void
     {
         http_response_code(422);

@@ -7,9 +7,7 @@ declare(strict_types=1);
  */
 final class DashboardController extends BaseController
 {
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra la página inicial con la sesión y el token CSRF disponibles para la vista. */
     public function index(): void
     {
         $csrfToken = $this->csrfToken();

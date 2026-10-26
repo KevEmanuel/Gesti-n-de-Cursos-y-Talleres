@@ -10,6 +10,7 @@ final class CuentaEstudianteController extends BaseController
     private Estudiante $students;
     private Solicitud $requests;
 
+    /** Prepara los modelos de perfil e inscripciones con la misma conexión PDO. */
     public function __construct()
     {
         $database = getDatabaseConnection();
@@ -17,9 +18,7 @@ final class CuentaEstudianteController extends BaseController
         $this->requests = new Solicitud($database);
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra el perfil y las inscripciones del estudiante autenticado. */
     public function index(): void
     {
         $user = $this->requireStudent();
@@ -39,6 +38,7 @@ final class CuentaEstudianteController extends BaseController
         $errors = [
             // Mensaje cuando el estudiante introduce un celular incorrecto.
             'telefono_invalido' => 'El celular debe tener exactamente 8 dígitos y comenzar con 5, 6 o 7.',
+            'edad_invalida' => 'La edad es obligatoria y debe estar entre 17 y 70 años.',
             'perfil_invalido' => 'Revisa los datos del perfil; algunos campos son obligatorios o no válidos.',
             'curso_no_disponible' => 'El curso ya no está disponible para inscripción.',
             'horario' => 'El horario del curso se cruza con otra inscripción activa.',
@@ -76,15 +76,15 @@ final class CuentaEstudianteController extends BaseController
         if ($data['telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['telefono']) !== 1) {
             $this->redirect('/mi-cuenta?error=telefono_invalido');
         }
-        if ($data['edad'] !== '' && (!ctype_digit($data['edad']) || (int) $data['edad'] > 150)) {
-            $this->redirect('/mi-cuenta?error=perfil_invalido');
+        if (!ctype_digit($data['edad']) || (int) $data['edad'] < 17 || (int) $data['edad'] > 70) {
+            $this->redirect('/mi-cuenta?error=edad_invalida');
         }
         if ($data['genero'] !== '' && !in_array($data['genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
             $this->redirect('/mi-cuenta?error=perfil_invalido');
         }
 
         $data['telefono'] = $data['telefono'] === '' ? null : $data['telefono'];
-        $data['edad'] = $data['edad'] === '' ? null : (int) $data['edad'];
+        $data['edad'] = (int) $data['edad'];
         $data['genero'] = $data['genero'] === '' ? null : $data['genero'];
         if (!$this->students->updateOwnProfile($studentId, $data)) {
             http_response_code(403);

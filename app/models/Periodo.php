@@ -7,14 +7,7 @@ declare(strict_types=1);
  */
 final class Periodo extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'periodos_inscripcion';
-    }
-
-    /**
-     * Obtiene los registros del modulo para su consulta.
-     */
+    /** Obtiene períodos con curso asociado y estado calculado según sus fechas. */
     public function all(): array
     {
         return $this->database->query(
@@ -70,9 +63,7 @@ final class Periodo extends BaseModel
         return $statement->fetchColumn() !== false;
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Crea un período de inscripción para el curso y administrador indicados. */
     public function create(array $data): void
     {
         $statement = $this->database->prepare(
@@ -84,9 +75,7 @@ final class Periodo extends BaseModel
         $statement->execute($data);
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza curso y fechas del período seleccionado. */
     public function update(int $id, array $data): bool
     {
         $statement = $this->database->prepare(
@@ -113,6 +102,7 @@ final class Periodo extends BaseModel
         return $statement->rowCount() > 0;
     }
 
+    /** Comprueba si existe un período de inscripción por su identificador. */
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(

@@ -39,7 +39,7 @@ declare(strict_types=1);
                                 <td><?= e((string) $request['correo']) ?></td>
                                 <td><?= e((string) $request['nombre_curso']) ?></td>
                                 <td><?= e((string) $request['fecha_inscripcion']) ?></td>
-                                <td><?= e((string) $request['estado_inscripcion']) ?></td>
+                                <td><span class="request-status request-status--<?= e(strtolower((string) $request['estado_inscripcion'])) ?>"><?= e((string) $request['estado_inscripcion']) ?></span></td>
                                 <td><?= e((string) ($request['motivo_rechazo'] ?? '—')) ?></td>
                                 <td>
                                     <form action="/solicitudes/estado" method="post" class="enrollment-status-form">
@@ -53,7 +53,7 @@ declare(strict_types=1);
                                             </select>
                                         </label>
                                         <label data-rejection-reason-wrapper <?= $request['estado_inscripcion'] === 'Rechazada' ? '' : 'hidden' ?>>Motivo
-                                            <textarea name="motivo_rechazo" maxlength="1000" rows="2" data-rejection-reason <?= $request['estado_inscripcion'] === 'Rechazada' ? 'required' : '' ?>><?= e((string) ($request['motivo_rechazo'] ?? '')) ?></textarea>
+                                            <textarea name="motivo_rechazo" maxlength="1000" rows="2" placeholder="Explica brevemente el motivo del rechazo" data-rejection-reason <?= $request['estado_inscripcion'] === 'Rechazada' ? 'required' : '' ?>><?= e((string) ($request['motivo_rechazo'] ?? '')) ?></textarea>
                                         </label>
                                         <button type="submit" class="button">Guardar estado</button>
                                     </form>

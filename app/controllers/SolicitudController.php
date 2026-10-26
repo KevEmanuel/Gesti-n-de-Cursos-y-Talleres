@@ -9,23 +9,20 @@ final class SolicitudController extends BaseController
 {
     private Solicitud $requests;
 
+    /** Prepara el modelo que gestiona solicitudes de inscripción y cupos. */
     public function __construct()
     {
         $this->requests = new Solicitud(getDatabaseConnection());
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra las inscripciones y opciones administrativas para su revisión. */
     public function index(): void
     {
         $this->requireAdministrator();
         $this->render('solicitudes', $this->viewData());
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Registra una inscripción pendiente para un estudiante y curso seleccionados. */
     public function create(): void
     {
         $this->requireAdministrator();
@@ -97,6 +94,7 @@ final class SolicitudController extends BaseController
         $this->redirect('/solicitudes?mensaje=actualizada');
     }
 
+    /** Obtiene inscripciones, estudiantes, cursos y mensajes para la vista. */
     private function viewData(): array
     {
         $messages = [
@@ -116,6 +114,7 @@ final class SolicitudController extends BaseController
         ];
     }
 
+    /** Renderiza nuevamente las inscripciones mostrando el error de validación. */
     private function renderError(string $error): void
     {
         http_response_code(422);

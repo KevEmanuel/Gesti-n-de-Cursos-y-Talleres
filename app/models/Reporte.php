@@ -7,11 +7,6 @@ declare(strict_types=1);
  */
 final class Reporte extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'inscripciones';
-    }
-
     /**
      * Obtiene ocupacion y disponibilidad aplicando los filtros indicados.
      */

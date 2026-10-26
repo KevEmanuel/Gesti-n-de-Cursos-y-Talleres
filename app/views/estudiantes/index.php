@@ -62,12 +62,12 @@ declare(strict_types=1);
             <p>El carnet se genera automáticamente con las iniciales de ambos apellidos, o las dos primeras letras si solo hay uno, y cuatro dígitos.</p>
             <form action="/estudiantes/crear" method="post" class="profile-create-form">
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                <label>Correo<input type="email" name="correo" maxlength="254" required value="<?= e($old['correo'] ?? '') ?>"></label>
-                <label>Nombres<input name="nombres" maxlength="100" required value="<?= e($old['nombres'] ?? '') ?>"></label>
-                <label>Apellidos<input name="apellidos" maxlength="100" required value="<?= e($old['apellidos'] ?? '') ?>"></label>
+                <label>Correo electrónico<input type="email" name="correo" maxlength="254" required autocomplete="email" placeholder="Ej. nombre@dominio.com" value="<?= e($old['correo'] ?? '') ?>"></label>
+                <label>Nombres<input name="nombres" maxlength="100" required autocomplete="given-name" placeholder="Ej. Ana María" value="<?= e($old['nombres'] ?? '') ?>"><small>Usa letras, espacios, guiones o apóstrofes.</small></label>
+                <label>Apellidos<input name="apellidos" maxlength="100" required autocomplete="family-name" placeholder="Ej. López García" value="<?= e($old['apellidos'] ?? '') ?>"><small>Usa letras, espacios, guiones o apóstrofes.</small></label>
                 <!-- Validación del celular al registrar un estudiante -->
-                <label>Teléfono<input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="El celular debe tener 8 dígitos y comenzar con 5, 6 o 7" value="<?= e($old['telefono'] ?? '') ?>"></label>
-                <label>Edad<input type="number" name="edad" min="0" max="150" value="<?= e((string) ($old['edad'] ?? '')) ?>"></label>
+                <label>Teléfono celular<input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="Ingresa 8 dígitos; debe comenzar con 5, 6 o 7." placeholder="Ej. 71234567" value="<?= e($old['telefono'] ?? '') ?>"><small>Opcional. 8 dígitos, comenzando con 5, 6 o 7.</small></label>
+                <label>Edad (17 a 70 años)<input type="number" name="edad" min="17" max="70" step="1" required placeholder="Ej. 25" value="<?= e((string) ($old['edad'] ?? '')) ?>"></label>
                 <label>Género
                     <select name="genero">
                         <option value="">Sin especificar</option>
@@ -76,7 +76,7 @@ declare(strict_types=1);
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label>Contraseña inicial (mínimo 12 caracteres)<input type="password" name="password" minlength="12" required autocomplete="new-password"></label>
+                <label>Contraseña inicial (mínimo 12 caracteres)<input type="password" name="password" minlength="12" required autocomplete="new-password" placeholder="Escribe 12 caracteres o más"></label>
                 <button type="submit" class="button">Crear estudiante</button>
             </form>
         </section>
@@ -92,17 +92,17 @@ declare(strict_types=1);
                     <tbody>
                         <?php foreach ($students as $student): ?>
                             <tr>
-                                <td><?= e((string) $student['carnet']) ?></td>
+                                <td><span class="profile-carnet"><?= e((string) $student['carnet']) ?></span></td>
                                 <td colspan="6">
                                     <form action="/estudiantes/actualizar" method="post" class="profile-edit-form">
                                         <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
                                         <input type="hidden" name="id_estudiante" value="<?= (int) $student['id_estudiante'] ?>">
-                                        <label><span class="visually-hidden">Nombre</span><input name="nombres" maxlength="100" required value="<?= e((string) $student['nombres']) ?>"></label>
-                                        <label><span class="visually-hidden">Apellidos</span><input name="apellidos" maxlength="100" required value="<?= e((string) $student['apellidos']) ?>"></label>
+                                        <label><span class="visually-hidden">Nombre</span><input name="nombres" maxlength="100" required title="Usa letras, espacios, guiones o apóstrofes." value="<?= e((string) $student['nombres']) ?>"></label>
+                                        <label><span class="visually-hidden">Apellidos</span><input name="apellidos" maxlength="100" required title="Usa letras, espacios, guiones o apóstrofes." value="<?= e((string) $student['apellidos']) ?>"></label>
                                         <label><span class="visually-hidden">Correo</span><input type="email" name="correo" maxlength="254" required value="<?= e((string) $student['correo']) ?>"></label>
                                         <!-- Validación del celular al modificar un estudiante -->
-                                        <label><span class="visually-hidden">Teléfono</span><input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="El celular debe tener 8 dígitos y comenzar con 5, 6 o 7" value="<?= e((string) ($student['telefono'] ?? '')) ?>"></label>
-                                        <label><span class="visually-hidden">Edad</span><input type="number" name="edad" min="0" max="150" value="<?= e((string) ($student['edad'] ?? '')) ?>"></label>
+                                        <label><span class="visually-hidden">Teléfono</span><input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" title="Opcional. Ingresa 8 dígitos; debe comenzar con 5, 6 o 7." value="<?= e((string) ($student['telefono'] ?? '')) ?>"></label>
+                                        <label><span class="visually-hidden">Edad (17 a 70 años)</span><input type="number" name="edad" min="17" max="70" step="1" required title="La edad debe estar entre 17 y 70 años." value="<?= e((string) ($student['edad'] ?? '')) ?>"></label>
                                         <label><span class="visually-hidden">Género</span>
                                             <select name="genero"><option value="">Sin especificar</option>
                                                 <?php foreach (['Masculino', 'Femenino', 'Otro'] as $gender): ?>
@@ -110,11 +110,12 @@ declare(strict_types=1);
                                                 <?php endforeach; ?>
                                             </select>
                                         </label>
-                                        <span><?= e((string) $student['estado_cuenta']) ?></span>
+                                        <span class="account-status <?= $student['estado_cuenta'] === 'Activo' ? 'account-status--active' : 'account-status--inactive' ?>"><?= e((string) $student['estado_cuenta']) ?></span>
                                         <button type="submit" class="button">Guardar</button>
                                     </form>
                                 </td>
-                                <td>
+                                <td class="student-actions-cell">
+                                    <div class="student-row-actions">
                                     <form action="/estudiantes/estado" method="post">
                                         <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
                                         <input type="hidden" name="id_estudiante" value="<?= (int) $student['id_estudiante'] ?>">
@@ -127,6 +128,22 @@ declare(strict_types=1);
                                         <input type="hidden" name="id_estudiante" value="<?= (int) $student['id_estudiante'] ?>">
                                         <button type="submit" class="button button-secondary">Eliminar</button>
                                     </form>
+                                    <details class="password-reset-details">
+                                        <summary class="button button-secondary">Cambiar contraseña</summary>
+                                        <form action="/estudiantes/contrasena" method="post" class="password-reset-form">
+                                            <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
+                                            <input type="hidden" name="id_estudiante" value="<?= (int) $student['id_estudiante'] ?>">
+                                            <label>Nueva contraseña
+                                                <input type="password" name="password" minlength="12" required autocomplete="new-password">
+                                            </label>
+                                            <label>Confirmar contraseña
+                                                <input type="password" name="password_confirmation" minlength="12" required autocomplete="new-password">
+                                            </label>
+                                            <small>Mínimo 12 caracteres. Comparte la contraseña nueva de forma segura.</small>
+                                            <button type="submit" class="button">Guardar contraseña</button>
+                                        </form>
+                                    </details>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

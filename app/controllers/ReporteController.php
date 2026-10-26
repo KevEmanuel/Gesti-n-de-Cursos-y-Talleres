@@ -9,14 +9,13 @@ final class ReporteController extends BaseController
 {
     private Reporte $reports;
 
+    /** Prepara el modelo que consulta estadísticas de cursos e inscripciones. */
     public function __construct()
     {
         $this->reports = new Reporte(getDatabaseConnection());
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Valida filtros y presenta el reporte de ocupación para administradores. */
     public function index(): void
     {
         $this->requireAdministrator();
@@ -63,6 +62,7 @@ final class ReporteController extends BaseController
         ]);
     }
 
+    /** Comprueba que el valor sea una fecha real con formato exacto AAAA-MM-DD. */
     private function validDate(string $value): bool
     {
         $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);

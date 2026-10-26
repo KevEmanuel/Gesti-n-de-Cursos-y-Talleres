@@ -19,7 +19,7 @@ declare(strict_types=1);
             <?php else: ?>
                 <form action="/cursos/crear" method="post" class="course-form">
                     <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                    <label>Nombre<input name="nombre_curso" maxlength="200" required value="<?= e($old['nombre_curso'] ?? '') ?>"></label>
+                    <label>Nombre del curso<input name="nombre_curso" maxlength="200" required placeholder="Ej. Introducción a la fotografía" value="<?= e($old['nombre_curso'] ?? '') ?>"></label>
                     <label>Categoría
                         <select name="id_categoria" required>
                             <option value="">Selecciona</option>
@@ -36,7 +36,7 @@ declare(strict_types=1);
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label>Duración<input name="duracion" maxlength="100" required placeholder="Ej. 40 horas" value="<?= e($old['duracion'] ?? '') ?>"></label>
+                    <label>Duración<input name="duracion" maxlength="100" required placeholder="Ej. 40 horas" value="<?= e($old['duracion'] ?? '') ?>"><small>Indica una cantidad de horas, por ejemplo: 40 horas.</small></label>
                     <label>Modalidad
                         <select name="modalidad" required>
                             <option value="">Selecciona</option>
@@ -45,10 +45,10 @@ declare(strict_types=1);
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label>Costo<input type="number" name="costo_curso" min="0" step="0.01" required value="<?= e($old['costo_curso'] ?? '0.00') ?>"></label>
-                    <label>Cupos máximos<input type="number" name="maximo_cupos" min="1" required value="<?= e((string) ($old['maximo_cupos'] ?? '')) ?>"></label>
-                    <label class="course-wide">Descripción<textarea name="descripcion" rows="3"><?= e($old['descripcion'] ?? '') ?></textarea></label>
-                    <label class="course-wide">Requisitos<textarea name="requisitos" rows="3"><?= e($old['requisitos'] ?? '') ?></textarea></label>
+                    <label>Costo<input type="text" name="costo_curso" inputmode="decimal" maxlength="11" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" required title="De 0 a 99,999,999.99; usa punto para los centavos y máximo 2 decimales." placeholder="Ej. 25.00" value="<?= e($old['costo_curso'] ?? '0.00') ?>"><small>De 0 a 99,999,999.99. Usa punto para los centavos; máximo 2 decimales.</small></label>
+                    <label>Cupos máximos<input type="number" name="maximo_cupos" min="1" max="4294967295" step="1" required placeholder="Ej. 20" value="<?= e((string) ($old['maximo_cupos'] ?? '')) ?>"></label>
+                    <label class="course-wide">Descripción<textarea name="descripcion" rows="3" placeholder="Describe brevemente el curso"><?= e($old['descripcion'] ?? '') ?></textarea><small>Opcional; si la completas, incluye al menos una letra.</small></label>
+                    <label class="course-wide">Requisitos<textarea name="requisitos" rows="3" placeholder="Indica conocimientos o materiales necesarios"><?= e($old['requisitos'] ?? '') ?></textarea><small>Opcional; si los completas, incluye al menos una letra.</small></label>
                     <button type="submit" class="button">Crear curso</button>
                 </form>
             <?php endif; ?>
@@ -77,16 +77,16 @@ declare(strict_types=1);
                                                 <option value="<?= (int) $instructor['id_instructor'] ?>" <?= (int) $course['id_instructor'] === (int) $instructor['id_instructor'] ? 'selected' : '' ?>><?= e($instructor['apellidos'] . ', ' . $instructor['nombres']) ?></option>
                                             <?php endforeach; ?>
                                         </select></label>
-                                        <label><span class="visually-hidden">Duración</span><input name="duracion" maxlength="100" required value="<?= e((string) $course['duracion']) ?>"></label>
+                                        <label><span class="visually-hidden">Duración</span><input name="duracion" maxlength="100" required title="Escribe una cantidad positiva de horas, por ejemplo: 40 horas." value="<?= e((string) $course['duracion']) ?>"></label>
                                         <label><span class="visually-hidden">Modalidad</span><select name="modalidad">
                                             <?php foreach (['Presencial', 'Virtual', 'Hibrido'] as $modality): ?>
                                                 <option value="<?= $modality ?>" <?= $course['modalidad'] === $modality ? 'selected' : '' ?>><?= $modality === 'Hibrido' ? 'Híbrido' : $modality ?></option>
                                             <?php endforeach; ?>
                                         </select></label>
-                                        <label><span class="visually-hidden">Descripción</span><input name="descripcion" value="<?= e((string) ($course['descripcion'] ?? '')) ?>"></label>
-                                        <label><span class="visually-hidden">Requisitos</span><input name="requisitos" value="<?= e((string) ($course['requisitos'] ?? '')) ?>"></label>
-                                        <label><span class="visually-hidden">Costo</span><input type="number" name="costo_curso" min="0" step="0.01" required value="<?= e((string) $course['costo_curso']) ?>"></label>
-                                        <label><span class="visually-hidden">Cupos máximos</span><input type="number" name="maximo_cupos" min="<?= (int) $course['inscritos_activos'] ?>" required value="<?= (int) $course['maximo_cupos'] ?>"></label>
+                                        <label><span class="visually-hidden">Descripción</span><textarea name="descripcion" rows="3" title="Opcional; si la completas, incluye al menos una letra."><?= e((string) ($course['descripcion'] ?? '')) ?></textarea></label>
+                                        <label><span class="visually-hidden">Requisitos</span><textarea name="requisitos" rows="3" title="Opcional; si los completas, incluye al menos una letra."><?= e((string) ($course['requisitos'] ?? '')) ?></textarea></label>
+                                        <label><span class="visually-hidden">Costo</span><input type="text" name="costo_curso" inputmode="decimal" maxlength="11" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" required title="De 0 a 99,999,999.99; usa punto para los centavos y máximo 2 decimales." value="<?= e((string) $course['costo_curso']) ?>"></label>
+                                        <label><span class="visually-hidden">Cupos máximos</span><input type="number" name="maximo_cupos" min="<?= max(1, (int) $course['inscritos_activos']) ?>" max="4294967295" step="1" required title="Ingresa un número entero no menor que los inscritos actuales." value="<?= (int) $course['maximo_cupos'] ?>"></label>
                                         <span><?= e((string) $course['categoria']) ?> · <?= e($course['apellidos'] . ', ' . $course['nombres']) ?></span>
                                         <span>Inscritos: <?= (int) $course['inscritos_activos'] ?> · Libres: <?= (int) $course['cupos_disponibles'] ?></span>
                                         <label><span class="visually-hidden">Estado</span><select name="estado">

@@ -26,8 +26,8 @@ $days = [
                     <label>Día<select name="dia" required><option value="">Selecciona</option>
                         <?php foreach ($days as $value => $label): ?><option value="<?= $value ?>"><?= $label ?></option><?php endforeach; ?>
                     </select></label>
-                    <label>Hora de inicio<input type="time" name="hora_inicio" required></label>
-                    <label>Hora de finalización<input type="time" name="hora_finalizacion" required></label>
+                    <label>Hora de inicio<input type="time" name="hora_inicio" step="60" required><small>Usa formato de 24 horas.</small></label>
+                    <label>Hora de finalización<input type="time" name="hora_finalizacion" step="60" required><small>Debe ser posterior a la hora de inicio.</small></label>
                     <button type="submit" class="button">Agregar horario</button>
                 </form>
             <?php endif; ?>
@@ -50,9 +50,9 @@ $days = [
                                         <label><span class="visually-hidden">Día</span><select name="dia">
                                             <?php foreach ($days as $value => $label): ?><option value="<?= $value ?>" <?= $schedule['dia'] === $value ? 'selected' : '' ?>><?= $label ?></option><?php endforeach; ?>
                                         </select></label>
-                                        <label><span class="visually-hidden">Inicio</span><input type="time" name="hora_inicio" required value="<?= e(substr((string) $schedule['hora_inicio'], 0, 5)) ?>"></label>
-                                        <label><span class="visually-hidden">Finalización</span><input type="time" name="hora_finalizacion" required value="<?= e(substr((string) $schedule['hora_finalizacion'], 0, 5)) ?>"></label>
-                                        <span><?= e($schedule['apellidos'] . ', ' . $schedule['nombres']) ?></span>
+                                        <label><span class="visually-hidden">Inicio</span><input type="time" name="hora_inicio" step="60" required title="Usa formato de 24 horas." value="<?= e(substr((string) $schedule['hora_inicio'], 0, 5)) ?>"></label>
+                                        <label><span class="visually-hidden">Finalización</span><input type="time" name="hora_finalizacion" step="60" required title="Usa formato de 24 horas y una hora posterior al inicio." value="<?= e(substr((string) $schedule['hora_finalizacion'], 0, 5)) ?>"></label>
+                                        <span class="schedule-instructor"><?= e($schedule['apellidos'] . ', ' . $schedule['nombres']) ?></span>
                                         <button type="submit" class="button">Guardar</button>
                                     </form>
                                 </td>

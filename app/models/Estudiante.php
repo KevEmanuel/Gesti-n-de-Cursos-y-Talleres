@@ -7,14 +7,7 @@ declare(strict_types=1);
  */
 final class Estudiante extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'estudiantes';
-    }
-
-    /**
-     * Obtiene los registros del modulo para su consulta.
-     */
+    /** Obtiene los perfiles estudiantiles junto con los datos de sus cuentas. */
     public function all(): array
     {
         $statement = $this->database->query(
@@ -69,9 +62,7 @@ final class Estudiante extends BaseModel
         return $this->findForAccount($studentId) !== null;
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Crea la cuenta y el perfil estudiantil, generando su carnet en una transacción. */
     public function create(array $data): void
     {
         $this->database->beginTransaction();
@@ -115,9 +106,7 @@ final class Estudiante extends BaseModel
         }
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza los datos de cuenta y perfil y regenera el carnet si cambian apellidos. */
     public function update(int $id, array $data): bool
     {
         $this->database->beginTransaction();
@@ -218,9 +207,7 @@ final class Estudiante extends BaseModel
         }
     }
 
-    /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
-     */
+    /** Activa o desactiva la cuenta asociada al perfil estudiantil. */
     public function setStatus(int $id, string $status): bool
     {
         $statement = $this->database->prepare(
@@ -237,6 +224,7 @@ final class Estudiante extends BaseModel
         return $this->exists($id);
     }
 
+    /** Comprueba si existe un perfil estudiantil por su identificador. */
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(

@@ -9,6 +9,7 @@ final class AuthController extends BaseController
 {
     private Usuario $users;
 
+    /** Crea el modelo de usuarios con la conexión PDO de la aplicación. */
     public function __construct()
     {
         $this->users = new Usuario(getDatabaseConnection());
@@ -90,6 +91,7 @@ final class AuthController extends BaseController
         $messages = [
             'administrador_creado' => 'Administrador inicial creado. Ya puedes iniciar sesión.',
             'solicitud_enviada' => 'Tu solicitud fue enviada. Podrás iniciar sesión cuando el administrador la apruebe.',
+            'contrasena_actualizada' => 'Tu contraseña se actualizó. Ya puedes iniciar sesión.',
         ];
         $this->render('auth/login', [
             'title' => 'Iniciar sesión | Curso Taller',
@@ -98,6 +100,123 @@ final class AuthController extends BaseController
             'message' => $messages[(string) ($_GET['mensaje'] ?? $_GET['registro'] ?? '')] ?? null,
             'old' => [],
         ]);
+    }
+
+    /**
+     * Muestra el formulario para solicitar un enlace de recuperación.
+     */
+    public function forgotPassword(): void
+    {
+        $this->render('auth/forgot-password', [
+            'title' => 'Recuperar contraseña | Curso Taller',
+            'csrfToken' => $this->csrfToken(),
+            'error' => null,
+            'message' => (string) ($_GET['estado'] ?? '') === 'solicitud'
+                ? 'Si la cuenta existe y puede recibir otra solicitud, enviaremos instrucciones al correo registrado.'
+                : null,
+            'old' => [],
+        ]);
+    }
+
+    /**
+     * Procesa solicitudes de recuperación sin revelar si existe el correo.
+     */
+    public function requestPasswordReset(): void
+    {
+        $this->verifyCsrfToken();
+
+        $email = trim((string) ($_POST['correo'] ?? ''));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email, 'UTF-8') > 254) {
+            http_response_code(422);
+            $this->renderForgotPasswordError('Ingresa un correo electrónico válido.', $email);
+            return;
+        }
+
+        $tokenHash = null;
+
+        try {
+            $mailer = new PasswordResetMailer();
+            $token = bin2hex(random_bytes(32));
+            $tokenHash = hash('sha256', $token);
+            $user = $this->users->createPasswordResetToken($email, $tokenHash);
+
+            if ($user !== null) {
+                $mailer->send(
+                    $user['correo'],
+                    trim($user['nombres'] . ' ' . $user['apellidos']),
+                    $token
+                );
+            }
+        } catch (PHPMailer\PHPMailer\Exception | RuntimeException $exception) {
+            if ($tokenHash !== null) {
+                $this->users->revokePasswordResetToken($tokenHash);
+            }
+            error_log('Error al enviar correo de recuperación de contraseña: ' . $exception->getMessage());
+            http_response_code(503);
+            $this->renderForgotPasswordError(
+                'No pudimos procesar la solicitud. Contacta al administrador para que te asigne una contraseña nueva.',
+                $email
+            );
+            return;
+        }
+
+        $this->redirect('/password/recuperar?estado=solicitud');
+    }
+
+    /**
+     * Muestra el formulario con el formato esperado, configuracion usando token
+     */
+    public function resetPasswordForm(): void
+    {
+        $this->setPasswordResetHeaders();
+        $token = (string) ($_GET['token'] ?? '');
+        $validToken = preg_match('/\A[a-f0-9]{64}\z/', $token) === 1
+            && $this->users->hasValidPasswordResetToken(hash('sha256', $token));
+
+        $this->renderResetPasswordForm(
+            $validToken ? $token : '',
+            $validToken ? null : 'Este enlace no es válido o ya venció. Solicita uno nuevo.'
+        );
+    }
+
+    /**
+     * Valida el formulario 
+     */
+    public function resetPassword(): void
+    {
+        $this->setPasswordResetHeaders();
+        $this->verifyCsrfToken();
+
+        $token = (string) ($_POST['token'] ?? '');
+        $password = (string) ($_POST['password'] ?? '');
+        $passwordConfirmation = (string) ($_POST['password_confirmation'] ?? '');
+
+        if (preg_match('/\A[a-f0-9]{64}\z/', $token) !== 1
+            || !$this->users->hasValidPasswordResetToken(hash('sha256', $token))) {
+            http_response_code(422);
+            $this->renderResetPasswordForm('', 'Este enlace no es válido o ya venció. Solicita uno nuevo.');
+            return;
+        }
+
+        if (mb_strlen($password, 'UTF-8') < 12) {
+            http_response_code(422);
+            $this->renderResetPasswordForm($token, 'La contraseña debe tener al menos 12 caracteres.');
+            return;
+        }
+
+        if ($password !== $passwordConfirmation) {
+            http_response_code(422);
+            $this->renderResetPasswordForm($token, 'Las contraseñas no coinciden.');
+            return;
+        }
+
+        if (!$this->users->resetPassword(hash('sha256', $token), password_hash($password, PASSWORD_DEFAULT))) {
+            http_response_code(422);
+            $this->renderResetPasswordForm('', 'Este enlace ya fue utilizado o venció. Solicita uno nuevo.');
+            return;
+        }
+
+        $this->redirect('/login?mensaje=contrasena_actualizada');
     }
 
     /**
@@ -189,6 +308,11 @@ final class AuthController extends BaseController
         $this->redirect('/login');
     }
 
+    /**
+     * Valida correo, datos personales y contraseña del administrador inicial.
+     *
+     * @return string|null Mensaje de validación o null cuando los datos son válidos.
+     */
     private function validateAdministrator(
         string $email,
         string $firstName,
@@ -200,11 +324,19 @@ final class AuthController extends BaseController
             return 'Ingresa un correo electrónico válido.';
         }
 
+        if (mb_strlen($email, 'UTF-8') > 254) {
+            return 'El correo no puede exceder 254 caracteres.';
+        }
+
         if ($firstName === '' || $lastName === '') {
             return 'Nombres y apellidos son obligatorios.';
         }
 
-        if (strlen($password) < 12) {
+        if (mb_strlen($firstName, 'UTF-8') > 100 || mb_strlen($lastName, 'UTF-8') > 100) {
+            return 'Los nombres y apellidos no pueden exceder 100 caracteres cada uno.';
+        }
+
+        if (mb_strlen($password, 'UTF-8') < 12) {
             return 'La contraseña debe tener al menos 12 caracteres.';
         }
 
@@ -215,6 +347,7 @@ final class AuthController extends BaseController
         return null;
     }
 
+    /** Vuelve a mostrar el formulario inicial con el error y los datos no sensibles. */
     private function renderSetupError(string $error, array $old): void
     {
         http_response_code(422);
@@ -224,5 +357,35 @@ final class AuthController extends BaseController
             'error' => $error,
             'old' => $old,
         ]);
+    }
+
+    /** Vuelve a mostrar el formulario de recuperación conservando el correo ingresado. */
+    private function renderForgotPasswordError(string $error, string $email): void
+    {
+        $this->render('auth/forgot-password', [
+            'title' => 'Recuperar contraseña | Curso Taller',
+            'csrfToken' => $this->csrfToken(),
+            'error' => $error,
+            'message' => null,
+            'old' => ['correo' => $email],
+        ]);
+    }
+
+    /** Renderiza la pantalla para cambiar contraseña, ocultando el token si no es válido. */
+    private function renderResetPasswordForm(string $token, ?string $error): void
+    {
+        $this->render('auth/reset-password', [
+            'title' => 'Crear nueva contraseña | Curso Taller',
+            'csrfToken' => $this->csrfToken(),
+            'error' => $error,
+            'token' => $token,
+        ]);
+    }
+
+    /** Evita almacenar en caché la pantalla que contiene un token de recuperación. */
+    private function setPasswordResetHeaders(): void
+    {
+        header('Cache-Control: no-store, max-age=0');
+        header('Referrer-Policy: no-referrer');
     }
 }

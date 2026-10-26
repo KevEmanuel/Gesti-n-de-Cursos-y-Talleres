@@ -7,14 +7,7 @@ declare(strict_types=1);
  */
 final class Instructor extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'instructores';
-    }
-
-    /**
-     * Obtiene los registros del modulo para su consulta.
-     */
+    /** Obtiene instructores y el número de cursos asignados a cada uno. */
     public function all(): array
     {
         $statement = $this->database->query(
@@ -111,9 +104,7 @@ final class Instructor extends BaseModel
         return $studentsByCourse;
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Crea la cuenta y el perfil del instructor y genera su carnet. */
     public function create(array $data): void
     {
         $this->database->beginTransaction();
@@ -156,9 +147,7 @@ final class Instructor extends BaseModel
         }
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza datos personales y especialidad del instructor en una transacción. */
     public function update(int $id, array $data): bool
     {
         $this->database->beginTransaction();
@@ -260,9 +249,7 @@ final class Instructor extends BaseModel
         }
     }
 
-    /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
-     */
+    /** Cambia el estado de la cuenta y reasigna cursos si se desactiva. */
     public function setStatus(int $id, string $status, ?int $replacementId = null): bool
     {
         $this->database->beginTransaction();
@@ -320,6 +307,11 @@ final class Instructor extends BaseModel
         }
     }
 
+    /**
+     * Reasigna los cursos a un instructor distinto que esté activo.
+     *
+     * @throws DomainException Si el reemplazo es el mismo instructor o no está activo.
+     */
     private function reassignCourses(int $instructorId, int $replacementId): void
     {
         if ($replacementId === $instructorId) {
@@ -350,6 +342,7 @@ final class Instructor extends BaseModel
         ]);
     }
 
+    /** Comprueba si existe un perfil de instructor por su identificador. */
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(

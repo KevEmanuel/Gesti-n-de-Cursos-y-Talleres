@@ -11,16 +11,17 @@ declare(strict_types=1);
         <?php if ($error !== null): ?><p class="notice notice-error" role="alert"><?= e($error) ?></p><?php endif; ?>
         <section class="card">
             <h2>Crear período</h2>
+            <p>La fecha de cierre debe ser igual o posterior a la fecha de inicio.</p>
             <?php if ($courses === []): ?>
                 <p>Primero registra un curso activo o cerrado.</p>
             <?php else: ?>
                 <form action="/periodos/crear" method="post" class="period-form">
                     <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                    <label>Curso<select name="id_curso" required><option value="">Selecciona</option>
-                        <?php foreach ($courses as $course): ?><option value="<?= (int) $course['id_curso'] ?>"><?= e((string) $course['nombre_curso']) ?></option><?php endforeach; ?>
+                    <label>Curso<select name="id_curso" required><option value="">Selecciona un curso</option>
+                        <?php foreach ($courses as $course): ?><option value="<?= (int) $course['id_curso'] ?>" <?= (string) ($old['id_curso'] ?? '') === (string) $course['id_curso'] ? 'selected' : '' ?>><?= e((string) $course['nombre_curso']) ?></option><?php endforeach; ?>
                     </select></label>
-                    <label>Fecha de inicio<input type="date" name="fecha_inicio" required></label>
-                    <label>Fecha de cierre<input type="date" name="fecha_cierre" required></label>
+                    <label>Fecha de inicio<input type="date" name="fecha_inicio" required value="<?= e($old['fecha_inicio'] ?? '') ?>"></label>
+                    <label>Fecha de cierre<input type="date" name="fecha_cierre" required value="<?= e($old['fecha_cierre'] ?? '') ?>"></label>
                     <button type="submit" class="button">Crear período</button>
                 </form>
             <?php endif; ?>
@@ -42,7 +43,7 @@ declare(strict_types=1);
                                         </select></label>
                                         <label><span class="visually-hidden">Inicio</span><input type="date" name="fecha_inicio" required value="<?= e((string) $period['fecha_inicio']) ?>"></label>
                                         <label><span class="visually-hidden">Cierre</span><input type="date" name="fecha_cierre" required value="<?= e((string) $period['fecha_cierre']) ?>"></label>
-                                        <span><?= e((string) $period['estado_periodo']) ?></span>
+                                        <span class="period-status period-status--<?= e(strtolower((string) $period['estado_periodo'])) ?>"><?= e((string) $period['estado_periodo']) ?></span>
                                         <button type="submit" class="button">Guardar</button>
                                     </form>
                                 </td>

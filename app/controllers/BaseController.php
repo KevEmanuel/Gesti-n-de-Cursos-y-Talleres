@@ -7,7 +7,9 @@ declare(strict_types=1);
  */
 abstract class BaseController
 {
-    /** Verifica que la sesión pertenezca a un administrador. */
+    /**
+     * Restringe la acción al rol administrador y envía al login si no está autorizado.
+     */
     protected function requireAdministrator(): void
     {
         $this->startSession();
@@ -18,7 +20,11 @@ abstract class BaseController
         }
     }
 
-    /** Verifica la sesión estudiantil y devuelve sus datos. */
+    /**
+     * Restringe la acción al rol estudiante y devuelve los datos de la sesión autenticada.
+     *
+     * @return array<string, mixed> Datos del estudiante autenticado.
+     */
     protected function requireStudent(): array
     {
         $this->startSession();
@@ -31,7 +37,11 @@ abstract class BaseController
         return $user;
     }
 
-    /** Verifica la sesión del instructor y devuelve sus datos. */
+    /**
+     * Restringe la acción al rol instructor, valida su identificador y devuelve su sesión.
+     *
+     * @return array<string, mixed> Datos del instructor autenticado.
+     */
     protected function requireInstructor(): array
     {
         $this->startSession();
@@ -53,7 +63,9 @@ abstract class BaseController
         return $user;
     }
 
-    /** Obtiene o genera el token CSRF de la sesión actual. */
+    /**
+     * Obtiene o genera un token CSRF aleatorio para proteger formularios de la sesión.
+     */
     protected function csrfToken(): string
     {
         $this->startSession();
@@ -62,7 +74,9 @@ abstract class BaseController
         return $_SESSION['csrf_token'];
     }
 
-    /** Rechaza solicitudes cuyo token CSRF no coincide con la sesión. */
+    /**
+     * Rechaza con HTTP 403 cualquier solicitud cuyo token CSRF no coincida con la sesión.
+     */
     protected function verifyCsrfToken(): void
     {
         $this->startSession();
@@ -76,7 +90,14 @@ abstract class BaseController
         }
     }
 
-    /** Renderiza la vista dentro del diseño HTML compartido. */
+    /**
+     * Incluye la vista seleccionada y la presenta dentro del diseño HTML compartido.
+     *
+     * @param string $view Ruta lógica de la vista bajo app/views, sin extensión.
+     * @param array<string, mixed> $data Variables disponibles para la vista.
+     *
+     * @throws RuntimeException Si no existe el archivo de vista indicado.
+     */
     protected function render(string $view, array $data = []): void
     {
         extract($data, EXTR_SKIP);
@@ -105,23 +126,14 @@ abstract class BaseController
         require __DIR__ . '/../views/layouts/main.php';
     }
 
-    /** Renderiza una vista de recurso con sus columnas configuradas. */
-    protected function renderModule(string $view, string $title, array $columns): void
-    {
-        $this->render($view, [
-            'title' => $title,
-            'columns' => $columns,
-        ]);
-    }
-
-    /** Redirige con el código HTTP usado para solicitudes POST. */
+    /** Envía una redirección HTTP 303 y finaliza la solicitud actual. */
     protected function redirect(string $location): never
     {
         header('Location: ' . $location, true, 303);
         exit;
     }
 
-    /** Inicia una sesión con opciones seguras cuando aún no existe. */
+    /** Inicia la sesión con opciones de cookie seguras si aún no está activa. */
     private function startSession(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {

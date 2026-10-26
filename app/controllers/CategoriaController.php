@@ -9,14 +9,13 @@ final class CategoriaController extends BaseController
 {
     private Categoria $categories;
 
+    /** Prepara el modelo de categorías con la conexión PDO de la aplicación. */
     public function __construct()
     {
         $this->categories = new Categoria(getDatabaseConnection());
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra las categorías y el formulario de gestión al administrador. */
     public function index(): void
     {
         $this->requireAdministrator();
@@ -30,9 +29,7 @@ final class CategoriaController extends BaseController
         ]);
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Valida los datos del formulario y crea una categoría nueva. */
     public function create(): void
     {
         $this->requireAdministrator();
@@ -51,9 +48,7 @@ final class CategoriaController extends BaseController
         $this->redirect('/categorias?mensaje=creada');
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Valida y guarda el nombre, descripción y estado de la categoría seleccionada. */
     public function update(): void
     {
         $this->requireAdministrator();
@@ -89,9 +84,7 @@ final class CategoriaController extends BaseController
         $this->redirect('/categorias?mensaje=actualizada');
     }
 
-    /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
-     */
+    /** Activa o desactiva una categoría existente. */
     public function setStatus(): void
     {
         $this->requireAdministrator();
@@ -116,6 +109,11 @@ final class CategoriaController extends BaseController
         $this->redirect('/categorias?mensaje=' . $message);
     }
 
+    /**
+     * Valida el nombre y la descripción, incluida la unicidad del nombre.
+     *
+     * @return string|null Mensaje de error o null si los datos son válidos.
+     */
     private function validate(string $name, string $description, ?int $excludedId = null): ?string
     {
         // VALIDACIÓN AGREGADA: Comprueba que el nombre de la categoría
@@ -134,6 +132,10 @@ final class CategoriaController extends BaseController
             return 'El nombre de la categoría es obligatorio.';
         }
 
+        if (mb_strlen($name, 'UTF-8') > 150 || mb_strlen($description, 'UTF-8') > 500) {
+            return 'El nombre admite hasta 150 caracteres y la descripción hasta 500.';
+        }
+
         if ($this->categories->nameExists($name, $excludedId)) {
             return 'Ya existe una categoría con ese nombre.';
         }
@@ -141,6 +143,7 @@ final class CategoriaController extends BaseController
         return null;
     }
 
+    /** Vuelve a mostrar la gestión de categorías con el error y los datos ingresados. */
     private function renderFormError(string $error, array $old = []): void
     {
         http_response_code(422);
@@ -154,6 +157,7 @@ final class CategoriaController extends BaseController
         ]);
     }
 
+    /** Resuelve el mensaje visual asociado al resultado de la última operación. */
     private function message(): ?string
     {
         $messages = [

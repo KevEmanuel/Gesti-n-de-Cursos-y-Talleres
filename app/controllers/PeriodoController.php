@@ -9,23 +9,20 @@ final class PeriodoController extends BaseController
 {
     private Periodo $periods;
 
+    /** Prepara el modelo de períodos con la conexión PDO de la aplicación. */
     public function __construct()
     {
         $this->periods = new Periodo(getDatabaseConnection());
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra los períodos de inscripción y cursos administrables. */
     public function index(): void
     {
         $this->requireAdministrator();
         $this->render('periodos', $this->viewData());
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Valida fechas y curso, impide traslapes y registra un período nuevo. */
     public function create(): void
     {
         $this->requireAdministrator();
@@ -47,9 +44,7 @@ final class PeriodoController extends BaseController
         $this->redirect('/periodos?mensaje=creado');
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza un período existente después de comprobar fechas y traslapes. */
     public function update(): void
     {
         $this->requireAdministrator();
@@ -80,9 +75,7 @@ final class PeriodoController extends BaseController
         $this->redirect('/periodos?mensaje=actualizado');
     }
 
-    /**
-     * Valida y elimina el elemento seleccionado y sus relaciones permitidas.
-     */
+    /** Elimina el período de inscripción indicado. */
     public function delete(): void
     {
         $this->requireAdministrator();
@@ -103,6 +96,7 @@ final class PeriodoController extends BaseController
         $this->redirect('/periodos?mensaje=eliminado');
     }
 
+    /** Normaliza el curso y el rango de fechas enviados por el formulario. */
     private function submittedData(): array
     {
         return [
@@ -112,6 +106,12 @@ final class PeriodoController extends BaseController
         ];
     }
 
+    /**
+     * Valida el curso y el formato y orden cronológico del período de inscripción.
+     *
+     * @param array<string, mixed> $data Datos del período enviados por el formulario.
+     * @return string|null Mensaje de validación o null si los datos son válidos.
+     */
     private function validate(array $data): ?string
     {
         if ($data['id_curso'] === false || $data['id_curso'] === null || $data['id_curso'] < 1) {
@@ -132,6 +132,7 @@ final class PeriodoController extends BaseController
         return null;
     }
 
+    /** Obtiene períodos, cursos y mensajes para la pantalla administrativa. */
     private function viewData(): array
     {
         $messages = [
@@ -151,6 +152,7 @@ final class PeriodoController extends BaseController
         ];
     }
 
+    /** Renderiza la gestión de períodos con el error y los datos introducidos. */
     private function renderError(string $error, array $old = []): void
     {
         http_response_code(422);

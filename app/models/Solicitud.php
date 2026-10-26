@@ -7,14 +7,7 @@ declare(strict_types=1);
  */
 final class Solicitud extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'inscripciones';
-    }
-
-    /**
-     * Obtiene los registros del modulo para su consulta.
-     */
+    /** Obtiene las inscripciones con datos del estudiante y del curso asociado. */
     public function all(): array
     {
         return $this->database->query(
@@ -29,7 +22,7 @@ final class Solicitud extends BaseModel
         )->fetchAll();
     }
 
-    /** Obtiene los estudiantes activos para el formulario de inscripcion. */
+    /** Obtiene los estudiantes activos disponibles para el formulario de inscripción. */
     public function students(): array
     {
         return $this->database->query(
@@ -271,7 +264,7 @@ final class Solicitud extends BaseModel
         if ($newStatus === 'Rechazada' && preg_match('/\p{L}/u', $rejectionReason) !== 1) {
             throw new DomainException('El motivo de rechazo debe contener texto válido.');
         }
-        if (strlen($rejectionReason) > 1000) {
+        if (mb_strlen($rejectionReason, 'UTF-8') > 1000) {
             throw new DomainException('El motivo de rechazo no puede superar 1000 caracteres.');
         }
 
@@ -354,6 +347,7 @@ final class Solicitud extends BaseModel
         }
     }
 
+    /** Detecta solapamientos de horario con inscripciones activas del estudiante. */
     private function hasScheduleConflict(int $studentId, int $courseId): bool
     {
         $statement = $this->database->prepare(
@@ -376,6 +370,7 @@ final class Solicitud extends BaseModel
         return $statement->fetchColumn() !== false;
     }
 
+    /** Bloquea la fila del curso durante una transacción de inscripción. */
     private function lockCourse(int $courseId): void
     {
         $statement = $this->database->prepare(
@@ -384,6 +379,7 @@ final class Solicitud extends BaseModel
         $statement->execute(['id_curso' => $courseId]);
     }
 
+    /** Bloquea la fila del estudiante durante una transacción de inscripción. */
     private function lockStudent(int $studentId): void
     {
         $statement = $this->database->prepare(
@@ -392,6 +388,7 @@ final class Solicitud extends BaseModel
         $statement->execute(['id_estudiante' => $studentId]);
     }
 
+    /** Marca como lleno un curso activo que alcanzó su capacidad máxima. */
     private function setCourseFull(int $courseId): void
     {
         $statement = $this->database->prepare(
@@ -401,6 +398,7 @@ final class Solicitud extends BaseModel
         $statement->execute(['id_curso' => $courseId]);
     }
 
+    /** Sincroniza el estado del curso con el total de inscripciones activas. */
     private function refreshCourseCapacityState(int $courseId): void
     {
         $statement = $this->database->prepare(

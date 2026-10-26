@@ -7,14 +7,7 @@ declare(strict_types=1);
  */
 final class Categoria extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'categorias';
-    }
-
-    /**
-     * Obtiene los registros del modulo para su consulta.
-     */
+    /** Obtiene todas las categorías ordenadas por nombre. */
     public function all(): array
     {
         $statement = $this->database->query(
@@ -60,9 +53,7 @@ final class Categoria extends BaseModel
         return $statement->fetchColumn() !== false;
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Inserta una categoría nueva con su descripción opcional. */
     public function create(string $name, ?string $description): void
     {
         $statement = $this->database->prepare(
@@ -74,9 +65,7 @@ final class Categoria extends BaseModel
         ]);
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza nombre, descripción y estado de una categoría existente. */
     public function update(int $id, string $name, ?string $description, string $status): bool
     {
         $statement = $this->database->prepare(
@@ -94,9 +83,7 @@ final class Categoria extends BaseModel
         return $statement->rowCount() > 0 || $this->exists($id);
     }
 
-    /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
-     */
+    /** Guarda el estado de una categoría y confirma si el identificador existe. */
     public function setStatus(int $id, string $status): bool
     {
         $statement = $this->database->prepare(
@@ -110,6 +97,7 @@ final class Categoria extends BaseModel
         return $statement->rowCount() > 0 || $this->exists($id);
     }
 
+    /** Comprueba si existe una categoría por su identificador. */
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(

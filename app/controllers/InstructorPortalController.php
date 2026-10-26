@@ -9,14 +9,13 @@ final class InstructorPortalController extends BaseController
 {
     private Instructor $instructors;
 
+    /** Prepara el modelo de instructores para cargar el portal privado. */
     public function __construct()
     {
         $this->instructors = new Instructor(getDatabaseConnection());
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra los cursos, horarios y estudiantes confirmados del instructor autenticado. */
     public function index(): void
     {
         $user = $this->requireInstructor();

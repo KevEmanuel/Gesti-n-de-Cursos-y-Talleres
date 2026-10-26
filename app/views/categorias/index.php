@@ -26,11 +26,13 @@ declare(strict_types=1);
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
                 <label>
                     Nombre
-                    <input name="nombre" maxlength="150" required value="<?= e($old['nombre'] ?? '') ?>">
+                    <input name="nombre" maxlength="150" required placeholder="Ej. Fotografía" value="<?= e($old['nombre'] ?? '') ?>">
+                    <small>El nombre debe incluir al menos una letra.</small>
                 </label>
                 <label>
                     Descripción
-                    <input name="descripcion" maxlength="500" value="<?= e($old['descripcion'] ?? '') ?>">
+                    <input name="descripcion" maxlength="500" placeholder="Describe brevemente la categoría" value="<?= e($old['descripcion'] ?? '') ?>">
+                    <small>Opcional; si la completas, incluye al menos una letra.</small>
                 </label>
                 <button type="submit" class="button">Crear categoría</button>
             </form>

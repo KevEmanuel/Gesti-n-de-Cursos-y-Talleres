@@ -6,7 +6,7 @@ $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $route = trim($path, '/');
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
-// Asocia cada metodo HTTP y ruta con su accion de controlador.
+// Mapea cada ruta HTTP a una accion de controlador.
 $routes = [
     'GET ' => [DashboardController::class, 'index'],
     'GET catalogo' => [CatalogoController::class, 'index'],
@@ -26,6 +26,10 @@ $routes = [
     'POST setup' => [AuthController::class, 'createFirstAdministrator'],
     'GET login' => [AuthController::class, 'login'],
     'POST login' => [AuthController::class, 'authenticate'],
+    'GET password/recuperar' => [AuthController::class, 'forgotPassword'],
+    'POST password/recuperar' => [AuthController::class, 'requestPasswordReset'],
+    'GET password/restablecer' => [AuthController::class, 'resetPasswordForm'],
+    'POST password/restablecer' => [AuthController::class, 'resetPassword'],
     'POST logout' => [AuthController::class, 'logout'],
     'GET categorias' => [CategoriaController::class, 'index'],
     'POST categorias/crear' => [CategoriaController::class, 'create'],
@@ -38,12 +42,14 @@ $routes = [
     'GET estudiantes' => [EstudianteController::class, 'index'],
     'POST estudiantes/crear' => [EstudianteController::class, 'create'],
     'POST estudiantes/actualizar' => [EstudianteController::class, 'update'],
+    'POST estudiantes/contrasena' => [EstudianteController::class, 'setPassword'],
     'POST estudiantes/estado' => [EstudianteController::class, 'setStatus'],
     'POST estudiantes/eliminar' => [EstudianteController::class, 'delete'],
     'POST estudiantes/solicitud/estado' => [EstudianteController::class, 'reviewApplication'],
     'GET instructores' => [InstructorController::class, 'index'],
     'POST instructores/crear' => [InstructorController::class, 'create'],
     'POST instructores/actualizar' => [InstructorController::class, 'update'],
+    'POST instructores/contrasena' => [InstructorController::class, 'setPassword'],
     'POST instructores/estado' => [InstructorController::class, 'setStatus'],
     'POST instructores/eliminar' => [InstructorController::class, 'delete'],
     'GET horarios' => [HorarioController::class, 'index'],
@@ -60,7 +66,7 @@ $routes = [
     'POST solicitudes/estado' => [SolicitudController::class, 'changeStatus'],
 ];
 
-//responde con el error HTTP correspondiente.
+// Ejecuta la ruta registrada o devuelve el error HTTP correspondiente.
 if (isset($routes[$method . ' ' . $route])) {
     [$controller, $action] = $routes[$method . ' ' . $route];
     (new $controller())->$action();

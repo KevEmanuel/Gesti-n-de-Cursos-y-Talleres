@@ -46,6 +46,57 @@ document.addEventListener('DOMContentLoaded', () => {
     search?.addEventListener('input', filterRows);
     statusFilter?.addEventListener('change', filterRows);
 
+    document.querySelectorAll('.instructor-action-form').forEach((actionForm, index) => {
+        const note = actionForm.querySelector('.instructor-field-note');
+        const triggers = actionForm.querySelectorAll('.instructor-action-field select, > .button');
+        if (!note || triggers.length === 0) return;
+
+        const floatingNote = document.createElement('span');
+        floatingNote.className = 'instructor-floating-note';
+        floatingNote.textContent = note.textContent.trim();
+        floatingNote.hidden = true;
+        floatingNote.id = `instructor-note-${index + 1}`;
+        document.body.append(floatingNote);
+        triggers.forEach((trigger) => trigger.setAttribute('aria-describedby', floatingNote.id));
+        let activeTrigger = triggers[0];
+
+        const positionNote = () => {
+            const triggerBounds = activeTrigger.getBoundingClientRect();
+            const viewportPadding = 12;
+            const noteWidth = Math.min(280, window.innerWidth - viewportPadding * 2);
+            const left = Math.min(
+                Math.max(viewportPadding, triggerBounds.left),
+                window.innerWidth - noteWidth - viewportPadding
+            );
+            floatingNote.style.left = `${left}px`;
+            floatingNote.style.width = `${noteWidth}px`;
+            floatingNote.style.top = `${Math.max(viewportPadding, triggerBounds.top - floatingNote.offsetHeight - 8)}px`;
+        };
+        const showNote = (event) => {
+            activeTrigger = event.currentTarget;
+            floatingNote.hidden = false;
+            positionNote();
+        };
+        const hideNote = (event) => {
+            if (Array.from(triggers).includes(event.relatedTarget)) return;
+            floatingNote.hidden = true;
+        };
+
+        triggers.forEach((trigger) => {
+            trigger.addEventListener('mouseenter', showNote);
+            trigger.addEventListener('focus', showNote);
+            trigger.addEventListener('mouseleave', hideNote);
+            trigger.addEventListener('blur', hideNote);
+        });
+        window.addEventListener('resize', positionNote);
+        window.addEventListener('scroll', positionNote, true);
+
+        if (note.classList.contains('instructor-field-note--persistent')) {
+            floatingNote.hidden = false;
+            positionNote();
+        }
+    });
+
     // Validar los celulares de estudiantes e instructores.
     // Permite únicamente números y un máximo de 8 dígitos.
     document.querySelectorAll(".celular-sv").forEach(function (campo) {

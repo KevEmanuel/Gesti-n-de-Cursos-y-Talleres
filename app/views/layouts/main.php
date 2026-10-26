@@ -10,6 +10,54 @@
     <script src="/js/app.js" defer></script>
 </head>
 <body>
+<?php
+$isAdministratorLayout = is_array($_SESSION['user'] ?? null)
+    && ($_SESSION['user']['role'] ?? null) === 'administrator';
+$currentAdminPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
+$currentAdminPath = is_string($currentAdminPath) ? $currentAdminPath : '/';
+$adminName = trim((string) ($_SESSION['user']['name'] ?? ''));
+?>
+<?php if ($isAdministratorLayout): ?>
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="/">
+                <span class="admin-brand-mark" aria-hidden="true">FC</span>
+                <span>Formación Continua</span>
+            </a>
+            <p class="admin-nav-label">MENÚ PRINCIPAL</p>
+            <nav class="admin-nav" aria-label="Navegación administrativa">
+                <?php foreach ([
+                    '/' => 'Dashboard',
+                    '/cursos' => 'Cursos',
+                    '/categorias' => 'Categorías',
+                    '/instructores' => 'Instructores',
+                    '/horarios' => 'Horarios',
+                    '/periodos' => 'Períodos',
+                    '/estudiantes' => 'Estudiantes',
+                    '/solicitudes' => 'Solicitudes',
+                    '/reportes' => 'Reportes',
+                ] as $adminPath => $adminLabel): ?>
+                    <a href="<?= e($adminPath) ?>" <?= $currentAdminPath === $adminPath ? 'aria-current="page"' : '' ?>>
+                        <span class="admin-nav-mark" aria-hidden="true"><?= e(mb_substr($adminLabel, 0, 1, 'UTF-8')) ?></span>
+                        <span><?= e($adminLabel) ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+            <div class="admin-sidebar-footer">
+                <span class="admin-avatar" aria-hidden="true">A</span>
+                <span><strong><?= e($adminName !== '' ? $adminName : 'Administración') ?></strong><small>Administrador</small></span>
+            </div>
+        </aside>
+        <div class="admin-stage">
+            <header class="admin-topbar">
+                <span>Panel de administración</span>
+                <a href="/catalogo">Ver catálogo público</a>
+            </header>
+            <?= $content ?>
+        </div>
+    </div>
+<?php else: ?>
 <?= $content ?>
+<?php endif; ?>
 </body>
 </html>

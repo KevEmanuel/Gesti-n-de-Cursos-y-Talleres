@@ -7,7 +7,17 @@ declare(strict_types=1);
  */
 final class Identificador
 {
-    /** Genera un carnet no utilizado para el perfil indicado. */
+    /**
+     * Genera un carnet disponible usando iniciales de apellidos y un sufijo numérico.
+     *
+     * @param PDO $database Conexión usada para consultar carnets ya registrados.
+     * @param string $apellidos Apellidos que determinan el prefijo del carnet.
+     * @param string $tabla Tabla del perfil, limitada a estudiantes o instructores.
+     * @return string Carnet único de dos letras y cuatro dígitos.
+     *
+     * @throws InvalidArgumentException Si la tabla no corresponde a un perfil permitido.
+     * @throws DomainException Si no se pueden obtener iniciales o no quedan carnets disponibles.
+     */
     public static function generarCarnet(PDO $database, string $apellidos, string $tabla): string
     {
         if (!in_array($tabla, ['estudiantes', 'instructores'], true)) {

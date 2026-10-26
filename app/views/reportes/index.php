@@ -37,7 +37,8 @@ declare(strict_types=1);
                                 <td><?= e((string) $row['nombre_curso']) ?></td>
                                 <td><?= e((string) $row['categoria']) ?></td>
                                 <td><?= e((string) $row['modalidad']) ?></td>
-                                <td><?= (int) $row['cupos_disponibles'] === 0 ? 'Lleno' : e((string) $row['estado']) ?></td>
+                                <?php $courseStatus = (int) $row['cupos_disponibles'] === 0 ? 'Lleno' : (string) $row['estado']; ?>
+                                <td><span class="course-status course-status--<?= e(strtolower($courseStatus)) ?>"><?= e($courseStatus) ?></span></td>
                                 <td><?= (int) $row['inscritos_activos'] ?></td>
                                 <td><?= (int) $row['maximo_cupos'] ?></td>
                                 <td><?= (int) $row['cupos_disponibles'] ?></td>

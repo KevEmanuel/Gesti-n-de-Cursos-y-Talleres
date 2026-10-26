@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 // Carga dependencias de la aplicacion y entrega la solicitud al enrutador.
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../app/config/database.php';
 require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../app/models/BaseModel.php';
 require_once __DIR__ . '/../app/models/Identificador.php';
 require_once __DIR__ . '/../app/models/Categoria.php';
 require_once __DIR__ . '/../app/models/Usuario.php';
+require_once __DIR__ . '/../app/services/PasswordResetMailer.php';
 require_once __DIR__ . '/../app/models/Estudiante.php';
 require_once __DIR__ . '/../app/models/SolicitudEstudiante.php';
 require_once __DIR__ . '/../app/models/Instructor.php';

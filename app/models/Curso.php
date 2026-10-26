@@ -7,14 +7,7 @@ declare(strict_types=1);
  */
 final class Curso extends BaseModel
 {
-    protected function tableName(): string
-    {
-        return 'cursos';
-    }
-
-    /**
-     * Obtiene los registros del modulo para su consulta.
-     */
+    /** Obtiene cursos administrativos junto con instructor y datos de disponibilidad. */
     public function all(): array
     {
         $statement = $this->database->query(
@@ -158,9 +151,7 @@ final class Curso extends BaseModel
         )->fetchAll();
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Crea un curso con su categoría, instructor, administrador y capacidad inicial. */
     public function create(array $data): void
     {
         $statement = $this->database->prepare(
@@ -174,9 +165,7 @@ final class Curso extends BaseModel
         $statement->execute($data);
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza los datos y estado del curso dentro de una transacción. */
     public function update(int $id, array $data): bool
     {
         $this->database->beginTransaction();
@@ -260,9 +249,7 @@ final class Curso extends BaseModel
         }
     }
 
-    /**
-     * Actualiza el estado del registro y aplica las reglas del modulo.
-     */
+    /** Cambia el estado del curso y comprueba que exista el registro. */
     public function setStatus(int $id, string $status): bool
     {
         $statement = $this->database->prepare(
@@ -273,6 +260,7 @@ final class Curso extends BaseModel
         return $this->exists($id);
     }
 
+    /** Comprueba si existe un curso por su identificador. */
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(

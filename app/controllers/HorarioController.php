@@ -9,23 +9,20 @@ final class HorarioController extends BaseController
 {
     private Horario $schedules;
 
+    /** Prepara el modelo de horarios con la conexión PDO de la aplicación. */
     public function __construct()
     {
         $this->schedules = new Horario(getDatabaseConnection());
     }
 
-    /**
-     * Valida el acceso, obtiene los datos necesarios y muestra la vista del modulo.
-     */
+    /** Muestra horarios y cursos disponibles para su administración. */
     public function index(): void
     {
         $this->requireAdministrator();
         $this->render('horarios', $this->viewData());
     }
 
-    /**
-     * Valida y registra un nuevo elemento del modulo.
-     */
+    /** Valida el horario y rechaza conflictos del instructor antes de crearlo. */
     public function create(): void
     {
         $this->requireAdministrator();
@@ -52,9 +49,7 @@ final class HorarioController extends BaseController
         $this->redirect('/horarios?mensaje=creado');
     }
 
-    /**
-     * Valida y guarda los cambios del elemento seleccionado.
-     */
+    /** Actualiza un horario si sus horas son válidas y no generan conflictos. */
     public function update(): void
     {
         $this->requireAdministrator();
@@ -94,9 +89,7 @@ final class HorarioController extends BaseController
         $this->redirect('/horarios?mensaje=actualizado');
     }
 
-    /**
-     * Valida y elimina el elemento seleccionado y sus relaciones permitidas.
-     */
+    /** Elimina el horario indicado después de validar su identificador. */
     public function delete(): void
     {
         $this->requireAdministrator();
@@ -117,6 +110,7 @@ final class HorarioController extends BaseController
         $this->redirect('/horarios?mensaje=eliminado');
     }
 
+    /** Obtiene y normaliza curso, día y horas enviados por el formulario. */
     private function submittedData(): array
     {
         return [
@@ -127,6 +121,12 @@ final class HorarioController extends BaseController
         ];
     }
 
+    /**
+     * Valida curso, día y formato y orden de las horas del horario.
+     *
+     * @param array<string, mixed> $data Datos del horario enviados por el formulario.
+     * @return string|null Mensaje de validación o null si los datos son válidos.
+     */
     private function validate(array &$data): ?string
     {
         if ($data['id_curso'] === false || $data['id_curso'] === null || $data['id_curso'] < 1) {
@@ -146,6 +146,7 @@ final class HorarioController extends BaseController
         return null;
     }
 
+    /** Obtiene horarios, cursos y mensajes para la pantalla administrativa. */
     private function viewData(): array
     {
         $messages = [
@@ -165,6 +166,7 @@ final class HorarioController extends BaseController
         ];
     }
 
+    /** Renderiza la gestión de horarios con el error y los datos introducidos. */
     private function renderError(string $error, array $old = []): void
     {
         http_response_code(422);
