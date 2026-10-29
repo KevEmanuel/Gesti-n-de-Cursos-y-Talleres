@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 final class DashboardController extends BaseController
 {
-    /** Muestra la página inicial con la sesión y el token CSRF disponibles para la vista. */
+    /** Muestra la página inicial con la sesión para la vista. */
     public function index(): void
     {
         $csrfToken = $this->csrfToken();

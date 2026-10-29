@@ -44,17 +44,11 @@ inscripciones. Está desarrollada en PHP y usa MySQL o MariaDB.
 
 ## Si ya tienes una base de datos
 
-No importes `schema.sql` sobre una base con datos: es para instalaciones
-nuevas, no para actualizar bases existentes. Antes de ejecutar cambios, haz una
-copia de seguridad y confirma qué actualizaciones ya aplicaste.
-
-Las migraciones se ejecutan una sola vez y en este orden:
-
-1. `20260929_create_student_account_applications.sql`
-2. `20260929_separate_account_requests_and_generate_carnets.sql`
-3. `20260929_add_enrollment_rejection_reason.sql` (requiere la tabla
-   `inscripciones`).
-4. `20261024_create_password_reset_tokens.sql` (requiere la tabla `usuarios`).
-
-No ejecutes una migración si sus cambios ya existen en tu base. Para una base
-nueva, usa solamente `database/schema.sql`.
+`database/schema.sql` es para instalaciones nuevas; no lo importes sobre una
+base con datos. Para renombrar las columnas en una base existente con el esquema
+reflejado en el respaldo `gestiondedatos (2).sql`, exporta primero un respaldo
+y ejecuta `database/renombrar_columnas_existentes.sql` desde la pestaña **SQL**
+de phpMyAdmin. El script también crea `password_reset_tokens`, que no aparece
+en ese respaldo. Usa `CHANGE COLUMN`, compatible con MariaDB 10.4.32. Está
+preparado para esa estructura parcial, no es genérico, y no debe ejecutarse más
+de una vez.

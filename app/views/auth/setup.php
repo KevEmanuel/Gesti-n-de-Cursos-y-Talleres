@@ -14,9 +14,9 @@ declare(strict_types=1);
             <?php endif; ?>
             <form action="/setup" method="post" class="auth-form">
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                <label>Correo electrónico<input type="email" name="correo" maxlength="254" required autocomplete="email" placeholder="Ej. nombre@dominio.com" value="<?= e($old['correo'] ?? '') ?>"></label>
-                <label>Nombres<input name="nombres" maxlength="100" required autocomplete="given-name" placeholder="Ej. Ana María" value="<?= e($old['nombres'] ?? '') ?>"></label>
-                <label>Apellidos<input name="apellidos" maxlength="100" required autocomplete="family-name" placeholder="Ej. López García" value="<?= e($old['apellidos'] ?? '') ?>"></label>
+                <label>Correo electrónico<input type="email" name="Correo" maxlength="254" required autocomplete="email" placeholder="Ej. Nombre@dominio.com" value="<?= e($old['Correo'] ?? '') ?>"></label>
+                <label>Nombres<input name="Nombres" maxlength="100" required autocomplete="given-name" placeholder="Ej. Ana María" value="<?= e($old['Nombres'] ?? '') ?>"></label>
+                <label>Apellidos<input name="Apellidos" maxlength="100" required autocomplete="family-name" placeholder="Ej. López García" value="<?= e($old['Apellidos'] ?? '') ?>"></label>
                 <label>Contraseña (mínimo 12 caracteres)<input type="password" name="password" minlength="12" required autocomplete="new-password" placeholder="Escribe una contraseña de 12 caracteres o más"></label>
                 <label>Confirmar contraseña<input type="password" name="password_confirmation" minlength="12" required autocomplete="new-password"></label>
                 <button class="button" type="submit">Crear administrador</button>

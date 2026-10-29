@@ -40,17 +40,17 @@ $weekdays = [
                     <div class="section-heading">
                         <div>
                             <p class="eyebrow"><?= e((string) $course['categoria']) ?></p>
-                            <h2><?= e((string) $course['nombre_curso']) ?></h2>
+                            <h2><?= e((string) $course['Nombre_Curso']) ?></h2>
                         </div>
-                        <span class="badge badge-muted"><?= e((string) $course['estado']) ?></span>
+                        <span class="badge badge-muted"><?= e((string) $course['Estado']) ?></span>
                     </div>
-                    <?php if ($course['descripcion'] !== null && $course['descripcion'] !== ''): ?>
-                        <p><?= e((string) $course['descripcion']) ?></p>
+                    <?php if ($course['Descripcion'] !== null && $course['Descripcion'] !== ''): ?>
+                        <p><?= e((string) $course['Descripcion']) ?></p>
                     <?php endif; ?>
-                    <p><strong>Duración:</strong> <?= e((string) $course['duracion']) ?>
-                        <span aria-hidden="true"> · </span><strong>Modalidad:</strong> <?= e((string) $course['modalidad']) ?></p>
-                    <?php if ($course['requisitos'] !== null && $course['requisitos'] !== ''): ?>
-                        <p><strong>Requisitos:</strong> <?= e((string) $course['requisitos']) ?></p>
+                    <p><strong>Duración:</strong> <?= e((string) $course['Duracion']) ?>
+                        <span aria-hidden="true"> · </span><strong>Modalidad:</strong> <?= e((string) $course['Modalidad']) ?></p>
+                    <?php if ($course['Requisitos'] !== null && $course['Requisitos'] !== ''): ?>
+                        <p><strong>Requisitos:</strong> <?= e((string) $course['Requisitos']) ?></p>
                     <?php endif; ?>
 
                     <h3>Horarios</h3>
@@ -59,8 +59,8 @@ $weekdays = [
                     <?php else: ?>
                         <ul>
                             <?php foreach ($course['horarios'] as $schedule): ?>
-                                <li><?= e($weekdays[$schedule['dia']] ?? (string) $schedule['dia']) ?>:
-                                    <?= e(substr((string) $schedule['hora_inicio'], 0, 5)) ?>–<?= e(substr((string) $schedule['hora_finalizacion'], 0, 5)) ?></li>
+                                <li><?= e($weekdays[$schedule['Dia']] ?? (string) $schedule['Dia']) ?>:
+                                    <?= e(substr((string) $schedule['HoraInicio'], 0, 5)) ?>–<?= e(substr((string) $schedule['Hora_finalizacion'], 0, 5)) ?></li>
                             <?php endforeach; ?>
                         </ul>
                     <?php endif; ?>
@@ -75,9 +75,9 @@ $weekdays = [
                                 <tbody>
                                     <?php foreach ($course['estudiantes'] as $student): ?>
                                         <tr>
-                                            <td><?= e((string) $student['carnet']) ?></td>
-                                            <td><?= e(trim((string) $student['nombres'] . ' ' . (string) $student['apellidos'])) ?></td>
-                                            <td><?= e((string) $student['fecha_inscripcion']) ?></td>
+                                            <td><?= e((string) $student['Carnet']) ?></td>
+                                            <td><?= e(trim((string) $student['Nombres'] . ' ' . (string) $student['Apellidos'])) ?></td>
+                                            <td><?= e((string) $student['FechaInscripcion']) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

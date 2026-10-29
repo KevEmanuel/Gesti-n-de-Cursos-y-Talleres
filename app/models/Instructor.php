@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Consulta y mantiene instructores, sus cursos asignados y su personal inscrito.
+ * Consulta y mantiene instructores, sus cursos asignados.
  */
 final class Instructor extends BaseModel
 {
@@ -11,13 +11,13 @@ final class Instructor extends BaseModel
     public function all(): array
     {
         $statement = $this->database->query(
-            'SELECT i.id_instructor, i.carnet, i.especialidad, u.id_usuario, u.correo, u.nombres,
-                    u.apellidos, u.telefono, u.estado_cuenta,
-                    (SELECT COUNT(*) FROM cursos AS c WHERE c.id_instructor = i.id_instructor)
+            'SELECT i.IdInstructor, i.Carnet, i.Especialidad, u.IdUsuario, u.Correo, u.Nombres,
+                    u.Apellidos, u.Telefono, u.Estado_Cuenta,
+                    (SELECT COUNT(*) FROM cursos AS c WHERE c.IdInstructor = i.IdInstructor)
                         AS cursos_asignados
              FROM instructores AS i
-             INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-             ORDER BY u.apellidos, u.nombres'
+             INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+             ORDER BY u.Apellidos, u.Nombres'
         );
 
         return $statement->fetchAll();
@@ -29,43 +29,43 @@ final class Instructor extends BaseModel
     public function coursesWithSchedules(int $instructorId): array
     {
         $statement = $this->database->prepare(
-            'SELECT c.id_curso, c.nombre_curso, c.descripcion, c.duracion, c.modalidad,
-                    c.requisitos, c.costo_curso, c.estado, ca.nombre AS categoria,
-                    h.dia, h.hora_inicio, h.hora_finalizacion
+            'SELECT c.IdCurso, c.Nombre_Curso, c.Descripcion, c.Duracion, c.Modalidad,
+                    c.Requisitos, c.Costo_curso, c.Estado, ca.Nombre AS categoria,
+                    h.Dia, h.HoraInicio, h.Hora_finalizacion
              FROM cursos AS c
-             INNER JOIN categorias AS ca ON ca.id_categoria = c.id_categoria
-             LEFT JOIN horarios AS h ON h.id_curso = c.id_curso
-             WHERE c.id_instructor = :id_instructor
-             ORDER BY c.nombre_curso,
-                      FIELD(h.dia, \'Lunes\', \'Martes\', \'Miercoles\', \'Jueves\', \'Viernes\', \'Sabado\', \'Domingo\'),
-                      h.hora_inicio'
+             INNER JOIN categorias AS ca ON ca.IdCategoria = c.IdCategoria
+             LEFT JOIN horarios AS h ON h.IdCurso = c.IdCurso
+             WHERE c.IdInstructor = :IdInstructor
+             ORDER BY c.Nombre_Curso,
+                      FIELD(h.Dia, \'Lunes\', \'Martes\', \'Miercoles\', \'Jueves\', \'Viernes\', \'Sabado\', \'Domingo\'),
+                      h.HoraInicio'
         );
-        $statement->execute(['id_instructor' => $instructorId]);
+        $statement->execute(['IdInstructor' => $instructorId]);
         $courses = [];
 
         foreach ($statement->fetchAll() as $row) {
-            $courseId = (int) $row['id_curso'];
+            $courseId = (int) $row['IdCurso'];
             if (!isset($courses[$courseId])) {
                 $courses[$courseId] = [
-                    'id_curso' => $courseId,
-                    'nombre_curso' => $row['nombre_curso'],
-                    'descripcion' => $row['descripcion'],
-                    'duracion' => $row['duracion'],
-                    'modalidad' => $row['modalidad'],
-                    'requisitos' => $row['requisitos'],
-                    'costo_curso' => $row['costo_curso'],
-                    'estado' => $row['estado'],
+                    'IdCurso' => $courseId,
+                    'Nombre_Curso' => $row['Nombre_Curso'],
+                    'Descripcion' => $row['Descripcion'],
+                    'Duracion' => $row['Duracion'],
+                    'Modalidad' => $row['Modalidad'],
+                    'Requisitos' => $row['Requisitos'],
+                    'Costo_curso' => $row['Costo_curso'],
+                    'Estado' => $row['Estado'],
                     'categoria' => $row['categoria'],
                     'horarios' => [],
                     'estudiantes' => [],
                 ];
             }
 
-            if ($row['dia'] !== null) {
+            if ($row['Dia'] !== null) {
                 $courses[$courseId]['horarios'][] = [
-                    'dia' => $row['dia'],
-                    'hora_inicio' => $row['hora_inicio'],
-                    'hora_finalizacion' => $row['hora_finalizacion'],
+                    'Dia' => $row['Dia'],
+                    'HoraInicio' => $row['HoraInicio'],
+                    'Hora_finalizacion' => $row['Hora_finalizacion'],
                 ];
             }
         }
@@ -79,32 +79,32 @@ final class Instructor extends BaseModel
     public function confirmedStudentsByCourse(int $instructorId): array
     {
         $statement = $this->database->prepare(
-            "SELECT c.id_curso, e.carnet, u.nombres, u.apellidos, i.fecha_inscripcion
+            "SELECT c.IdCurso, e.Carnet, u.Nombres, u.Apellidos, i.FechaInscripcion
              FROM cursos AS c
-             INNER JOIN inscripciones AS i ON i.id_curso = c.id_curso
-             INNER JOIN estudiantes AS e ON e.id_estudiante = i.id_estudiante
-             INNER JOIN usuarios AS u ON u.id_usuario = e.id_usuario
-             WHERE c.id_instructor = :id_instructor
-               AND i.estado_inscripcion = 'Confirmada'
-             ORDER BY c.nombre_curso, u.apellidos, u.nombres"
+             INNER JOIN inscripciones AS i ON i.IdCurso = c.IdCurso
+             INNER JOIN estudiantes AS e ON e.IdEstudiante = i.IdEstudiante
+             INNER JOIN usuarios AS u ON u.IdUsuario = e.IdUsuario
+             WHERE c.IdInstructor = :IdInstructor
+               AND i.EstadoInscripcion = 'Confirmada'
+             ORDER BY c.Nombre_Curso, u.Apellidos, u.Nombres"
         );
-        $statement->execute(['id_instructor' => $instructorId]);
+        $statement->execute(['IdInstructor' => $instructorId]);
         $studentsByCourse = [];
 
         foreach ($statement->fetchAll() as $row) {
-            $courseId = (int) $row['id_curso'];
+            $courseId = (int) $row['IdCurso'];
             $studentsByCourse[$courseId][] = [
-                'carnet' => $row['carnet'],
-                'nombres' => $row['nombres'],
-                'apellidos' => $row['apellidos'],
-                'fecha_inscripcion' => $row['fecha_inscripcion'],
+                'Carnet' => $row['Carnet'],
+                'Nombres' => $row['Nombres'],
+                'Apellidos' => $row['Apellidos'],
+                'FechaInscripcion' => $row['FechaInscripcion'],
             ];
         }
 
         return $studentsByCourse;
     }
 
-    /** Crea la cuenta y el perfil del instructor y genera su carnet. */
+    /** Crea la cuenta y el perfil del instructor y genera su Carnet. */
     public function create(array $data): void
     {
         $this->database->beginTransaction();
@@ -112,30 +112,30 @@ final class Instructor extends BaseModel
         try {
             $statement = $this->database->prepare(
                 'INSERT INTO usuarios
-                    (correo, password_hash, nombres, apellidos, telefono)
+                    (Correo, Password, Nombres, Apellidos, Telefono)
                  VALUES
-                    (:correo, :password_hash, :nombres, :apellidos, :telefono)'
+                    (:Correo, :Password, :Nombres, :Apellidos, :Telefono)'
             );
             $statement->execute([
-                'correo' => $data['correo'],
-                'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
-                'nombres' => $data['nombres'],
-                'apellidos' => $data['apellidos'],
-                'telefono' => $data['telefono'],
+                'Correo' => $data['Correo'],
+                'Password' => password_hash($data['password'], PASSWORD_DEFAULT),
+                'Nombres' => $data['Nombres'],
+                'Apellidos' => $data['Apellidos'],
+                'Telefono' => $data['Telefono'],
             ]);
 
             $statement = $this->database->prepare(
-                'INSERT INTO instructores (id_usuario, carnet, especialidad)
-                 VALUES (:id_usuario, :carnet, :especialidad)'
+                'INSERT INTO instructores (IdUsuario, Carnet, Especialidad)
+                 VALUES (:IdUsuario, :Carnet, :Especialidad)'
             );
             $statement->execute([
-                'id_usuario' => (int) $this->database->lastInsertId(),
-                'carnet' => Identificador::generarCarnet(
+                'IdUsuario' => (int) $this->database->lastInsertId(),
+                'Carnet' => Identificador::generarCarnet(
                     $this->database,
-                    (string) $data['apellidos'],
+                    (string) $data['Apellidos'],
                     'instructores'
                 ),
-                'especialidad' => $data['especialidad'],
+                'Especialidad' => $data['Especialidad'],
             ]);
 
             $this->database->commit();
@@ -147,44 +147,44 @@ final class Instructor extends BaseModel
         }
     }
 
-    /** Actualiza datos personales y especialidad del instructor en una transacción. */
+    /** Actualiza datos personales y Especialidad del instructor en una transacción. */
     public function update(int $id, array $data): bool
     {
         $this->database->beginTransaction();
 
         try {
             $statement = $this->database->prepare(
-                'SELECT i.carnet, u.apellidos
+                'SELECT i.Carnet, u.Apellidos
                  FROM instructores AS i
-                 INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-                 WHERE i.id_instructor = :id_instructor
+                 INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+                 WHERE i.IdInstructor = :IdInstructor
                  FOR UPDATE'
             );
-            $statement->execute(['id_instructor' => $id]);
+            $statement->execute(['IdInstructor' => $id]);
             $current = $statement->fetch();
             if (!is_array($current)) {
                 $this->database->rollBack();
                 return false;
             }
 
-            $carnet = $current['apellidos'] !== $data['apellidos']
-                ? Identificador::generarCarnet($this->database, (string) $data['apellidos'], 'instructores')
-                : $current['carnet'];
+            $Carnet = $current['Apellidos'] !== $data['Apellidos']
+                ? Identificador::generarCarnet($this->database, (string) $data['Apellidos'], 'instructores')
+                : $current['Carnet'];
             $statement = $this->database->prepare(
                 'UPDATE usuarios AS u
-                 INNER JOIN instructores AS i ON i.id_usuario = u.id_usuario
-                 SET u.correo = :correo, u.nombres = :nombres, u.apellidos = :apellidos,
-                     u.telefono = :telefono, i.especialidad = :especialidad, i.carnet = :carnet
-                 WHERE i.id_instructor = :id_instructor'
+                 INNER JOIN instructores AS i ON i.IdUsuario = u.IdUsuario
+                 SET u.Correo = :Correo, u.Nombres = :Nombres, u.Apellidos = :Apellidos,
+                     u.Telefono = :Telefono, i.Especialidad = :Especialidad, i.Carnet = :Carnet
+                 WHERE i.IdInstructor = :IdInstructor'
             );
             $statement->execute([
-                'correo' => $data['correo'],
-                'nombres' => $data['nombres'],
-                'apellidos' => $data['apellidos'],
-                'telefono' => $data['telefono'],
-                'especialidad' => $data['especialidad'],
-                'carnet' => $carnet,
-                'id_instructor' => $id,
+                'Correo' => $data['Correo'],
+                'Nombres' => $data['Nombres'],
+                'Apellidos' => $data['Apellidos'],
+                'Telefono' => $data['Telefono'],
+                'Especialidad' => $data['Especialidad'],
+                'Carnet' => $Carnet,
+                'IdInstructor' => $id,
             ]);
             $this->database->commit();
 
@@ -206,11 +206,11 @@ final class Instructor extends BaseModel
 
         try {
             $statement = $this->database->prepare(
-                'SELECT id_usuario FROM instructores
-                 WHERE id_instructor = :id_instructor
+                'SELECT IdUsuario FROM instructores
+                 WHERE IdInstructor = :IdInstructor
                  FOR UPDATE'
             );
-            $statement->execute(['id_instructor' => $id]);
+            $statement->execute(['IdInstructor' => $id]);
             $userId = $statement->fetchColumn();
             if ($userId === false) {
                 $this->database->rollBack();
@@ -218,9 +218,9 @@ final class Instructor extends BaseModel
             }
 
             $statement = $this->database->prepare(
-                'SELECT COUNT(*) FROM cursos WHERE id_instructor = :id_instructor'
+                'SELECT COUNT(*) FROM cursos WHERE IdInstructor = :IdInstructor'
             );
-            $statement->execute(['id_instructor' => $id]);
+            $statement->execute(['IdInstructor' => $id]);
             $courseCount = (int) $statement->fetchColumn();
             if ($courseCount > 0) {
                 if ($replacementId === null || $replacementId === $id) {
@@ -231,13 +231,13 @@ final class Instructor extends BaseModel
             }
 
             $statement = $this->database->prepare(
-                'DELETE FROM instructores WHERE id_instructor = :id_instructor'
+                'DELETE FROM instructores WHERE IdInstructor = :IdInstructor'
             );
-            $statement->execute(['id_instructor' => $id]);
+            $statement->execute(['IdInstructor' => $id]);
             $statement = $this->database->prepare(
-                'DELETE FROM usuarios WHERE id_usuario = :id_usuario'
+                'DELETE FROM usuarios WHERE IdUsuario = :IdUsuario'
             );
-            $statement->execute(['id_usuario' => (int) $userId]);
+            $statement->execute(['IdUsuario' => (int) $userId]);
             $this->database->commit();
 
             return true;
@@ -249,19 +249,19 @@ final class Instructor extends BaseModel
         }
     }
 
-    /** Cambia el estado de la cuenta y reasigna cursos si se desactiva. */
+    /** Cambia el Estado de la cuenta y reasigna cursos si se desactiva. */
     public function setStatus(int $id, string $status, ?int $replacementId = null): bool
     {
         $this->database->beginTransaction();
 
         try {
             $statement = $this->database->prepare(
-                'SELECT i.id_usuario
+                'SELECT i.IdUsuario
                  FROM instructores AS i
-                 WHERE i.id_instructor = :id_instructor
+                 WHERE i.IdInstructor = :IdInstructor
                  FOR UPDATE'
             );
-            $statement->execute(['id_instructor' => $id]);
+            $statement->execute(['IdInstructor' => $id]);
             $userId = $statement->fetchColumn();
             if ($userId === false) {
                 $this->database->rollBack();
@@ -270,9 +270,9 @@ final class Instructor extends BaseModel
 
             if ($status === 'Inactivo') {
                 $statement = $this->database->prepare(
-                    'SELECT COUNT(*) FROM cursos WHERE id_instructor = :id_instructor'
+                    'SELECT COUNT(*) FROM cursos WHERE IdInstructor = :IdInstructor'
                 );
-                $statement->execute(['id_instructor' => $id]);
+                $statement->execute(['IdInstructor' => $id]);
                 $courseCount = (int) $statement->fetchColumn();
 
                 if ($courseCount > 0) {
@@ -288,13 +288,13 @@ final class Instructor extends BaseModel
 
             $statement = $this->database->prepare(
                 'UPDATE usuarios AS u
-                 INNER JOIN instructores AS i ON i.id_usuario = u.id_usuario
-                 SET u.estado_cuenta = :estado_cuenta
-                 WHERE i.id_instructor = :id_instructor'
+                 INNER JOIN instructores AS i ON i.IdUsuario = u.IdUsuario
+                 SET u.Estado_Cuenta = :Estado_Cuenta
+                 WHERE i.IdInstructor = :IdInstructor'
             );
             $statement->execute([
-                'estado_cuenta' => $status,
-                'id_instructor' => $id,
+                'Estado_Cuenta' => $status,
+                'IdInstructor' => $id,
             ]);
             $this->database->commit();
 
@@ -319,26 +319,26 @@ final class Instructor extends BaseModel
         }
 
         $statement = $this->database->prepare(
-            "SELECT i.id_instructor
+            "SELECT i.IdInstructor
              FROM instructores AS i
-             INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-             WHERE i.id_instructor = :id_instructor
-               AND u.estado_cuenta = 'Activo'
+             INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+             WHERE i.IdInstructor = :IdInstructor
+               AND u.Estado_Cuenta = 'Activo'
              FOR UPDATE"
         );
-        $statement->execute(['id_instructor' => $replacementId]);
+        $statement->execute(['IdInstructor' => $replacementId]);
         if ($statement->fetchColumn() === false) {
             throw new DomainException('El instructor de reemplazo debe existir y estar activo.');
         }
 
         $statement = $this->database->prepare(
             'UPDATE cursos
-             SET id_instructor = :replacement_id
-             WHERE id_instructor = :id_instructor'
+             SET IdInstructor = :replacement_id
+             WHERE IdInstructor = :IdInstructor'
         );
         $statement->execute([
             'replacement_id' => $replacementId,
-            'id_instructor' => $instructorId,
+            'IdInstructor' => $instructorId,
         ]);
     }
 
@@ -346,9 +346,9 @@ final class Instructor extends BaseModel
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(
-            'SELECT 1 FROM instructores WHERE id_instructor = :id_instructor'
+            'SELECT 1 FROM instructores WHERE IdInstructor = :IdInstructor'
         );
-        $statement->execute(['id_instructor' => $id]);
+        $statement->execute(['IdInstructor' => $id]);
 
         return $statement->fetchColumn() !== false;
     }

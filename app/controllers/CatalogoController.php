@@ -18,22 +18,22 @@ final class CatalogoController extends BaseController
         $this->categories = new Categoria($database);
     }
 
-    /** Filtra cursos públicos por búsqueda, categoría y modalidad, y carga el catálogo. */
+    /** Filtra cursos públicos por búsqueda, categoría y Modalidad, y carga el catálogo. */
     public function index(): void
     {
         $csrfToken = $this->csrfToken();
         $filters = [
             'busqueda' => trim((string) ($_GET['busqueda'] ?? '')),
-            'id_categoria' => trim((string) ($_GET['id_categoria'] ?? '')),
-            'modalidad' => trim((string) ($_GET['modalidad'] ?? '')),
+            'IdCategoria' => trim((string) ($_GET['IdCategoria'] ?? '')),
+            'Modalidad' => trim((string) ($_GET['Modalidad'] ?? '')),
         ];
         $error = null;
 
-        if ($filters['id_categoria'] !== '' && !ctype_digit($filters['id_categoria'])) {
+        if ($filters['IdCategoria'] !== '' && !ctype_digit($filters['IdCategoria'])) {
             $error = 'Selecciona una categoría válida.';
-        } elseif ($filters['modalidad'] !== ''
-            && !in_array($filters['modalidad'], ['Presencial', 'Virtual', 'Hibrido'], true)) {
-            $error = 'Selecciona una modalidad válida.';
+        } elseif ($filters['Modalidad'] !== ''
+            && !in_array($filters['Modalidad'], ['Presencial', 'Virtual', 'Hibrido'], true)) {
+            $error = 'Selecciona una Modalidad válida.';
         } elseif (mb_strlen($filters['busqueda'], 'UTF-8') > 150) {
             $error = 'La búsqueda no puede exceder 150 caracteres.';
         }
@@ -89,8 +89,8 @@ final class CatalogoController extends BaseController
         $isStudent = is_array($user) && ($user['role'] ?? null) === 'student';
         $isInstructor = is_array($user) && ($user['role'] ?? null) === 'instructor';
         $isAdministrator = is_array($user) && ($user['role'] ?? null) === 'administrator';
-        $canEnroll = $course['estado'] === 'Activo'
-            && (int) $course['cupos_disponibles'] > 0
+        $canEnroll = $course['Estado'] === 'Activo'
+            && (int) $course['Cupos_Disponibles'] > 0
             && $course['periodo_inicio'] !== null;
         $messages = [
             'solicitud_creada' => 'Tu solicitud fue registrada. El cupo quedó reservado mientras está pendiente.',
@@ -106,9 +106,9 @@ final class CatalogoController extends BaseController
         ];
 
         $this->render('catalogo/curso', [
-            'title' => (string) $course['nombre_curso'],
+            'title' => (string) $course['Nombre_Curso'],
             'course' => $course,
-            'schedules' => $this->courses->publicSchedule((int) $course['id_curso']),
+            'schedules' => $this->courses->publicSchedule((int) $course['IdCurso']),
             'canEnroll' => $canEnroll,
             'isStudent' => $isStudent,
             'isInstructor' => $isInstructor,
@@ -116,7 +116,7 @@ final class CatalogoController extends BaseController
             'activeEnrollment' => $isStudent
                 ? (new Solicitud(getDatabaseConnection()))->activeEnrollmentForStudent(
                     (int) $user['student_id'],
-                    (int) $course['id_curso']
+                    (int) $course['IdCurso']
                 )
                 : null,
             'csrfToken' => $csrfToken,

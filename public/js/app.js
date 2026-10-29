@@ -1,6 +1,90 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[type="password"]').forEach((input) => {
+        if (input.parentElement?.classList.contains('password-input-wrapper')) return;
+
+        const wrapper = document.createElement('span');
+        wrapper.className = 'password-input-wrapper';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.append(input);
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'password-visibility-toggle';
+        toggle.setAttribute('aria-label', 'Mostrar contraseña');
+        toggle.setAttribute('aria-pressed', 'false');
+        toggle.title = 'Mostrar contraseña';
+        toggle.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle><path class="password-visibility-slash" d="m4 4 16 16"></path></svg>';
+        wrapper.append(toggle);
+
+        toggle.addEventListener('click', () => {
+            const isVisible = input.type === 'text';
+            const selectionStart = input.selectionStart;
+            const selectionEnd = input.selectionEnd;
+            input.type = isVisible ? 'password' : 'text';
+            toggle.setAttribute('aria-pressed', String(!isVisible));
+            toggle.setAttribute('aria-label', isVisible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+            toggle.title = isVisible ? 'Mostrar contraseña' : 'Ocultar contraseña';
+            toggle.classList.toggle('is-visible', !isVisible);
+            input.focus();
+            if (selectionStart !== null && selectionEnd !== null) {
+                input.setSelectionRange(selectionStart, selectionEnd);
+            }
+        });
+    });
+
+    document.querySelectorAll('.instructor-edit-form').forEach((form) => {
+        const row = form.closest('.instructor-record-row');
+        const tableBody = row?.parentElement;
+        if (!row || !tableBody) return;
+
+        form.addEventListener('focusin', () => {
+            tableBody.querySelectorAll('.instructor-record-row').forEach((otherRow) => {
+                otherRow.classList.toggle('is-dimmed', otherRow !== row);
+                otherRow.classList.toggle('is-editing', otherRow === row);
+            });
+        });
+
+        form.addEventListener('focusout', (event) => {
+            if (event.relatedTarget instanceof Node && form.contains(event.relatedTarget)) return;
+            row.classList.remove('is-editing');
+            tableBody.querySelectorAll('.instructor-record-row').forEach((otherRow) => {
+                otherRow.classList.remove('is-dimmed');
+            });
+        });
+    });
+
+    document.querySelectorAll('.student-actions-menu').forEach((menu) => {
+        const row = menu.closest('.student-record-row');
+        const tableBody = row?.parentElement;
+        if (!row || !tableBody) return;
+
+        const menus = Array.from(tableBody.querySelectorAll('.student-actions-menu'));
+        const syncRows = () => {
+            const activeRow = menus.find((candidate) => candidate.open)?.closest('.student-record-row');
+            tableBody.querySelectorAll('.student-record-row').forEach((studentRow) => {
+                const inactive = activeRow !== undefined && studentRow !== activeRow;
+                studentRow.inert = inactive;
+                studentRow.classList.toggle('is-actions-dimmed', inactive);
+                if (inactive) {
+                    studentRow.setAttribute('aria-disabled', 'true');
+                } else {
+                    studentRow.removeAttribute('aria-disabled');
+                }
+            });
+        };
+
+        menu.addEventListener('toggle', () => {
+            if (menu.open) {
+                menus.forEach((otherMenu) => {
+                    if (otherMenu !== menu) otherMenu.open = false;
+                });
+            }
+            syncRows();
+        });
+    });
+
     const form = document.querySelector('[data-module-form]');
     const openButton = document.querySelector('[data-open-form]');
     const closeButton = document.querySelector('[data-close-form]');
@@ -111,11 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
     .forEach(function (formulario) {
 
         const inicio = formulario.querySelector(
-            'input[name="fecha_inicio"]'
+            'input[name="FechaInicio"]'
         );
 
         const cierre = formulario.querySelector(
-            'input[name="fecha_cierre"]'
+            'input[name="FechaCierre"]'
         );
 
         if (!inicio || !cierre) return;

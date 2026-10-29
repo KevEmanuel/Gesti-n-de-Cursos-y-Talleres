@@ -38,7 +38,7 @@ final class CuentaEstudianteController extends BaseController
         $errors = [
             // Mensaje cuando el estudiante introduce un celular incorrecto.
             'telefono_invalido' => 'El celular debe tener exactamente 8 dígitos y comenzar con 5, 6 o 7.',
-            'edad_invalida' => 'La edad es obligatoria y debe estar entre 17 y 70 años.',
+            'edad_invalida' => 'La Edad es obligatoria y debe estar entre 17 y 70 años.',
             'perfil_invalido' => 'Revisa los datos del perfil; algunos campos son obligatorios o no válidos.',
             'curso_no_disponible' => 'El curso ya no está disponible para inscripción.',
             'horario' => 'El horario del curso se cruza con otra inscripción activa.',
@@ -67,25 +67,25 @@ final class CuentaEstudianteController extends BaseController
         $this->verifyCsrfToken();
         $studentId = (int) $user['student_id'];
         $data = [
-            'telefono' => trim((string) ($_POST['telefono'] ?? '')),
-            'edad' => trim((string) ($_POST['edad'] ?? '')),
-            'genero' => trim((string) ($_POST['genero'] ?? '')),
+            'Telefono' => trim((string) ($_POST['Telefono'] ?? '')),
+            'Edad' => trim((string) ($_POST['Edad'] ?? '')),
+            'Genero' => trim((string) ($_POST['Genero'] ?? '')),
         ];
         // Validar el celular al modificar el perfil del estudiante.
         // Debe tener 8 dígitos y comenzar con 5, 6 o 7.
-        if ($data['telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['telefono']) !== 1) {
+        if ($data['Telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['Telefono']) !== 1) {
             $this->redirect('/mi-cuenta?error=telefono_invalido');
         }
-        if (!ctype_digit($data['edad']) || (int) $data['edad'] < 17 || (int) $data['edad'] > 70) {
+        if (!ctype_digit($data['Edad']) || (int) $data['Edad'] < 17 || (int) $data['Edad'] > 70) {
             $this->redirect('/mi-cuenta?error=edad_invalida');
         }
-        if ($data['genero'] !== '' && !in_array($data['genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
+        if ($data['Genero'] !== '' && !in_array($data['Genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
             $this->redirect('/mi-cuenta?error=perfil_invalido');
         }
 
-        $data['telefono'] = $data['telefono'] === '' ? null : $data['telefono'];
-        $data['edad'] = (int) $data['edad'];
-        $data['genero'] = $data['genero'] === '' ? null : $data['genero'];
+        $data['Telefono'] = $data['Telefono'] === '' ? null : $data['Telefono'];
+        $data['Edad'] = (int) $data['Edad'];
+        $data['Genero'] = $data['Genero'] === '' ? null : $data['Genero'];
         if (!$this->students->updateOwnProfile($studentId, $data)) {
             http_response_code(403);
             echo 'La cuenta de estudiante no está disponible.';
@@ -105,7 +105,7 @@ final class CuentaEstudianteController extends BaseController
     {
         $user = $this->requireStudent();
         $this->verifyCsrfToken();
-        $courseId = filter_var($_POST['id_curso'] ?? null, FILTER_VALIDATE_INT);
+        $courseId = filter_var($_POST['IdCurso'] ?? null, FILTER_VALIDATE_INT);
 
         if ($courseId === false || $courseId === null || $courseId < 1) {
             http_response_code(400);
@@ -141,7 +141,7 @@ final class CuentaEstudianteController extends BaseController
     {
         $user = $this->requireStudent();
         $this->verifyCsrfToken();
-        $enrollmentId = filter_var($_POST['id_inscripcion'] ?? null, FILTER_VALIDATE_INT);
+        $enrollmentId = filter_var($_POST['IdInscripcion'] ?? null, FILTER_VALIDATE_INT);
 
         if ($enrollmentId === false || $enrollmentId === null || $enrollmentId < 1) {
             http_response_code(400);

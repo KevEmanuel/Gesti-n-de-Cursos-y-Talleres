@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-/** Formulario y listado para administrar categorias. */
+/** Formulario para administrar las categorias. */
 
 ?>
 <main class="container">
@@ -26,13 +26,11 @@ declare(strict_types=1);
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
                 <label>
                     Nombre
-                    <input name="nombre" maxlength="150" required placeholder="Ej. Fotografía" value="<?= e($old['nombre'] ?? '') ?>">
-                    <small>El nombre debe incluir al menos una letra.</small>
+                    <input name="Nombre" maxlength="150" required placeholder="Ejemplo: Fotografía" value="<?= e($old['Nombre'] ?? '') ?>">
                 </label>
                 <label>
                     Descripción
-                    <input name="descripcion" maxlength="500" placeholder="Describe brevemente la categoría" value="<?= e($old['descripcion'] ?? '') ?>">
-                    <small>Opcional; si la completas, incluye al menos una letra.</small>
+                    <input name="Descripcion" maxlength="500" placeholder="Describe brevemente la categoría" value="<?= e($old['Descripcion'] ?? '') ?>">
                 </label>
                 <button type="submit" class="button">Crear categoría</button>
             </form>
@@ -62,20 +60,20 @@ declare(strict_types=1);
                                 <td colspan="3">
                                     <form action="/categorias/actualizar" method="post" class="category-edit-form">
                                         <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                                        <input type="hidden" name="id_categoria" value="<?= (int) $category['id_categoria'] ?>">
+                                        <input type="hidden" name="IdCategoria" value="<?= (int) $category['IdCategoria'] ?>">
                                         <label>
                                             <span class="visually-hidden">Nombre</span>
-                                            <input name="nombre" maxlength="150" required value="<?= e((string) $category['nombre']) ?>">
+                                            <input name="Nombre" maxlength="150" required value="<?= e((string) $category['Nombre']) ?>">
                                         </label>
                                         <label>
                                             <span class="visually-hidden">Descripción</span>
-                                            <input name="descripcion" maxlength="500" value="<?= e((string) ($category['descripcion'] ?? '')) ?>">
+                                            <input name="Descripcion" maxlength="500" value="<?= e((string) ($category['Descripcion'] ?? '')) ?>">
                                         </label>
                                         <label>
                                             <span class="visually-hidden">Estado</span>
-                                            <select name="estado">
-                                                <option value="Activo" <?= $category['estado'] === 'Activo' ? 'selected' : '' ?>>Activo</option>
-                                                <option value="Inactivo" <?= $category['estado'] === 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
+                                            <select name="Estado">
+                                                <option value="Activo" <?= $category['Estado'] === 'Activo' ? 'selected' : '' ?>>Activo</option>
+                                                <option value="Inactivo" <?= $category['Estado'] === 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
                                             </select>
                                         </label>
                                         <button type="submit" class="button">Guardar</button>
@@ -84,9 +82,9 @@ declare(strict_types=1);
                                 <td>
                                     <form action="/categorias/estado" method="post">
                                         <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                                        <input type="hidden" name="id_categoria" value="<?= (int) $category['id_categoria'] ?>">
-                                        <?php $nextStatus = $category['estado'] === 'Activo' ? 'Inactivo' : 'Activo'; ?>
-                                        <input type="hidden" name="estado" value="<?= $nextStatus ?>">
+                                        <input type="hidden" name="IdCategoria" value="<?= (int) $category['IdCategoria'] ?>">
+                                        <?php $nextStatus = $category['Estado'] === 'Activo' ? 'Inactivo' : 'Activo'; ?>
+                                        <input type="hidden" name="Estado" value="<?= $nextStatus ?>">
                                         <button type="submit" class="button button-secondary">
                                             <?= $nextStatus === 'Activo' ? 'Activar' : 'Desactivar' ?>
                                         </button>

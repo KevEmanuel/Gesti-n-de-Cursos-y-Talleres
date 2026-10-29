@@ -43,18 +43,18 @@ final class AuthController extends BaseController
             $this->redirect('/login');
         }
 
-        $email = trim((string) ($_POST['correo'] ?? ''));
-        $firstName = trim((string) ($_POST['nombres'] ?? ''));
-        $lastName = trim((string) ($_POST['apellidos'] ?? ''));
+        $email = trim((string) ($_POST['Correo'] ?? ''));
+        $firstName = trim((string) ($_POST['Nombres'] ?? ''));
+        $lastName = trim((string) ($_POST['Apellidos'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
         $passwordConfirmation = (string) ($_POST['password_confirmation'] ?? '');
         $error = $this->validateAdministrator($email, $firstName, $lastName, $password, $passwordConfirmation);
 
         if ($error !== null) {
             $this->renderSetupError($error, [
-                'correo' => $email,
-                'nombres' => $firstName,
-                'apellidos' => $lastName,
+                'Correo' => $email,
+                'Nombres' => $firstName,
+                'Apellidos' => $lastName,
             ]);
             return;
         }
@@ -65,10 +65,10 @@ final class AuthController extends BaseController
             $this->redirect('/login');
         } catch (PDOException $exception) {
             if ((string) $exception->getCode() === '23000') {
-                $this->renderSetupError('Ya existe una cuenta con ese correo.', [
-                    'correo' => $email,
-                    'nombres' => $firstName,
-                    'apellidos' => $lastName,
+                $this->renderSetupError('Ya existe una cuenta con ese Correo.', [
+                    'Correo' => $email,
+                    'Nombres' => $firstName,
+                    'Apellidos' => $lastName,
                 ]);
                 return;
             }
@@ -103,7 +103,7 @@ final class AuthController extends BaseController
     }
 
     /**
-     * Muestra el formulario para solicitar un enlace de recuperación.
+     * Muestra el formulario para solicitar un enlace de recuperación
      */
     public function forgotPassword(): void
     {
@@ -112,23 +112,23 @@ final class AuthController extends BaseController
             'csrfToken' => $this->csrfToken(),
             'error' => null,
             'message' => (string) ($_GET['estado'] ?? '') === 'solicitud'
-                ? 'Si la cuenta existe y puede recibir otra solicitud, enviaremos instrucciones al correo registrado.'
+                ? 'Si la cuenta existe y puede recibir otra solicitud, enviaremos instrucciones al Correo registrado.'
                 : null,
             'old' => [],
         ]);
     }
 
     /**
-     * Procesa solicitudes de recuperación sin revelar si existe el correo.
+     * Procesa solicitudes de recuperación sin revelar si existe el Correo.
      */
     public function requestPasswordReset(): void
     {
         $this->verifyCsrfToken();
 
-        $email = trim((string) ($_POST['correo'] ?? ''));
+        $email = trim((string) ($_POST['Correo'] ?? ''));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email, 'UTF-8') > 254) {
             http_response_code(422);
-            $this->renderForgotPasswordError('Ingresa un correo electrónico válido.', $email);
+            $this->renderForgotPasswordError('Ingresa un Correo electrónico válido.', $email);
             return;
         }
 
@@ -142,8 +142,8 @@ final class AuthController extends BaseController
 
             if ($user !== null) {
                 $mailer->send(
-                    $user['correo'],
-                    trim($user['nombres'] . ' ' . $user['apellidos']),
+                    $user['Correo'],
+                    trim($user['Nombres'] . ' ' . $user['Apellidos']),
                     $token
                 );
             }
@@ -151,7 +151,7 @@ final class AuthController extends BaseController
             if ($tokenHash !== null) {
                 $this->users->revokePasswordResetToken($tokenHash);
             }
-            error_log('Error al enviar correo de recuperación de contraseña: ' . $exception->getMessage());
+            error_log('Error al enviar Correo de recuperación de contraseña: ' . $exception->getMessage());
             http_response_code(503);
             $this->renderForgotPasswordError(
                 'No pudimos procesar la solicitud. Contacta al administrador para que te asigne una contraseña nueva.',
@@ -191,8 +191,10 @@ final class AuthController extends BaseController
         $password = (string) ($_POST['password'] ?? '');
         $passwordConfirmation = (string) ($_POST['password_confirmation'] ?? '');
 
-        if (preg_match('/\A[a-f0-9]{64}\z/', $token) !== 1
-            || !$this->users->hasValidPasswordResetToken(hash('sha256', $token))) {
+        if (
+            preg_match('/\A[a-f0-9]{64}\z/', $token) !== 1
+            || !$this->users->hasValidPasswordResetToken(hash('sha256', $token))
+        ) {
             http_response_code(422);
             $this->renderResetPasswordForm('', 'Este enlace no es válido o ya venció. Solicita uno nuevo.');
             return;
@@ -237,14 +239,14 @@ final class AuthController extends BaseController
     {
         $this->verifyCsrfToken();
 
-        $email = trim((string) ($_POST['correo'] ?? ''));
+        $email = trim((string) ($_POST['Correo'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
         $user = $this->users->byCredentials($email);
 
         if (
             $user === null
-            || $user['estado_cuenta'] !== 'Activo'
-            || !password_verify($password, (string) $user['password_hash'])
+            || $user['Estado_Cuenta'] !== 'Activo'
+            || !password_verify($password, (string) $user['Password'])
         ) {
             http_response_code(422);
             $this->render('auth/login', [
@@ -252,16 +254,16 @@ final class AuthController extends BaseController
                 'csrfToken' => $this->csrfToken(),
                 'error' => 'Correo o contraseña incorrectos, o cuenta no activa.',
                 'message' => null,
-                'old' => ['correo' => $email],
+                'old' => ['Correo' => $email],
             ]);
             return;
         }
 
         session_regenerate_id(true);
         $sessionUser = [
-            'id' => (int) $user['id_usuario'],
-            'name' => trim($user['nombres'] . ' ' . $user['apellidos']),
-            'email' => $user['correo'],
+            'id' => (int) $user['IdUsuario'],
+            'name' => trim($user['Nombres'] . ' ' . $user['Apellidos']),
+            'email' => $user['Correo'],
             'role' => $user['role'],
         ];
 
@@ -309,7 +311,7 @@ final class AuthController extends BaseController
     }
 
     /**
-     * Valida correo, datos personales y contraseña del administrador inicial.
+     * Valida Correo, datos personales y contraseña del administrador inicial.
      *
      * @return string|null Mensaje de validación o null cuando los datos son válidos.
      */
@@ -321,19 +323,19 @@ final class AuthController extends BaseController
         string $passwordConfirmation
     ): ?string {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return 'Ingresa un correo electrónico válido.';
+            return 'Ingresa un Correo electrónico válido.';
         }
 
         if (mb_strlen($email, 'UTF-8') > 254) {
-            return 'El correo no puede exceder 254 caracteres.';
+            return 'El Correo no puede exceder 254 caracteres.';
         }
 
         if ($firstName === '' || $lastName === '') {
-            return 'Nombres y apellidos son obligatorios.';
+            return 'Nombres y Apellidos son obligatorios.';
         }
 
         if (mb_strlen($firstName, 'UTF-8') > 100 || mb_strlen($lastName, 'UTF-8') > 100) {
-            return 'Los nombres y apellidos no pueden exceder 100 caracteres cada uno.';
+            return 'Los Nombres y Apellidos no pueden exceder 100 caracteres cada uno.';
         }
 
         if (mb_strlen($password, 'UTF-8') < 12) {
@@ -359,7 +361,7 @@ final class AuthController extends BaseController
         ]);
     }
 
-    /** Vuelve a mostrar el formulario de recuperación conservando el correo ingresado. */
+    /** Vuelve a mostrar el formulario de recuperación conservando el Correo ingresado. */
     private function renderForgotPasswordError(string $error, string $email): void
     {
         $this->render('auth/forgot-password', [
@@ -367,7 +369,7 @@ final class AuthController extends BaseController
             'csrfToken' => $this->csrfToken(),
             'error' => $error,
             'message' => null,
-            'old' => ['correo' => $email],
+            'old' => ['Correo' => $email],
         ]);
     }
 

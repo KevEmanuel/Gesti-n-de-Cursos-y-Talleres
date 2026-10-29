@@ -50,7 +50,7 @@ $isInstructor = is_array($user) && ($user['role'] ?? null) === 'instructor';
                 <div>
                     <p class="eyebrow">Catálogo público</p>
                     <h2>Encuentra tu próximo curso</h2>
-                    <p>Consulta contenidos, modalidad, instructor, horarios y disponibilidad.</p>
+                    <p>Consulta contenidos, Modalidad, instructor, horarios y disponibilidad.</p>
                 </div>
                 <a class="button" href="/catalogo">Ver cursos</a>
             </section>

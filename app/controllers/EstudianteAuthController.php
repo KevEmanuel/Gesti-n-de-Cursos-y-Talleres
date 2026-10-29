@@ -36,12 +36,12 @@ final class EstudianteAuthController extends BaseController
     {
         $this->verifyCsrfToken();
         $data = [
-            'correo' => trim((string) ($_POST['correo'] ?? '')),
-            'nombres' => trim((string) ($_POST['nombres'] ?? '')),
-            'apellidos' => trim((string) ($_POST['apellidos'] ?? '')),
-            'telefono' => trim((string) ($_POST['telefono'] ?? '')),
-            'edad' => trim((string) ($_POST['edad'] ?? '')),
-            'genero' => trim((string) ($_POST['genero'] ?? '')),
+            'Correo' => trim((string) ($_POST['Correo'] ?? '')),
+            'Nombres' => trim((string) ($_POST['Nombres'] ?? '')),
+            'Apellidos' => trim((string) ($_POST['Apellidos'] ?? '')),
+            'Telefono' => trim((string) ($_POST['Telefono'] ?? '')),
+            'Edad' => trim((string) ($_POST['Edad'] ?? '')),
+            'Genero' => trim((string) ($_POST['Genero'] ?? '')),
             'password' => (string) ($_POST['password'] ?? ''),
             'password_confirmation' => (string) ($_POST['password_confirmation'] ?? ''),
         ];
@@ -52,9 +52,9 @@ final class EstudianteAuthController extends BaseController
             return;
         }
 
-        $data['edad'] = (int) $data['edad'];
-        $data['telefono'] = $data['telefono'] === '' ? null : $data['telefono'];
-        $data['genero'] = $data['genero'] === '' ? null : $data['genero'];
+        $data['Edad'] = (int) $data['Edad'];
+        $data['Telefono'] = $data['Telefono'] === '' ? null : $data['Telefono'];
+        $data['Genero'] = $data['Genero'] === '' ? null : $data['Genero'];
 
         try {
             $this->applications->create($data);
@@ -63,7 +63,7 @@ final class EstudianteAuthController extends BaseController
             return;
         } catch (PDOException $exception) {
             if ((string) $exception->getCode() === '23000') {
-                $this->renderRegistrationError('Ya existe una cuenta o solicitud pendiente con ese correo.', $data);
+                $this->renderRegistrationError('Ya existe una cuenta o solicitud pendiente con ese Correo.', $data);
                 return;
             }
             throw $exception;
@@ -80,35 +80,35 @@ final class EstudianteAuthController extends BaseController
      */
     private function validateRegistration(array $data): ?string
     {
-        if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
-            return 'Ingresa un correo electrónico válido.';
+        if (!filter_var($data['Correo'], FILTER_VALIDATE_EMAIL)) {
+            return 'Ingresa un Correo electrónico válido.';
         }
-        // Validar los nombres del estudiante.
+        // Validar los Nombres del estudiante.
         // Solo se permiten letras, espacios, guiones y apóstrofes.
-        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['nombres']) !== 1) {
-            return 'Los nombres no pueden contener números ni símbolos inválidos.';
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['Nombres']) !== 1) {
+            return 'Los Nombres no pueden contener números ni símbolos inválidos.';
         }
 
-        // Validar los apellidos del estudiante.
-        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['apellidos']) !== 1) {
-           return 'Los apellidos no pueden contener números ni símbolos inválidos.';
+        // Validar los Apellidos del estudiante.
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['Apellidos']) !== 1) {
+           return 'Los Apellidos no pueden contener números ni símbolos inválidos.';
         }
 
-        if (mb_strlen($data['correo'], 'UTF-8') > 254 || mb_strlen($data['nombres'], 'UTF-8') > 100
-            || mb_strlen($data['apellidos'], 'UTF-8') > 100 || mb_strlen($data['telefono'], 'UTF-8') > 30) {
+        if (mb_strlen($data['Correo'], 'UTF-8') > 254 || mb_strlen($data['Nombres'], 'UTF-8') > 100
+            || mb_strlen($data['Apellidos'], 'UTF-8') > 100 || mb_strlen($data['Telefono'], 'UTF-8') > 30) {
             return 'Uno o más campos exceden la longitud permitida.';
         }
 
         // Validar el celular del estudiante.
         // Si se proporciona, debe contener 8 dígitos y comenzar con 5, 6 o 7.
-        if ($data['telefono'] !== '' && preg_match('/\A[567][0-9]{7}\z/', $data['telefono']) !== 1) {
+        if ($data['Telefono'] !== '' && preg_match('/\A[567][0-9]{7}\z/', $data['Telefono']) !== 1) {
             return 'El celular debe tener 8 dígitos y comenzar con 5, 6 o 7.';
         }
 
-        if (!ctype_digit($data['edad']) || (int) $data['edad'] < 17 || (int) $data['edad'] > 70) {
-            return 'La edad es obligatoria y debe estar entre 17 y 70 años.';
+        if (!ctype_digit($data['Edad']) || (int) $data['Edad'] < 17 || (int) $data['Edad'] > 70) {
+            return 'La Edad es obligatoria y debe estar entre 17 y 70 años.';
         }
-        if ($data['genero'] !== '' && !in_array($data['genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
+        if ($data['Genero'] !== '' && !in_array($data['Genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
             return 'Selecciona un género válido.';
         }
         if (mb_strlen($data['password'], 'UTF-8') < 12) {

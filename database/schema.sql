@@ -6,213 +6,211 @@ USE gestiondedatos;
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS usuarios (
-    id_usuario INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    correo VARCHAR(254) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    telefono VARCHAR(30) NULL,
-    edad INT UNSIGNED NULL,
-    genero ENUM('Masculino', 'Femenino', 'Otro') NULL,
-    estado_cuenta ENUM('Activo', 'Inactivo', 'Bloqueado') NOT NULL DEFAULT 'Activo',
-    PRIMARY KEY (id_usuario),
-    UNIQUE KEY uq_usuarios_correo (correo)
+    IdUsuario INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    Correo VARCHAR(254) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Nombres VARCHAR(100) NOT NULL,
+    Apellidos VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(30) NULL,
+    Edad INT UNSIGNED NULL,
+    Genero ENUM('Masculino', 'Femenino', 'Otro') NULL,
+    Estado_Cuenta ENUM('Activo', 'Inactivo', 'Bloqueado') NOT NULL DEFAULT 'Activo',
+    PRIMARY KEY (IdUsuario),
+    UNIQUE KEY uq_usuarios_correo (Correo)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
-    id_password_reset_token BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_usuario INT UNSIGNED NOT NULL,
-    token_hash CHAR(64) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME NOT NULL,
-    used_at DATETIME NULL,
-    PRIMARY KEY (id_password_reset_token),
-    UNIQUE KEY uq_password_reset_token_hash (token_hash),
-    KEY ix_password_reset_user_created (id_usuario, created_at),
+    IdPasswordResetToken BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdUsuario INT UNSIGNED NOT NULL,
+    TokenHash CHAR(64) NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ExpiresAt DATETIME NOT NULL,
+    UsedAt DATETIME NULL,
+    PRIMARY KEY (IdPasswordResetToken),
+    UNIQUE KEY uq_password_reset_token_hash (TokenHash),
+    KEY ix_password_reset_user_created (IdUsuario, CreatedAt),
     CONSTRAINT fk_password_reset_token_usuario
-        FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
+        FOREIGN KEY (IdUsuario) REFERENCES usuarios (IdUsuario)
         ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
 CREATE TABLE IF NOT EXISTS estudiantes (
-    id_estudiante INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_usuario INT UNSIGNED NOT NULL,
-    carnet VARCHAR(50) NOT NULL,
-    PRIMARY KEY (id_estudiante),
-    UNIQUE KEY uq_estudiantes_usuario (id_usuario),
-    UNIQUE KEY uq_estudiantes_carnet (carnet),
+    IdEstudiante INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdUsuario INT UNSIGNED NOT NULL,
+    Carnet VARCHAR(50) NOT NULL,
+    PRIMARY KEY (IdEstudiante),
+    UNIQUE KEY uq_estudiantes_usuario (IdUsuario),
+    UNIQUE KEY uq_estudiantes_carnet (Carnet),
     CONSTRAINT fk_estudiantes_usuario
-        FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
+        FOREIGN KEY (IdUsuario) REFERENCES usuarios (IdUsuario)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS administradores (
-    id_admin INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_usuario INT UNSIGNED NOT NULL,
-    PRIMARY KEY (id_admin),
-    UNIQUE KEY uq_administradores_usuario (id_usuario),
+    IdAdmin INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdUsuario INT UNSIGNED NOT NULL,
+    PRIMARY KEY (IdAdmin),
+    UNIQUE KEY uq_administradores_usuario (IdUsuario),
     CONSTRAINT fk_administradores_usuario
-        FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
+        FOREIGN KEY (IdUsuario) REFERENCES usuarios (IdUsuario)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS solicitudes_estudiante (
-    id_solicitud_estudiante INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    correo VARCHAR(254) NOT NULL,
-    password_hash VARCHAR(255) NULL,
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    telefono VARCHAR(30) NULL,
-    edad INT UNSIGNED NULL,
-    genero ENUM('Masculino', 'Femenino', 'Otro') NULL,
-    estado_solicitud ENUM('Pendiente', 'Aprobada', 'Rechazada') NOT NULL DEFAULT 'Pendiente',
-    id_admin_revisor INT UNSIGNED NULL,
-    creada_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    revisada_en DATETIME NULL,
-    correo_pendiente VARCHAR(254)
-        GENERATED ALWAYS AS (CASE WHEN estado_solicitud = 'Pendiente' THEN correo ELSE NULL END) STORED,
-    PRIMARY KEY (id_solicitud_estudiante),
-    UNIQUE KEY uq_solicitudes_estudiante_correo_pendiente (correo_pendiente),
-    KEY ix_solicitudes_estudiante_estado (estado_solicitud, creada_en),
-    KEY ix_solicitudes_estudiante_admin (id_admin_revisor),
+    IdSolicitudEstudiante INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    Correo VARCHAR(254) NOT NULL,
+    Password VARCHAR(255) NULL,
+    Nombres VARCHAR(100) NOT NULL,
+    Apellidos VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(30) NULL,
+    Edad INT UNSIGNED NULL,
+    Genero ENUM('Masculino', 'Femenino', 'Otro') NULL,
+    EstadoSolicitud ENUM('Pendiente', 'Aprobada', 'Rechazada') NOT NULL DEFAULT 'Pendiente',
+    IdAdminRevisor INT UNSIGNED NULL,
+    CreadaEn DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    RevisadaEn DATETIME NULL,
+    CorreoPendiente VARCHAR(254)
+        GENERATED ALWAYS AS (CASE WHEN EstadoSolicitud = 'Pendiente' THEN Correo ELSE NULL END) STORED,
+    PRIMARY KEY (IdSolicitudEstudiante),
+    UNIQUE KEY uq_solicitudes_estudiante_correo_pendiente (CorreoPendiente),
+    KEY ix_solicitudes_estudiante_estado (EstadoSolicitud, CreadaEn),
+    KEY ix_solicitudes_estudiante_admin (IdAdminRevisor),
     CONSTRAINT fk_solicitudes_estudiante_admin
-        FOREIGN KEY (id_admin_revisor) REFERENCES administradores (id_admin)
+        FOREIGN KEY (IdAdminRevisor) REFERENCES administradores (IdAdmin)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS instructores (
-    id_instructor INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_usuario INT UNSIGNED NOT NULL,
-    carnet VARCHAR(50) NOT NULL,
-    especialidad VARCHAR(255) NULL,
-    PRIMARY KEY (id_instructor),
-    UNIQUE KEY uq_instructores_usuario (id_usuario),
-    UNIQUE KEY uq_instructores_carnet (carnet),
+    IdInstructor INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdUsuario INT UNSIGNED NOT NULL,
+    Carnet VARCHAR(50) NOT NULL,
+    Especialidad VARCHAR(255) NULL,
+    PRIMARY KEY (IdInstructor),
+    UNIQUE KEY uq_instructores_usuario (IdUsuario),
+    UNIQUE KEY uq_instructores_carnet (Carnet),
     CONSTRAINT fk_instructores_usuario
-        FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
+        FOREIGN KEY (IdUsuario) REFERENCES usuarios (IdUsuario)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS categorias (
-    id_categoria INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(150) NOT NULL,
-    descripcion VARCHAR(500) NULL,
+    IdCategoria INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    Nombre VARCHAR(150) NOT NULL,
+    Descripcion VARCHAR(500) NULL,
     -- Added because the category use case requires activation/deactivation.
-    estado ENUM('Activo', 'Inactivo') NOT NULL DEFAULT 'Activo',
-    PRIMARY KEY (id_categoria),
-    UNIQUE KEY uq_categorias_nombre (nombre)
+    Estado ENUM('Activo', 'Inactivo') NOT NULL DEFAULT 'Activo',
+    PRIMARY KEY (IdCategoria),
+    UNIQUE KEY uq_categorias_nombre (Nombre)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS cursos (
-    id_curso INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_categoria INT UNSIGNED NOT NULL,
-    id_instructor INT UNSIGNED NOT NULL,
-    id_admin INT UNSIGNED NOT NULL,
-    nombre_curso VARCHAR(200) NOT NULL,
-    descripcion TEXT NULL,
-    duracion VARCHAR(100) NOT NULL,
-    modalidad ENUM('Presencial', 'Virtual', 'Hibrido') NOT NULL,
-    requisitos TEXT NULL,
-    costo_curso DECIMAL(10, 2) NOT NULL,
-    maximo_cupos INT UNSIGNED NOT NULL,
-    estado ENUM('Activo', 'Cerrado', 'Lleno', 'Cancelado') NOT NULL DEFAULT 'Activo',
-    PRIMARY KEY (id_curso),
-    KEY ix_cursos_categoria (id_categoria),
-    KEY ix_cursos_instructor (id_instructor),
-    KEY ix_cursos_admin (id_admin),
+    IdCurso INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdCategoria INT UNSIGNED NOT NULL,
+    IdInstructor INT UNSIGNED NOT NULL,
+    IdAdmin INT UNSIGNED NOT NULL,
+    Nombre_Curso VARCHAR(200) NOT NULL,
+    Descripcion TEXT NULL,
+    Duracion VARCHAR(100) NOT NULL,
+    Modalidad ENUM('Presencial', 'Virtual', 'Hibrido') NOT NULL,
+    Requisitos TEXT NULL,
+    Costo_curso DECIMAL(10, 2) NOT NULL,
+    Maximo_cupos INT UNSIGNED NOT NULL,
+    Estado ENUM('Activo', 'Cerrado', 'Lleno', 'Cancelado') NOT NULL DEFAULT 'Activo',
+    PRIMARY KEY (IdCurso),
+    KEY ix_cursos_categoria (IdCategoria),
+    KEY ix_cursos_instructor (IdInstructor),
+    KEY ix_cursos_admin (IdAdmin),
     CONSTRAINT fk_cursos_categoria
-        FOREIGN KEY (id_categoria) REFERENCES categorias (id_categoria)
+        FOREIGN KEY (IdCategoria) REFERENCES categorias (IdCategoria)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_cursos_instructor
-        FOREIGN KEY (id_instructor) REFERENCES instructores (id_instructor)
+        FOREIGN KEY (IdInstructor) REFERENCES instructores (IdInstructor)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_cursos_admin
-        FOREIGN KEY (id_admin) REFERENCES administradores (id_admin)
+        FOREIGN KEY (IdAdmin) REFERENCES administradores (IdAdmin)
         ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT chk_cursos_costo CHECK (costo_curso >= 0),
-    CONSTRAINT chk_cursos_capacidad CHECK (maximo_cupos > 0)
+    CONSTRAINT chk_cursos_costo CHECK (Costo_curso >= 0),
+    CONSTRAINT chk_cursos_capacidad CHECK (Maximo_cupos > 0)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS horarios (
-    id_horario INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_curso INT UNSIGNED NOT NULL,
-    dia ENUM('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo') NOT NULL,
-    hora_inicio TIME NOT NULL,
-    hora_finalizacion TIME NOT NULL,
-    PRIMARY KEY (id_horario),
-    KEY ix_horarios_curso_dia (id_curso, dia),
+    IdHorario INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdCurso INT UNSIGNED NOT NULL,
+    Dia ENUM('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo') NOT NULL,
+    HoraInicio TIME NOT NULL,
+    Hora_finalizacion TIME NOT NULL,
+    PRIMARY KEY (IdHorario),
+    KEY ix_horarios_curso_dia (IdCurso, Dia),
     CONSTRAINT fk_horarios_curso
-        FOREIGN KEY (id_curso) REFERENCES cursos (id_curso)
+        FOREIGN KEY (IdCurso) REFERENCES cursos (IdCurso)
         ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT chk_horarios_rango CHECK (hora_finalizacion > hora_inicio)
+    CONSTRAINT chk_horarios_rango CHECK (Hora_finalizacion > HoraInicio)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS periodos_inscripcion (
-    id_periodo INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_curso INT UNSIGNED NOT NULL,
-    id_admin INT UNSIGNED NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_cierre DATE NOT NULL,
-    PRIMARY KEY (id_periodo),
-    KEY ix_periodos_curso_fechas (id_curso, fecha_inicio, fecha_cierre),
-    KEY ix_periodos_admin (id_admin),
+    IdPeriodo INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdCurso INT UNSIGNED NOT NULL,
+    IdAdmin INT UNSIGNED NOT NULL,
+    FechaInicio DATE NOT NULL,
+    FechaCierre DATE NOT NULL,
+    PRIMARY KEY (IdPeriodo),
+    KEY ix_periodos_curso_fechas (IdCurso, FechaInicio, FechaCierre),
+    KEY ix_periodos_admin (IdAdmin),
     CONSTRAINT fk_periodos_curso
-        FOREIGN KEY (id_curso) REFERENCES cursos (id_curso)
+        FOREIGN KEY (IdCurso) REFERENCES cursos (IdCurso)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_periodos_admin
-        FOREIGN KEY (id_admin) REFERENCES administradores (id_admin)
+        FOREIGN KEY (IdAdmin) REFERENCES administradores (IdAdmin)
         ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT chk_periodos_fechas CHECK (fecha_cierre >= fecha_inicio)
+    CONSTRAINT chk_periodos_fechas CHECK (FechaCierre >= FechaInicio)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS inscripciones (
-    id_inscripcion INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    id_estudiante INT UNSIGNED NOT NULL,
-    id_curso INT UNSIGNED NOT NULL,
-    id_admin INT UNSIGNED NULL,
-    fecha_inscripcion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    estado_inscripcion ENUM('Confirmada', 'Pendiente', 'Cancelada', 'Rechazada') NOT NULL DEFAULT 'Pendiente',
-    motivo_rechazo VARCHAR(1000) NULL,
-    estudiante_activo_id INT UNSIGNED
+    IdInscripcion INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdEstudiante INT UNSIGNED NOT NULL,
+    IdCurso INT UNSIGNED NOT NULL,
+    IdAdmin INT UNSIGNED NULL,
+    FechaInscripcion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    EstadoInscripcion ENUM('Confirmada', 'Pendiente', 'Cancelada', 'Rechazada') NOT NULL DEFAULT 'Pendiente',
+    MotivoRechazo VARCHAR(1000) NULL,
+    EstudianteActivoId INT UNSIGNED
         GENERATED ALWAYS AS (
             CASE
-                WHEN estado_inscripcion IN ('Confirmada', 'Pendiente') THEN id_estudiante
+                WHEN EstadoInscripcion IN ('Confirmada', 'Pendiente') THEN IdEstudiante
                 ELSE NULL
             END
         ) STORED,
-    curso_activo_id INT UNSIGNED
+    CursoActivoId INT UNSIGNED
         GENERATED ALWAYS AS (
             CASE
-                WHEN estado_inscripcion IN ('Confirmada', 'Pendiente') THEN id_curso
+                WHEN EstadoInscripcion IN ('Confirmada', 'Pendiente') THEN IdCurso
                 ELSE NULL
             END
         ) STORED,
-    PRIMARY KEY (id_inscripcion),
-    UNIQUE KEY uq_inscripciones_activas (estudiante_activo_id, curso_activo_id),
-    KEY ix_inscripciones_curso_estado (id_curso, estado_inscripcion),
-    KEY ix_inscripciones_admin (id_admin),
+    PRIMARY KEY (IdInscripcion),
+    UNIQUE KEY uq_inscripciones_activas (EstudianteActivoId, CursoActivoId),
+    KEY ix_inscripciones_curso_estado (IdCurso, EstadoInscripcion),
+    KEY ix_inscripciones_admin (IdAdmin),
     CONSTRAINT fk_inscripciones_estudiante
-        FOREIGN KEY (id_estudiante) REFERENCES estudiantes (id_estudiante)
+        FOREIGN KEY (IdEstudiante) REFERENCES estudiantes (IdEstudiante)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_inscripciones_curso
-        FOREIGN KEY (id_curso) REFERENCES cursos (id_curso)
+        FOREIGN KEY (IdCurso) REFERENCES cursos (IdCurso)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_inscripciones_admin
-        FOREIGN KEY (id_admin) REFERENCES administradores (id_admin)
+        FOREIGN KEY (IdAdmin) REFERENCES administradores (IdAdmin)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- Cupos disponibles are derived from capacity and active inscriptions rather
--- than stored as a second source of truth.
 CREATE OR REPLACE VIEW vw_cursos_disponibilidad AS
 SELECT
-    c.id_curso,
-    c.maximo_cupos,
-    COUNT(i.id_inscripcion) AS inscritos_activos,
-    GREATEST(c.maximo_cupos - COUNT(i.id_inscripcion), 0) AS cupos_disponibles
+    c.IdCurso,
+    c.Maximo_cupos,
+    COUNT(i.IdInscripcion) AS InscritosActivos,
+    GREATEST(c.Maximo_cupos - COUNT(i.IdInscripcion), 0) AS Cupos_Disponibles
 FROM cursos AS c
 LEFT JOIN inscripciones AS i
-    ON i.id_curso = c.id_curso
-    AND i.estado_inscripcion IN ('Confirmada', 'Pendiente')
-GROUP BY c.id_curso, c.maximo_cupos;
+    ON i.IdCurso = c.IdCurso
+    AND i.EstadoInscripcion IN ('Confirmada', 'Pendiente')
+GROUP BY c.IdCurso, c.Maximo_cupos;

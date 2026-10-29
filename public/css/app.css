@@ -191,7 +191,9 @@ select {
 }
 
 .instructor-edit-form {
-    min-width: 900px;
+    display: grid;
+    gap: 16px;
+    min-width: 0;
 }
 
 .instructor-status-form {
@@ -242,6 +244,121 @@ select {
 .schedule-edit-form {
     grid-template-columns: minmax(180px, 1.3fr) minmax(130px, 0.8fr) repeat(2, minmax(135px, 0.9fr)) minmax(180px, 1.2fr);
     min-width: 980px;
+}
+.schedule-edit-form {
+    align-items: end;
+    background: transparent;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(190px, 1.25fr) minmax(140px, .8fr) repeat(2, minmax(150px, 1fr));
+    min-width: 0;
+}
+.schedule-course-row > td { border: 0; padding: 8px 12px; }
+.schedule-course-card {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgb(28 43 46 / 4%);
+    overflow: hidden;
+}
+.schedule-course-header {
+    align-items: center;
+    background: #f6f8f6;
+    border-bottom: 1px solid #e4e9e6;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    padding: 16px 18px;
+}
+.schedule-course-eyebrow {
+    color: var(--fc-muted);
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+.schedule-course-header h3 {
+    color: var(--fc-text);
+    font-family: "Sora", "Segoe UI", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+}
+.schedule-course-instructor {
+    background: #eef4f2;
+    border: 1px solid #cbd9d6;
+    border-radius: 8px;
+    color: var(--fc-primary-dark);
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 9px 12px;
+}
+.schedule-course-list { display: grid; }
+.schedule-entry {
+    align-items: start;
+    background: #fff;
+    border-bottom: 1px solid #e8ece9;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px 18px;
+    transition: background-color .18s ease;
+}
+.schedule-entry:nth-child(even) { background: #fbfaf8; }
+.schedule-entry:last-child { border-bottom: 0; }
+.schedule-entry:hover { background: #f2f8f6; }
+.schedule-actions-menu { justify-self: end; position: relative; }
+.schedule-actions-menu > summary {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #cbd9d6;
+    border-radius: 8px;
+    color: #14595f;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 8px;
+    justify-content: center;
+    list-style: none;
+    min-height: 42px;
+    padding: 8px 12px;
+}
+.schedule-actions-menu > summary::-webkit-details-marker { display: none; }
+.schedule-actions-menu > summary:hover,
+.schedule-actions-menu[open] > summary { background: #eef4f2; border-color: #14595f; }
+.schedule-actions-menu > summary svg { height: 18px; width: 18px; }
+.schedule-actions-panel {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgb(28 43 46 / 8%);
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 10px;
+    padding: 10px;
+}
+.schedule-actions-panel > .button,
+.schedule-actions-panel .schedule-delete-form .button {
+    justify-content: center;
+    min-height: 42px;
+    width: 100%;
+}
+.schedule-delete-form { margin: 0; }
+.schedule-delete-form .button {
+    background: #fff;
+    border-color: #e6c9c4;
+    color: var(--fc-danger);
+    min-width: 100%;
+}
+.schedule-delete-form .button:hover { background: #f8e9e7; }
+.schedule-edit-form label { min-width: 0; }
+.schedule-edit-form :is(select, input):hover {
+    background: #fff;
+    border-color: var(--fc-primary);
 }
 
 .report-filter {
@@ -1268,6 +1385,19 @@ input[readonly], input:disabled, select:disabled, textarea:disabled { background
 input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-color: var(--fc-primary); }
 [aria-invalid="true"] { border-color: var(--fc-danger); }
 label small, .student-register-form small { color: var(--fc-muted); font-size: 12px; font-weight: 400; }
+.password-input-wrapper { position: relative; display: block; min-width: 0; width: 100%; }
+.password-input-wrapper > input[type="password"],
+.password-input-wrapper > input[type="text"] { padding-right: 48px; }
+.password-visibility-toggle {
+    align-items: center; background: transparent; border: 0; border-radius: 6px;
+    color: var(--fc-muted); cursor: pointer; display: inline-flex; height: 34px;
+    justify-content: center; padding: 6px; position: absolute; right: 6px; top: 50%;
+    transform: translateY(-50%); width: 36px;
+}
+.password-visibility-toggle:hover { background: var(--fc-tint); color: var(--fc-primary); }
+.password-visibility-toggle svg { height: 20px; width: 20px; }
+.password-visibility-slash { opacity: 0; transition: opacity .15s ease; }
+.password-visibility-toggle.is-visible .password-visibility-slash { opacity: 1; }
 .profile-create-form, .course-form, .category-create-form,
 .schedule-form, .period-form, .request-form, .report-filter,
 .student-profile-form, .student-register-form {
@@ -1320,13 +1450,12 @@ tbody tr:hover { background: #f8faf8; }
 td .button { font-size: 13px; min-height: 36px; padding: 8px 12px; }
 td form { margin: 0; }
 td small { color: var(--fc-muted); }
-.student-actions-cell { min-width: 230px; }
 .student-row-actions {
     align-items: start;
     display: grid;
     gap: 8px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    min-width: 210px;
+    min-width: 0;
 }
 .student-row-actions form { display: flex; min-width: 0; }
 .student-row-actions .button { justify-content: center; min-width: 0; width: 100%; }
@@ -1363,11 +1492,508 @@ td small { color: var(--fc-muted); }
 }
 .password-reset-form small { line-height: 1.45; }
 .password-reset-form > .button { justify-self: stretch; }
+.student-create-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.student-create-form > .button {
+    grid-column: 1 / -1;
+    justify-self: end;
+    min-width: 180px;
+    width: auto;
+}
+.admin-stage .profile-list .table-wrapper:has(.student-card) {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+}
+.admin-stage .profile-list table:has(.student-card) {
+    border-collapse: separate;
+    border-spacing: 0 14px;
+    margin-top: -14px;
+}
+.admin-stage .profile-list:has(.student-card) tbody tr,
+.admin-stage .profile-list:has(.student-card) tbody tr:nth-child(even),
+.admin-stage .profile-list:has(.student-card) tbody tr:hover {
+    background: transparent;
+}
+.admin-stage .profile-list:has(.student-card) tbody td {
+    border: 0;
+    padding: 0;
+}
+.student-card {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgb(28 43 46 / 4%);
+    padding: 18px;
+    transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.student-record-row:hover .student-card {
+    background: #f4f9f7;
+    border-color: #8fb8b2;
+    box-shadow: 0 9px 24px rgb(20 89 95 / 12%);
+}
+.student-record-row.is-actions-dimmed {
+    filter: grayscale(.55);
+    opacity: .4;
+    pointer-events: none;
+    transition: opacity .18s ease, filter .18s ease;
+}
+.student-card-header {
+    align-items: center;
+    border-bottom: 1px solid #e8ece9;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+}
+.student-card-header .student-row-actions {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+.student-card-title {
+    color: #1c2b2e;
+    flex: 1;
+    font-family: "Sora", "Segoe UI", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+}
+.student-card-content {
+    align-items: start;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+}
+.admin-stage .student-edit-form {
+    align-items: stretch;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+}
+.student-edit-fields {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.student-edit-fields label { align-content: start; }
+.student-edit-fields label:focus-within { color: #14595f; }
+.student-edit-fields :is(input, select):hover {
+    background: #fff;
+    border-color: #6a9f99;
+}
+.student-edit-footer {
+    align-items: center;
+    border-top: 1px solid #e8ece9;
+    color: #5c6b6d;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    padding-top: 14px;
+}
+.student-edit-footer > .button { min-width: 170px; }
+.student-row-actions {
+    align-self: start;
+    border: 0;
+    display: block;
+    min-width: 0;
+    padding: 0;
+}
+.student-row-actions .student-actions-menu {
+    display: block;
+    width: 100%;
+}
+.student-actions-menu > summary {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #cbd9d6;
+    border-radius: 8px;
+    color: #14595f;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 8px;
+    justify-content: center;
+    list-style: none;
+    min-height: 42px;
+    margin-left: auto;
+    padding: 8px 12px;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.student-actions-menu > summary::-webkit-details-marker { display: none; }
+.student-actions-menu > summary:hover,
+.student-actions-menu[open] > summary {
+    background: #eef4f2;
+    border-color: #14595f;
+}
+.student-actions-menu > summary svg { height: 18px; width: 18px; }
+.student-actions-menu-panel {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgb(28 43 46 / 8%);
+    display: grid;
+    gap: 5px;
+    margin-top: 8px;
+    min-width: 0;
+    padding: 8px;
+    position: static;
+    width: 100%;
+}
+.student-actions-menu-panel > form { display: block; min-width: 0; }
+.student-actions-menu-panel .student-action-option {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: #1c2b2e;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 13px;
+    justify-content: flex-start;
+    list-style: none;
+    min-height: 38px;
+    padding: 8px 10px;
+    text-align: left;
+    text-decoration: none;
+    width: 100%;
+}
+.student-actions-menu-panel .student-action-option:hover {
+    background: #eef4f2;
+    color: #14595f;
+}
+.student-actions-menu-panel .student-action-option--danger { color: var(--fc-danger); }
+.student-actions-menu-panel .student-action-option--danger:hover { background: #f8e9e7; color: var(--fc-danger); }
+.student-actions-menu-panel .password-reset-details { width: 100%; }
+.student-actions-menu-panel .password-reset-details > summary { white-space: normal; }
+.student-actions-menu-panel .password-reset-form {
+    margin: 6px 0 0 !important;
+    min-width: 0;
+    padding: 10px;
+}
+.student-actions-menu-panel .password-reset-form .password-input-wrapper { width: 100%; }
+.admin-stage .profile-list .table-wrapper:has(.enrollment-request-card) {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+}
+.admin-stage .profile-list table:has(.enrollment-request-card) {
+    border-collapse: separate;
+    border-spacing: 0 14px;
+    margin-top: -14px;
+}
+.admin-stage .profile-list:has(.enrollment-request-card) tbody tr,
+.admin-stage .profile-list:has(.enrollment-request-card) tbody tr:nth-child(even),
+.admin-stage .profile-list:has(.enrollment-request-card) tbody tr:hover {
+    background: transparent;
+}
+.admin-stage .profile-list:has(.enrollment-request-card) tbody td {
+    border: 0;
+    padding: 0;
+}
+.enrollment-request-card {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgb(28 43 46 / 4%);
+    display: grid;
+    gap: 12px;
+    padding: 18px;
+    transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.enrollment-request-row:hover .enrollment-request-card {
+    background: #f4f9f7;
+    border-color: #8fb8b2;
+    box-shadow: 0 9px 24px rgb(20 89 95 / 12%);
+}
+.enrollment-request-header {
+    align-items: center;
+    border-bottom: 1px solid #e8ece9;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    margin: 0;
+    padding-bottom: 12px;
+}
+.enrollment-request-eyebrow {
+    color: var(--fc-muted);
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+}
+.enrollment-request-header h3 {
+    color: var(--fc-text);
+    font: 700 16px/1.35 "Sora", "Segoe UI", sans-serif;
+    margin: 0;
+}
+.enrollment-request-details {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.enrollment-request-details > div {
+    background: #fbfaf8;
+    border: 1px solid #e7e5de;
+    border-radius: 8px;
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 10px 12px;
+}
+.enrollment-request-details span {
+    color: var(--fc-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+.enrollment-request-details strong {
+    color: var(--fc-text);
+    font-size: 13px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+.enrollment-rejection-note {
+    background: #fbf3f1;
+    border: 1px solid #ecd7d2;
+    border-radius: 8px;
+    color: #7e3930;
+    margin-top: 12px;
+    padding: 10px 12px;
+}
+.enrollment-rejection-note strong { font-size: 11px; }
+.enrollment-rejection-note p { font-size: 13px; margin: 4px 0 0; overflow-wrap: anywhere; }
+.enrollment-actions-menu {
+    justify-self: stretch;
+    position: relative;
+}
+.enrollment-actions-menu > summary {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #cbd9d6;
+    border-radius: 8px;
+    color: #14595f;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 8px;
+    justify-content: center;
+    list-style: none;
+    min-height: 42px;
+    padding: 8px 12px;
+    margin-left: auto;
+}
+.enrollment-actions-menu > summary::-webkit-details-marker { display: none; }
+.enrollment-actions-menu > summary:hover,
+.enrollment-actions-menu[open] > summary { background: #eef4f2; border-color: #14595f; }
+.enrollment-actions-menu > summary svg { height: 18px; width: 18px; }
+.enrollment-actions-panel {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgb(28 43 46 / 8%);
+    margin-top: 10px;
+    margin-left: auto;
+    max-width: 440px;
+    min-width: 0;
+    padding: 12px;
+    position: static;
+    width: 100%;
+}
+.enrollment-actions-panel .enrollment-status-form {
+    align-items: start;
+    min-width: 0;
+}
+.enrollment-actions-panel .enrollment-status-form select {
+    max-width: 260px;
+}
+.enrollment-actions-panel .enrollment-status-form textarea {
+    max-width: 100%;
+}
+.enrollment-actions-panel .enrollment-status-form > .button {
+    justify-self: end;
+    min-height: 36px;
+    min-width: 0;
+    padding: 8px 14px;
+    width: auto;
+}
 .auth-recovery-help { color: var(--fc-muted); font-size: 12px !important; margin-top: 18px !important; }
-.instructor-actions-cell { min-width: 320px; }
-.instructor-row-actions { display: grid; gap: 12px; min-width: 280px; }
+.instructor-row-actions { align-content: start; display: block; min-width: 0; }
 .instructor-row-actions .password-reset-details { grid-column: auto; }
-.instructor-edit-form > .button { grid-column: 1 / -1; justify-self: end; min-width: 160px; }
+.instructor-edit-form > .button { justify-self: end; min-width: 160px; }
+.admin-stage .profile-list .table-wrapper:has(.instructor-card) {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+}
+.admin-stage .profile-list table:has(.instructor-card) {
+    border-collapse: separate;
+    border-spacing: 0 14px;
+    margin-top: -14px;
+}
+.admin-stage .profile-list:has(.instructor-card) tbody tr,
+.admin-stage .profile-list:has(.instructor-card) tbody tr:nth-child(even),
+.admin-stage .profile-list:has(.instructor-card) tbody tr:hover {
+    background: transparent;
+}
+.admin-stage .profile-list:has(.instructor-card) tbody td {
+    border: 0;
+    padding: 0;
+}
+.instructor-record-row {
+    opacity: 1;
+    transition: opacity .2s ease, filter .2s ease;
+}
+.instructor-record-row.is-dimmed {
+    filter: grayscale(.65);
+    opacity: .3;
+}
+.instructor-card {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgb(28 43 46 / 4%);
+    overflow: visible;
+    padding: 18px;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.instructor-record-row.is-editing .instructor-card {
+    border-color: #14595f;
+    box-shadow: 0 10px 28px rgb(20 89 95 / 14%);
+    transform: translateY(-2px);
+}
+.instructor-card-header {
+    align-items: center;
+    border-bottom: 1px solid #e8ece9;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+}
+.instructor-card-header .instructor-row-actions {
+    grid-column: 4;
+    width: 100%;
+}
+.instructor-card-header:has(.instructor-actions-menu[open]) .instructor-row-actions {
+    grid-column: 1 / -1;
+}
+.instructor-card-title {
+    color: #1c2b2e;
+    font-family: "Sora", "Segoe UI", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+}
+.instructor-card-content {
+    align-items: start;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+}
+.admin-stage .instructor-edit-form {
+    align-items: stretch;
+    background: transparent;
+    grid-template-columns: minmax(0, 1fr);
+}
+.instructor-edit-fields {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.instructor-edit-fields label {
+    align-content: start;
+}
+.instructor-edit-fields label:focus-within {
+    color: #14595f;
+}
+.instructor-edit-fields :is(input, select):hover {
+    background: #fff;
+    border-color: #6a9f99;
+}
+.instructor-edit-footer {
+    align-items: center;
+    border-top: 1px solid #e8ece9;
+    color: #5c6b6d;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    padding-top: 14px;
+}
+.instructor-edit-footer > .button {
+    min-width: 170px;
+}
+.instructor-row-actions {
+    border: 0;
+    padding: 0;
+}
+.instructor-actions-menu { display: block; min-width: 0; width: 100%; }
+.instructor-actions-menu > summary {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #cbd9d6;
+    border-radius: 8px;
+    color: #14595f;
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 8px;
+    justify-content: center;
+    list-style: none;
+    margin-left: auto;
+    min-height: 42px;
+    padding: 8px 12px;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+    width: fit-content;
+}
+.instructor-actions-menu > summary::-webkit-details-marker { display: none; }
+.instructor-actions-menu > summary:hover,
+.instructor-actions-menu[open] > summary {
+    background: #eef4f2;
+    border-color: #14595f;
+}
+.instructor-actions-menu > summary svg { height: 18px; width: 18px; }
+.instructor-actions-panel {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgb(28 43 46 / 8%);
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+    margin-left: auto;
+    max-width: 340px;
+    padding: 10px;
+    position: static;
+    width: 100%;
+}
+.instructor-actions-panel .instructor-action-form > .button,
+.instructor-actions-panel .password-reset-details > summary {
+    justify-content: center;
+    width: 100%;
+}
+.instructor-actions-panel .button,
+.instructor-actions-panel .password-reset-details > summary {
+    font-size: 12px;
+    min-height: 36px;
+    padding: 7px 10px;
+}
+.instructor-actions-panel .password-reset-form {
+    gap: 8px;
+    padding: 10px;
+}
+.instructor-actions-panel .password-reset-form .button {
+    min-height: 36px;
+    padding: 7px 10px;
+}
+.instructor-actions-panel .password-reset-form {
+    min-width: 0;
+}
 .instructor-action-form { position: relative; display: grid; gap: 12px; min-width: 0; }
 .instructor-action-field { display: grid; gap: 5px; min-width: 0; }
 .instructor-field-note {
@@ -2309,11 +2935,153 @@ body:has(.course-detail-page) {
 }
 
 .admin-stage .course-edit-form {
-    align-items: start;
+    align-items: stretch;
+    background: #fff;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
 }
 
-.admin-stage .course-edit-form > .button {
+.admin-stage .profile-list .table-wrapper:has(.course-edit-form) {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+}
+
+.admin-stage .profile-list table:has(.course-edit-form) {
+    border-collapse: separate;
+    border-spacing: 0 14px;
+    margin-top: -14px;
+}
+
+.admin-stage .course-record-row > td {
+    background: #fff;
+    border: 1px solid #d9e2df;
+    border-radius: 12px;
+    padding: 14px;
+    transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.admin-stage .course-record-row:hover > td {
+    background: #f4f9f7;
+    border-color: #9abfba;
+    box-shadow: 0 8px 22px rgb(20 89 95 / 10%);
+}
+
+.admin-stage .course-edit-section,
+.admin-stage .course-edit-footer {
+    background: #fbfaf8;
+    border: 1px solid #e4e2da;
+    border-radius: 10px;
+    padding: 14px;
+    transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.admin-stage .course-edit-section:hover,
+.admin-stage .course-edit-footer:hover {
+    background: #fff;
+    border-color: #b7cfca;
+    box-shadow: 0 4px 12px rgb(20 89 95 / 6%);
+}
+
+.admin-stage .course-edit-section h3,
+.admin-stage .course-edit-footer h3 {
+    color: #5c6b6d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+}
+
+.admin-stage .course-edit-main-fields {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.admin-stage .course-edit-details-fields {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.admin-stage .course-edit-details-fields .course-edit-description,
+.admin-stage .course-edit-details-fields .course-edit-requirements {
+    grid-column: span 3;
+}
+
+.admin-stage .course-edit-footer {
+    align-items: end;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(170px, 220px) auto;
+}
+
+.admin-stage .course-edit-footer h3 {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+}
+
+.admin-stage .course-edit-footer .course-capacity-info {
+    display: flex;
+    gap: 10px;
+}
+
+.admin-stage .course-capacity-info > span {
+    align-items: center;
+    background: #eef4f2;
+    border: 1px solid #cbd9d6;
+    border-radius: 8px;
+    color: #14595f;
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 10px 12px;
+}
+
+.admin-stage .course-capacity-info strong {
+    font-size: 15px;
+}
+
+.admin-stage .course-edit-footer > .button {
     align-self: end;
+    min-width: 160px;
+}
+
+.admin-stage .course-edit-main-fields label,
+.admin-stage .course-edit-details-fields label,
+.admin-stage .course-edit-footer > label {
+    border-radius: 9px;
+    transition: color .18s ease;
+}
+
+.admin-stage .course-edit-main-fields label:hover,
+.admin-stage .course-edit-details-fields label:hover,
+.admin-stage .course-edit-footer > label:hover,
+.admin-stage .course-edit-main-fields label:focus-within,
+.admin-stage .course-edit-details-fields label:focus-within,
+.admin-stage .course-edit-footer > label:focus-within {
+    color: #14595f;
+}
+
+.admin-stage .course-edit-main-fields :is(input, select):hover,
+.admin-stage .course-edit-details-fields :is(input, textarea):hover,
+.admin-stage .course-edit-footer select:hover {
+    background: #fff;
+    border-color: #14595f;
+    box-shadow: 0 0 0 3px rgb(20 89 95 / 16%);
+}
+
+.admin-stage .course-edit-main-fields :is(input, select),
+.admin-stage .course-edit-details-fields :is(input, textarea),
+.admin-stage .course-edit-footer select {
+    transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
 .admin-stage .enrollment-status-form {
@@ -2437,6 +3205,17 @@ body:has(.home-footer) {
 .admin-stage .report-filter {
     grid-template-columns: repeat(4, minmax(130px, 1fr)) auto;
 }
+
+.report-results-heading {
+    align-items: center;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.report-results-heading h2 { margin: 0; }
+.report-results-heading form { margin: 0; }
+.report-results-heading .button { white-space: nowrap; }
 
 @media (max-width: 760px) {
     .public-nav {
@@ -2784,6 +3563,60 @@ body:has(.home-footer) {
     .admin-stage .home-page .module-section nav {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .instructor-card-content {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .instructor-row-actions {
+        border: 0;
+        padding: 0;
+    }
+
+    .instructor-card-header .instructor-row-actions {
+        grid-column: 1 / -1;
+    }
+
+    .student-card-content {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .enrollment-request-details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding-right: 0;
+    }
+
+    .student-create-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .student-row-actions {
+        border: 0;
+        padding: 0;
+    }
+
+    .schedule-entry {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .schedule-edit-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .schedule-actions-menu {
+        justify-self: stretch;
+    }
+
+    .schedule-actions-menu > summary {
+        display: flex;
+        margin-left: auto;
+        width: fit-content;
+    }
+
+    .schedule-actions-panel > .button,
+    .schedule-actions-panel .schedule-delete-form .button {
+        width: 100%;
+    }
 }
 
 @media (max-width: 680px) {
@@ -2837,5 +3670,150 @@ body:has(.home-footer) {
 
     .admin-stage .home-page {
         padding: 22px 16px 36px;
+    }
+
+    .instructor-card {
+        padding: 14px;
+    }
+
+    .student-card {
+        padding: 14px;
+    }
+
+    .enrollment-request-card {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .enrollment-request-header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin: 0;
+    }
+
+    .enrollment-request-header h3 {
+        font-size: 14px;
+    }
+
+    .enrollment-request-details {
+        gap: 8px;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .enrollment-actions-menu {
+        margin: 0;
+    }
+
+    .enrollment-actions-panel {
+        max-width: 100%;
+    }
+
+    .student-card-header {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .student-card-title {
+        font-size: 14px;
+    }
+
+    .student-card-header .account-status {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .student-card-header .student-row-actions {
+        grid-column: 1 / -1;
+    }
+
+    .student-card-header .student-actions-menu {
+        width: 100%;
+    }
+
+    .student-edit-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .student-create-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .student-edit-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .student-edit-footer > .button {
+        width: 100%;
+    }
+
+    .instructor-card-header {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .instructor-card-title {
+        font-size: 14px;
+    }
+
+    .instructor-card-header .account-status {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .instructor-edit-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .instructor-edit-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .instructor-edit-footer > .button {
+        width: 100%;
+    }
+
+    .schedule-course-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .schedule-edit-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-stage .course-edit-main-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-stage .course-edit-details-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-stage .course-edit-details-fields .course-edit-description,
+    .admin-stage .course-edit-details-fields .course-edit-requirements {
+        grid-column: 1 / -1;
+    }
+
+    .admin-stage .course-edit-footer {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-stage .course-edit-footer .course-capacity-info {
+        flex-wrap: wrap;
+    }
+
+    .admin-stage .course-edit-footer > .button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 681px) and (max-width: 1100px) {
+    .admin-stage .course-edit-main-fields {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .admin-stage .course-edit-details-fields {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }

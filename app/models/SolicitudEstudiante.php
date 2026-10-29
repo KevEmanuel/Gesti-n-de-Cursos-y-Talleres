@@ -11,11 +11,11 @@ final class SolicitudEstudiante extends BaseModel
     public function all(): array
     {
         return $this->database->query(
-            'SELECT id_solicitud_estudiante, correo, nombres, apellidos,
-                    telefono, edad, genero, estado_solicitud, creada_en
+            'SELECT IdSolicitudEstudiante, Correo, Nombres, Apellidos,
+                    Telefono, Edad, Genero, EstadoSolicitud, CreadaEn
              FROM solicitudes_estudiante
-             ORDER BY CASE WHEN estado_solicitud = \'Pendiente\' THEN 0 ELSE 1 END,
-                      creada_en DESC'
+             ORDER BY CASE WHEN EstadoSolicitud = \'Pendiente\' THEN 0 ELSE 1 END,
+                      CreadaEn DESC'
         )->fetchAll();
     }
 
@@ -25,45 +25,45 @@ final class SolicitudEstudiante extends BaseModel
         $statement = $this->database->prepare(
             'SELECT 1
              FROM usuarios AS u
-             WHERE u.correo = :correo
+             WHERE u.Correo = :Correo
              LIMIT 1'
         );
-        $statement->execute(['correo' => $data['correo']]);
+        $statement->execute(['Correo' => $data['Correo']]);
         if ($statement->fetchColumn() !== false) {
-            throw new DomainException('El correo ya está registrado.');
+            throw new DomainException('El Correo ya está registrado.');
         }
 
         $statement = $this->database->prepare(
             'SELECT 1
              FROM solicitudes_estudiante
-             WHERE estado_solicitud = \'Pendiente\'
-               AND correo = :correo
+             WHERE EstadoSolicitud = \'Pendiente\'
+               AND Correo = :Correo
              LIMIT 1'
         );
-        $statement->execute(['correo' => $data['correo']]);
+        $statement->execute(['Correo' => $data['Correo']]);
         if ($statement->fetchColumn() !== false) {
-            throw new DomainException('Ya existe una solicitud pendiente con ese correo.');
+            throw new DomainException('Ya existe una solicitud pendiente con ese Correo.');
         }
 
         $statement = $this->database->prepare(
             'INSERT INTO solicitudes_estudiante
-                (correo, password_hash, nombres, apellidos, telefono, edad, genero)
+                (Correo, Password, Nombres, Apellidos, Telefono, Edad, Genero)
              VALUES
-                (:correo, :password_hash, :nombres, :apellidos, :telefono, :edad, :genero)'
+                (:Correo, :Password, :Nombres, :Apellidos, :Telefono, :Edad, :Genero)'
         );
         $statement->execute([
-            'correo' => $data['correo'],
-            'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
-            'nombres' => $data['nombres'],
-            'apellidos' => $data['apellidos'],
-            'telefono' => $data['telefono'],
-            'edad' => $data['edad'],
-            'genero' => $data['genero'],
+            'Correo' => $data['Correo'],
+            'Password' => password_hash($data['password'], PASSWORD_DEFAULT),
+            'Nombres' => $data['Nombres'],
+            'Apellidos' => $data['Apellidos'],
+            'Telefono' => $data['Telefono'],
+            'Edad' => $data['Edad'],
+            'Genero' => $data['Genero'],
         ]);
     }
 
     /**
-     * Cambia el estado de la solicitud dentro de una transaccion.
+     * Cambia el Estado de la solicitud dentro de una transaccion.
      */
     public function changeStatus(int $applicationId, string $status, int $administratorId): bool
     {
@@ -71,49 +71,49 @@ final class SolicitudEstudiante extends BaseModel
 
         try {
             $statement = $this->database->prepare(
-                'SELECT correo, password_hash, nombres, apellidos, telefono, edad, genero,
-                        estado_solicitud
+                'SELECT Correo, Password, Nombres, Apellidos, Telefono, Edad, Genero,
+                        EstadoSolicitud
                  FROM solicitudes_estudiante
-                 WHERE id_solicitud_estudiante = :id_solicitud_estudiante
+                 WHERE IdSolicitudEstudiante = :IdSolicitudEstudiante
                  FOR UPDATE'
             );
-            $statement->execute(['id_solicitud_estudiante' => $applicationId]);
+            $statement->execute(['IdSolicitudEstudiante' => $applicationId]);
             $application = $statement->fetch();
 
             if (!is_array($application)) {
                 $this->database->rollBack();
                 return false;
             }
-            if ($application['estado_solicitud'] !== 'Pendiente') {
+            if ($application['EstadoSolicitud'] !== 'Pendiente') {
                 throw new DomainException('Solo se pueden revisar solicitudes pendientes.');
             }
 
             if ($status === 'Aprobada') {
                 $statement = $this->database->prepare(
                     'INSERT INTO usuarios
-                        (correo, password_hash, nombres, apellidos, telefono, edad, genero)
+                        (Correo, Password, Nombres, Apellidos, Telefono, Edad, Genero)
                      VALUES
-                        (:correo, :password_hash, :nombres, :apellidos, :telefono, :edad, :genero)'
+                        (:Correo, :Password, :Nombres, :Apellidos, :Telefono, :Edad, :Genero)'
                 );
                 $statement->execute([
-                    'correo' => $application['correo'],
-                    'password_hash' => $application['password_hash'],
-                    'nombres' => $application['nombres'],
-                    'apellidos' => $application['apellidos'],
-                    'telefono' => $application['telefono'],
-                    'edad' => $application['edad'],
-                    'genero' => $application['genero'],
+                    'Correo' => $application['Correo'],
+                    'Password' => $application['Password'],
+                    'Nombres' => $application['Nombres'],
+                    'Apellidos' => $application['Apellidos'],
+                    'Telefono' => $application['Telefono'],
+                    'Edad' => $application['Edad'],
+                    'Genero' => $application['Genero'],
                 ]);
 
                 $statement = $this->database->prepare(
-                    'INSERT INTO estudiantes (id_usuario, carnet)
-                     VALUES (:id_usuario, :carnet)'
+                    'INSERT INTO estudiantes (IdUsuario, Carnet)
+                     VALUES (:IdUsuario, :Carnet)'
                 );
                 $statement->execute([
-                    'id_usuario' => (int) $this->database->lastInsertId(),
-                    'carnet' => Identificador::generarCarnet(
+                    'IdUsuario' => (int) $this->database->lastInsertId(),
+                    'Carnet' => Identificador::generarCarnet(
                         $this->database,
-                        (string) $application['apellidos'],
+                        (string) $application['Apellidos'],
                         'estudiantes'
                     ),
                 ]);
@@ -121,16 +121,16 @@ final class SolicitudEstudiante extends BaseModel
 
             $statement = $this->database->prepare(
                 'UPDATE solicitudes_estudiante
-                 SET estado_solicitud = :estado_solicitud,
-                     id_admin_revisor = :id_admin_revisor,
-                     revisada_en = CURRENT_TIMESTAMP,
-                     password_hash = NULL
-                 WHERE id_solicitud_estudiante = :id_solicitud_estudiante'
+                 SET EstadoSolicitud = :EstadoSolicitud,
+                     IdAdminRevisor = :IdAdminRevisor,
+                     RevisadaEn = CURRENT_TIMESTAMP,
+                     Password = NULL
+                 WHERE IdSolicitudEstudiante = :IdSolicitudEstudiante'
             );
             $statement->execute([
-                'estado_solicitud' => $status,
-                'id_admin_revisor' => $administratorId,
-                'id_solicitud_estudiante' => $applicationId,
+                'EstadoSolicitud' => $status,
+                'IdAdminRevisor' => $administratorId,
+                'IdSolicitudEstudiante' => $applicationId,
             ]);
 
             $this->database->commit();

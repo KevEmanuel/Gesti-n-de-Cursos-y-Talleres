@@ -7,13 +7,13 @@ declare(strict_types=1);
  */
 final class Categoria extends BaseModel
 {
-    /** Obtiene todas las categorías ordenadas por nombre. */
+    /** Obtiene todas las categorías ordenadas por Nombre. */
     public function all(): array
     {
         $statement = $this->database->query(
-            'SELECT id_categoria, nombre, descripcion, estado
+            'SELECT IdCategoria, Nombre, Descripcion, Estado
              FROM categorias
-             ORDER BY nombre'
+             ORDER BY Nombre'
         );
 
         return $statement->fetchAll();
@@ -25,26 +25,26 @@ final class Categoria extends BaseModel
     public function allActive(): array
     {
         $statement = $this->database->query(
-            "SELECT id_categoria, nombre
+            "SELECT IdCategoria, Nombre
              FROM categorias
-             WHERE estado = 'Activo'
-             ORDER BY nombre"
+             WHERE Estado = 'Activo'
+             ORDER BY Nombre"
         );
 
         return $statement->fetchAll();
     }
 
     /**
-     * Comprueba si el nombre ya esta registrado, excluyendo el identificador indicado.
+     * Comprueba si el Nombre ya esta registrado, excluyendo el identificador indicado.
      */
     public function nameExists(string $name, ?int $excludedId = null): bool
     {
-        $sql = 'SELECT 1 FROM categorias WHERE nombre = :nombre';
-        $parameters = ['nombre' => $name];
+        $sql = 'SELECT 1 FROM categorias WHERE Nombre = :Nombre';
+        $parameters = ['Nombre' => $name];
 
         if ($excludedId !== null) {
-            $sql .= ' AND id_categoria <> :id_categoria';
-            $parameters['id_categoria'] = $excludedId;
+            $sql .= ' AND IdCategoria <> :IdCategoria';
+            $parameters['IdCategoria'] = $excludedId;
         }
 
         $statement = $this->database->prepare($sql);
@@ -57,41 +57,41 @@ final class Categoria extends BaseModel
     public function create(string $name, ?string $description): void
     {
         $statement = $this->database->prepare(
-            'INSERT INTO categorias (nombre, descripcion) VALUES (:nombre, :descripcion)'
+            'INSERT INTO categorias (Nombre, Descripcion) VALUES (:Nombre, :Descripcion)'
         );
         $statement->execute([
-            'nombre' => $name,
-            'descripcion' => $description,
+            'Nombre' => $name,
+            'Descripcion' => $description,
         ]);
     }
 
-    /** Actualiza nombre, descripción y estado de una categoría existente. */
+    /** Actualiza Nombre, descripción y Estado de una categoría existente. */
     public function update(int $id, string $name, ?string $description, string $status): bool
     {
         $statement = $this->database->prepare(
             'UPDATE categorias
-             SET nombre = :nombre, descripcion = :descripcion, estado = :estado
-             WHERE id_categoria = :id_categoria'
+             SET Nombre = :Nombre, Descripcion = :Descripcion, Estado = :Estado
+             WHERE IdCategoria = :IdCategoria'
         );
         $statement->execute([
-            'nombre' => $name,
-            'descripcion' => $description,
-            'estado' => $status,
-            'id_categoria' => $id,
+            'Nombre' => $name,
+            'Descripcion' => $description,
+            'Estado' => $status,
+            'IdCategoria' => $id,
         ]);
 
         return $statement->rowCount() > 0 || $this->exists($id);
     }
 
-    /** Guarda el estado de una categoría y confirma si el identificador existe. */
+    /** Guarda el Estado de una categoría y confirma si el identificador existe. */
     public function setStatus(int $id, string $status): bool
     {
         $statement = $this->database->prepare(
-            'UPDATE categorias SET estado = :estado WHERE id_categoria = :id_categoria'
+            'UPDATE categorias SET Estado = :Estado WHERE IdCategoria = :IdCategoria'
         );
         $statement->execute([
-            'estado' => $status,
-            'id_categoria' => $id,
+            'Estado' => $status,
+            'IdCategoria' => $id,
         ]);
 
         return $statement->rowCount() > 0 || $this->exists($id);
@@ -101,9 +101,9 @@ final class Categoria extends BaseModel
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(
-            'SELECT 1 FROM categorias WHERE id_categoria = :id_categoria'
+            'SELECT 1 FROM categorias WHERE IdCategoria = :IdCategoria'
         );
-        $statement->execute(['id_categoria' => $id]);
+        $statement->execute(['IdCategoria' => $id]);
 
         return $statement->fetchColumn() !== false;
     }

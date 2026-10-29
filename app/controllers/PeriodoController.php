@@ -34,22 +34,22 @@ final class PeriodoController extends BaseController
             $this->renderError($error, $data);
             return;
         }
-        if ($this->periods->hasOverlappingPeriod($data['id_curso'], $data['fecha_inicio'], $data['fecha_cierre'])) {
+        if ($this->periods->hasOverlappingPeriod($data['IdCurso'], $data['FechaInicio'], $data['FechaCierre'])) {
             $this->renderError('Ya existe un período con fechas superpuestas para ese curso.', $data);
             return;
         }
 
-        $data['id_admin'] = (int) $_SESSION['user']['administrator_id'];
+        $data['IdAdmin'] = (int) $_SESSION['user']['administrator_id'];
         $this->periods->create($data);
         $this->redirect('/periodos?mensaje=creado');
     }
 
-    /** Actualiza un período existente después de comprobar fechas y traslapes. */
+    /** Actualiza un período existente después de comprobar fechas */
     public function update(): void
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_periodo'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdPeriodo'] ?? null, FILTER_VALIDATE_INT);
         $data = $this->submittedData();
 
         if ($id === false || $id === null || $id < 1) {
@@ -62,7 +62,7 @@ final class PeriodoController extends BaseController
             $this->renderError($error, $data);
             return;
         }
-        if ($this->periods->hasOverlappingPeriod($data['id_curso'], $data['fecha_inicio'], $data['fecha_cierre'], $id)) {
+        if ($this->periods->hasOverlappingPeriod($data['IdCurso'], $data['FechaInicio'], $data['FechaCierre'], $id)) {
             $this->renderError('Ya existe un período con fechas superpuestas para ese curso.', $data);
             return;
         }
@@ -80,7 +80,7 @@ final class PeriodoController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_periodo'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdPeriodo'] ?? null, FILTER_VALIDATE_INT);
 
         if ($id === false || $id === null || $id < 1) {
             http_response_code(400);
@@ -100,9 +100,9 @@ final class PeriodoController extends BaseController
     private function submittedData(): array
     {
         return [
-            'id_curso' => filter_var($_POST['id_curso'] ?? null, FILTER_VALIDATE_INT),
-            'fecha_inicio' => (string) ($_POST['fecha_inicio'] ?? ''),
-            'fecha_cierre' => (string) ($_POST['fecha_cierre'] ?? ''),
+            'IdCurso' => filter_var($_POST['IdCurso'] ?? null, FILTER_VALIDATE_INT),
+            'FechaInicio' => (string) ($_POST['FechaInicio'] ?? ''),
+            'FechaCierre' => (string) ($_POST['FechaCierre'] ?? ''),
         ];
     }
 
@@ -114,10 +114,10 @@ final class PeriodoController extends BaseController
      */
     private function validate(array $data): ?string
     {
-        if ($data['id_curso'] === false || $data['id_curso'] === null || $data['id_curso'] < 1) {
+        if ($data['IdCurso'] === false || $data['IdCurso'] === null || $data['IdCurso'] < 1) {
             return 'Selecciona un curso válido.';
         }
-        foreach (['fecha_inicio', 'fecha_cierre'] as $field) {
+        foreach (['FechaInicio', 'FechaCierre'] as $field) {
             $date = DateTimeImmutable::createFromFormat('!Y-m-d', $data[$field]);
             $errors = DateTimeImmutable::getLastErrors();
             if ($date === false || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
@@ -125,7 +125,7 @@ final class PeriodoController extends BaseController
                 return 'Ingresa fechas válidas.';
             }
         }
-        if ($data['fecha_cierre'] < $data['fecha_inicio']) {
+        if ($data['FechaCierre'] < $data['FechaInicio']) {
             return 'La fecha de cierre debe ser igual o posterior al inicio.';
         }
 

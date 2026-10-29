@@ -16,7 +16,7 @@ declare(strict_types=1);
             <h2>Aprende algo nuevo este ciclo</h2>
             <ul>
                 <li>Explora cursos y talleres en distintas áreas.</li>
-                <li>Elige la modalidad que mejor se adapte a ti.</li>
+                <li>Elige la Modalidad que mejor se adapte a ti.</li>
                 <li>Consulta tus solicitudes desde tu cuenta.</li>
             </ul>
         </div>
@@ -34,7 +34,7 @@ declare(strict_types=1);
             <?php endif; ?>
             <form action="/login" method="post" class="auth-form">
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                <label>Correo electrónico<input type="email" name="correo" maxlength="254" placeholder="usuario@gmail.com" required autocomplete="username" value="<?= e($old['correo'] ?? '') ?>"></label>
+                <label>Correo electrónico<input type="email" name="Correo" maxlength="254" placeholder="usuario@gmail.com" required autocomplete="username" value="<?= e($old['Correo'] ?? '') ?>"></label>
                 <label>Contraseña<input type="password" name="password" required autocomplete="current-password"></label>
                 <a class="auth-forgot-link" href="/password/recuperar">¿Olvidaste tu contraseña?</a>
                 <button class="button" type="submit">Entrar</button>

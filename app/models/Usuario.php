@@ -43,23 +43,23 @@ final class Usuario extends BaseModel
 
             $statement = $this->database->prepare(
                 'INSERT INTO usuarios
-                    (correo, password_hash, nombres, apellidos, estado_cuenta)
+                    (Correo, Password, Nombres, Apellidos, Estado_Cuenta)
                  VALUES
-                    (:correo, :password_hash, :nombres, :apellidos, :estado_cuenta)'
+                    (:Correo, :Password, :Nombres, :Apellidos, :Estado_Cuenta)'
             );
             $statement->execute([
-                'correo' => $email,
-                'password_hash' => password_hash($password, PASSWORD_DEFAULT),
-                'nombres' => $firstName,
-                'apellidos' => $lastName,
-                'estado_cuenta' => 'Activo',
+                'Correo' => $email,
+                'Password' => password_hash($password, PASSWORD_DEFAULT),
+                'Nombres' => $firstName,
+                'Apellidos' => $lastName,
+                'Estado_Cuenta' => 'Activo',
             ]);
 
             $userId = (int) $this->database->lastInsertId();
             $statement = $this->database->prepare(
-                'INSERT INTO administradores (id_usuario) VALUES (:id_usuario)'
+                'INSERT INTO administradores (IdUsuario) VALUES (:IdUsuario)'
             );
-            $statement->execute(['id_usuario' => $userId]);
+            $statement->execute(['IdUsuario' => $userId]);
 
             $this->database->commit();
         } catch (Throwable $exception) {
@@ -75,21 +75,21 @@ final class Usuario extends BaseModel
     }
 
     /**
-     * Busca la cuenta por correo y determina su unico rol asociado.
+     * Busca la cuenta por Correo y determina su unico rol asociado.
      */
     public function byCredentials(string $email): ?array
     {
         $statement = $this->database->prepare(
-            'SELECT u.id_usuario, u.correo, u.password_hash, u.nombres, u.apellidos,
-                    u.estado_cuenta, a.id_admin, e.id_estudiante, i.id_instructor
+            'SELECT u.IdUsuario, u.Correo, u.Password, u.Nombres, u.Apellidos,
+                    u.Estado_Cuenta, a.IdAdmin, e.IdEstudiante, i.IdInstructor
              FROM usuarios AS u
-             LEFT JOIN administradores AS a ON a.id_usuario = u.id_usuario
-             LEFT JOIN estudiantes AS e ON e.id_usuario = u.id_usuario
-             LEFT JOIN instructores AS i ON i.id_usuario = u.id_usuario
-             WHERE u.correo = :correo
+             LEFT JOIN administradores AS a ON a.IdUsuario = u.IdUsuario
+             LEFT JOIN estudiantes AS e ON e.IdUsuario = u.IdUsuario
+             LEFT JOIN instructores AS i ON i.IdUsuario = u.IdUsuario
+             WHERE u.Correo = :Correo
              LIMIT 1'
         );
-        $statement->execute(['correo' => $email]);
+        $statement->execute(['Correo' => $email]);
         $user = $statement->fetch();
 
         if (!is_array($user)) {
@@ -97,14 +97,14 @@ final class Usuario extends BaseModel
         }
 
         $roles = [];
-        if ($user['id_admin'] !== null) {
-            $roles[] = ['name' => 'administrator', 'id' => (int) $user['id_admin']];
+        if ($user['IdAdmin'] !== null) {
+            $roles[] = ['name' => 'administrator', 'id' => (int) $user['IdAdmin']];
         }
-        if ($user['id_estudiante'] !== null) {
-            $roles[] = ['name' => 'student', 'id' => (int) $user['id_estudiante']];
+        if ($user['IdEstudiante'] !== null) {
+            $roles[] = ['name' => 'student', 'id' => (int) $user['IdEstudiante']];
         }
-        if ($user['id_instructor'] !== null) {
-            $roles[] = ['name' => 'instructor', 'id' => (int) $user['id_instructor']];
+        if ($user['IdInstructor'] !== null) {
+            $roles[] = ['name' => 'instructor', 'id' => (int) $user['IdInstructor']];
         }
 
         if (count($roles) !== 1) {
@@ -123,8 +123,8 @@ final class Usuario extends BaseModel
     public function setManagedPassword(string $role, int $profileId, string $passwordHash): bool
     {
         $profile = match ($role) {
-            'student' => ['table' => 'estudiantes', 'id' => 'id_estudiante'],
-            'instructor' => ['table' => 'instructores', 'id' => 'id_instructor'],
+            'student' => ['table' => 'estudiantes', 'id' => 'IdEstudiante'],
+            'instructor' => ['table' => 'instructores', 'id' => 'IdInstructor'],
             default => null,
         };
 
@@ -136,9 +136,9 @@ final class Usuario extends BaseModel
 
         try {
             $findUser = $this->database->prepare(
-                'SELECT u.id_usuario
+                'SELECT u.IdUsuario
                  FROM usuarios AS u
-                 INNER JOIN ' . $profile['table'] . ' AS p ON p.id_usuario = u.id_usuario
+                 INNER JOIN ' . $profile['table'] . ' AS p ON p.IdUsuario = u.IdUsuario
                  WHERE p.' . $profile['id'] . ' = :profile_id
                  LIMIT 1
                  FOR UPDATE'
@@ -153,12 +153,12 @@ final class Usuario extends BaseModel
 
             $updatePassword = $this->database->prepare(
                 'UPDATE usuarios
-                 SET password_hash = :password_hash
-                 WHERE id_usuario = :id_usuario'
+                 SET Password = :Password
+                 WHERE IdUsuario = :IdUsuario'
             );
             $updatePassword->execute([
-                'password_hash' => $passwordHash,
-                'id_usuario' => (int) $userId,
+                'Password' => $passwordHash,
+                'IdUsuario' => (int) $userId,
             ]);
 
             $resetTableExists = $this->database->prepare(
@@ -174,10 +174,10 @@ final class Usuario extends BaseModel
             if ((bool) $resetTableExists->fetchColumn()) {
                 $invalidateTokens = $this->database->prepare(
                     'UPDATE password_reset_tokens
-                     SET used_at = CURRENT_TIMESTAMP
-                     WHERE id_usuario = :id_usuario AND used_at IS NULL'
+                     SET UsedAt = CURRENT_TIMESTAMP
+                     WHERE IdUsuario = :IdUsuario AND UsedAt IS NULL'
                 );
-                $invalidateTokens->execute(['id_usuario' => (int) $userId]);
+                $invalidateTokens->execute(['IdUsuario' => (int) $userId]);
             }
 
             $this->database->commit();
@@ -200,23 +200,23 @@ final class Usuario extends BaseModel
 
         try {
             $statement = $this->database->prepare(
-                'SELECT u.id_usuario, u.correo, u.nombres, u.apellidos,
-                        a.id_admin, e.id_estudiante, i.id_instructor
+                'SELECT u.IdUsuario, u.Correo, u.Nombres, u.Apellidos,
+                        a.IdAdmin, e.IdEstudiante, i.IdInstructor
                  FROM usuarios AS u
-                 LEFT JOIN administradores AS a ON a.id_usuario = u.id_usuario
-                 LEFT JOIN estudiantes AS e ON e.id_usuario = u.id_usuario
-                 LEFT JOIN instructores AS i ON i.id_usuario = u.id_usuario
-                 WHERE u.correo = :correo
+                 LEFT JOIN administradores AS a ON a.IdUsuario = u.IdUsuario
+                 LEFT JOIN estudiantes AS e ON e.IdUsuario = u.IdUsuario
+                 LEFT JOIN instructores AS i ON i.IdUsuario = u.IdUsuario
+                 WHERE u.Correo = :Correo
                  LIMIT 1
                  FOR UPDATE'
             );
-            $statement->execute(['correo' => $email]);
+            $statement->execute(['Correo' => $email]);
             $user = $statement->fetch();
 
             $roleCount = is_array($user)
-                ? (int) ($user['id_admin'] !== null)
-                    + (int) ($user['id_estudiante'] !== null)
-                    + (int) ($user['id_instructor'] !== null)
+                ? (int) ($user['IdAdmin'] !== null)
+                    + (int) ($user['IdEstudiante'] !== null)
+                    + (int) ($user['IdInstructor'] !== null)
                 : 0;
 
             if (!is_array($user) || $roleCount !== 1) {
@@ -226,18 +226,18 @@ final class Usuario extends BaseModel
 
             $cleanup = $this->database->prepare(
                 'DELETE FROM password_reset_tokens
-                 WHERE id_usuario = :id_usuario
-                   AND created_at < CURRENT_TIMESTAMP - INTERVAL 1 DAY'
+                 WHERE IdUsuario = :IdUsuario
+                   AND CreatedAt < CURRENT_TIMESTAMP - INTERVAL 1 DAY'
             );
-            $cleanup->execute(['id_usuario' => (int) $user['id_usuario']]);
+            $cleanup->execute(['IdUsuario' => (int) $user['IdUsuario']]);
 
             $rateLimit = $this->database->prepare(
                 'SELECT COUNT(*)
                  FROM password_reset_tokens
-                 WHERE id_usuario = :id_usuario
-                   AND created_at >= CURRENT_TIMESTAMP - INTERVAL 1 HOUR'
+                 WHERE IdUsuario = :IdUsuario
+                   AND CreatedAt >= CURRENT_TIMESTAMP - INTERVAL 1 HOUR'
             );
-            $rateLimit->execute(['id_usuario' => (int) $user['id_usuario']]);
+            $rateLimit->execute(['IdUsuario' => (int) $user['IdUsuario']]);
 
             if ((int) $rateLimit->fetchColumn() >= 3) {
                 $this->database->commit();
@@ -246,27 +246,27 @@ final class Usuario extends BaseModel
 
             $invalidate = $this->database->prepare(
                 'UPDATE password_reset_tokens
-                 SET used_at = CURRENT_TIMESTAMP
-                 WHERE id_usuario = :id_usuario AND used_at IS NULL'
+                 SET UsedAt = CURRENT_TIMESTAMP
+                 WHERE IdUsuario = :IdUsuario AND UsedAt IS NULL'
             );
-            $invalidate->execute(['id_usuario' => (int) $user['id_usuario']]);
+            $invalidate->execute(['IdUsuario' => (int) $user['IdUsuario']]);
 
             $insert = $this->database->prepare(
                 'INSERT INTO password_reset_tokens
-                    (id_usuario, token_hash, expires_at)
+                    (IdUsuario, TokenHash, ExpiresAt)
                  VALUES
-                    (:id_usuario, :token_hash, CURRENT_TIMESTAMP + INTERVAL 1 HOUR)'
+                    (:IdUsuario, :TokenHash, CURRENT_TIMESTAMP + INTERVAL 1 HOUR)'
             );
             $insert->execute([
-                'id_usuario' => (int) $user['id_usuario'],
-                'token_hash' => $tokenHash,
+                'IdUsuario' => (int) $user['IdUsuario'],
+                'TokenHash' => $tokenHash,
             ]);
             $this->database->commit();
 
             return [
-                'correo' => (string) $user['correo'],
-                'nombres' => (string) $user['nombres'],
-                'apellidos' => (string) $user['apellidos'],
+                'Correo' => (string) $user['Correo'],
+                'Nombres' => (string) $user['Nombres'],
+                'Apellidos' => (string) $user['Apellidos'],
             ];
         } catch (Throwable $exception) {
             if ($this->database->inTransaction()) {
@@ -284,12 +284,12 @@ final class Usuario extends BaseModel
         $statement = $this->database->prepare(
             'SELECT EXISTS(
                 SELECT 1 FROM password_reset_tokens
-                WHERE token_hash = :token_hash
-                  AND used_at IS NULL
-                  AND expires_at > CURRENT_TIMESTAMP
+                WHERE TokenHash = :TokenHash
+                  AND UsedAt IS NULL
+                  AND ExpiresAt > CURRENT_TIMESTAMP
             )'
         );
-        $statement->execute(['token_hash' => $tokenHash]);
+        $statement->execute(['TokenHash' => $tokenHash]);
 
         return (bool) $statement->fetchColumn();
     }
@@ -303,15 +303,15 @@ final class Usuario extends BaseModel
 
         try {
             $statement = $this->database->prepare(
-                'SELECT id_password_reset_token, id_usuario
+                'SELECT IdPasswordResetToken, IdUsuario
                  FROM password_reset_tokens
-                 WHERE token_hash = :token_hash
-                   AND used_at IS NULL
-                   AND expires_at > CURRENT_TIMESTAMP
+                 WHERE TokenHash = :TokenHash
+                   AND UsedAt IS NULL
+                   AND ExpiresAt > CURRENT_TIMESTAMP
                  LIMIT 1
                  FOR UPDATE'
             );
-            $statement->execute(['token_hash' => $tokenHash]);
+            $statement->execute(['TokenHash' => $tokenHash]);
             $token = $statement->fetch();
 
             if (!is_array($token)) {
@@ -321,20 +321,20 @@ final class Usuario extends BaseModel
 
             $updateUser = $this->database->prepare(
                 'UPDATE usuarios
-                 SET password_hash = :password_hash
-                 WHERE id_usuario = :id_usuario'
+                 SET Password = :Password
+                 WHERE IdUsuario = :IdUsuario'
             );
             $updateUser->execute([
-                'password_hash' => $passwordHash,
-                'id_usuario' => (int) $token['id_usuario'],
+                'Password' => $passwordHash,
+                'IdUsuario' => (int) $token['IdUsuario'],
             ]);
 
             $consumeTokens = $this->database->prepare(
                 'UPDATE password_reset_tokens
-                 SET used_at = CURRENT_TIMESTAMP
-                 WHERE id_usuario = :id_usuario AND used_at IS NULL'
+                 SET UsedAt = CURRENT_TIMESTAMP
+                 WHERE IdUsuario = :IdUsuario AND UsedAt IS NULL'
             );
-            $consumeTokens->execute(['id_usuario' => (int) $token['id_usuario']]);
+            $consumeTokens->execute(['IdUsuario' => (int) $token['IdUsuario']]);
             $this->database->commit();
 
             return true;
@@ -353,9 +353,9 @@ final class Usuario extends BaseModel
     {
         $statement = $this->database->prepare(
             'UPDATE password_reset_tokens
-             SET used_at = CURRENT_TIMESTAMP
-             WHERE token_hash = :token_hash AND used_at IS NULL'
+             SET UsedAt = CURRENT_TIMESTAMP
+             WHERE TokenHash = :TokenHash AND UsedAt IS NULL'
         );
-        $statement->execute(['token_hash' => $tokenHash]);
+        $statement->execute(['TokenHash' => $tokenHash]);
     }
 }

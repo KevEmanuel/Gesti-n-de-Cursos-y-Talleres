@@ -29,19 +29,19 @@ declare(strict_types=1);
             <?php if ($error !== null): ?><p class="notice notice-error" role="alert"><?= e($error) ?></p><?php endif; ?>
             <form action="/estudiante/registro" method="post" class="student-register-form">
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                <!-- Validación de nombres del estudiante -->
-                <label>Nombres<input name="nombres" maxlength="100" required autocomplete="given-name" class="soloLetras" placeholder="Ej. Ana María" value="<?= e($old['nombres'] ?? '') ?>"><small>Usa letras, espacios, guiones o apóstrofes.</small></label>
-                <!-- Validación de apellidos del estudiante -->
-                <label>Apellidos<input name="apellidos" maxlength="100" required autocomplete="family-name" class="soloLetras" placeholder="Ej. López García" value="<?= e($old['apellidos'] ?? '') ?>"><small>Usa letras, espacios, guiones o apóstrofes.</small></label>
-                <label>Correo electrónico<input type="email" name="correo" maxlength="254" required autocomplete="email" placeholder="Ej. nombre@dominio.com" value="<?= e($old['correo'] ?? '') ?>"></label>
+                <!-- Validación de Nombres del estudiante -->
+                <label>Nombres<input name="Nombres" maxlength="100" required autocomplete="given-name" class="soloLetras" placeholder="Ej. Ana María" value="<?= e($old['Nombres'] ?? '') ?>"><small>Usa letras, espacios, guiones o apóstrofes.</small></label>
+                <!-- Validación de Apellidos del estudiante -->
+                <label>Apellidos<input name="Apellidos" maxlength="100" required autocomplete="family-name" class="soloLetras" placeholder="Ej. López García" value="<?= e($old['Apellidos'] ?? '') ?>"><small>Usa letras, espacios, guiones o apóstrofes.</small></label>
+                <label>Correo electrónico<input type="email" name="Correo" maxlength="254" required autocomplete="email" placeholder="Ej. Nombre@dominio.com" value="<?= e($old['Correo'] ?? '') ?>"></label>
                 <!-- Validación del celular en el registro público -->
-                <label>Teléfono celular<input type="tel" name="telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" autocomplete="tel" title="Ingresa 8 dígitos; debe comenzar con 5, 6 o 7." placeholder="Ej. 71234567" value="<?= e($old['telefono'] ?? '') ?>"><small>Opcional. 8 dígitos, comenzando con 5, 6 o 7.</small></label>
-                <label>Edad (17 a 70 años)<input type="number" name="edad" min="17" max="70" step="1" required placeholder="Ej. 25" value="<?= e((string) ($old['edad'] ?? '')) ?>"></label>
+                <label>Teléfono celular<input type="tel" name="Telefono" class="celular-sv" inputmode="numeric" maxlength="8" pattern="[567][0-9]{7}" autocomplete="tel" title="Ingresa 8 dígitos; debe comenzar con 5, 6 o 7." placeholder="Ej. 71234567" value="<?= e($old['Telefono'] ?? '') ?>"><small>Opcional. 8 dígitos, comenzando con 5, 6 o 7.</small></label>
+                <label>Edad (17 a 70 años)<input type="number" name="Edad" min="17" max="70" step="1" required placeholder="Ej. 25" value="<?= e((string) ($old['Edad'] ?? '')) ?>"></label>
                 <label>Género
-                    <select name="genero">
+                    <select name="Genero">
                         <option value="">Sin especificar</option>
                         <?php foreach (['Masculino', 'Femenino', 'Otro'] as $gender): ?>
-                            <option value="<?= $gender ?>" <?= ($old['genero'] ?? '') === $gender ? 'selected' : '' ?>><?= $gender ?></option>
+                            <option value="<?= $gender ?>" <?= ($old['Genero'] ?? '') === $gender ? 'selected' : '' ?>><?= $gender ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>

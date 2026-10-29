@@ -35,12 +35,12 @@ final class CategoriaController extends BaseController
         $this->requireAdministrator();
         $this->verifyCsrfToken();
 
-        $name = trim((string) ($_POST['nombre'] ?? ''));
-        $description = trim((string) ($_POST['descripcion'] ?? ''));
+        $name = trim((string) ($_POST['Nombre'] ?? ''));
+        $description = trim((string) ($_POST['Descripcion'] ?? ''));
         $error = $this->validate($name, $description);
 
         if ($error !== null) {
-            $this->renderFormError($error, ['nombre' => $name, 'descripcion' => $description]);
+            $this->renderFormError($error, ['Nombre' => $name, 'Descripcion' => $description]);
             return;
         }
 
@@ -48,16 +48,16 @@ final class CategoriaController extends BaseController
         $this->redirect('/categorias?mensaje=creada');
     }
 
-    /** Valida y guarda el nombre, descripción y estado de la categoría seleccionada. */
+    /** Valida y guarda el Nombre, descripción y Estado de la categoría seleccionada. */
     public function update(): void
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
 
-        $id = filter_var($_POST['id_categoria'] ?? null, FILTER_VALIDATE_INT);
-        $name = trim((string) ($_POST['nombre'] ?? ''));
-        $description = trim((string) ($_POST['descripcion'] ?? ''));
-        $status = (string) ($_POST['estado'] ?? '');
+        $id = filter_var($_POST['IdCategoria'] ?? null, FILTER_VALIDATE_INT);
+        $name = trim((string) ($_POST['Nombre'] ?? ''));
+        $description = trim((string) ($_POST['Descripcion'] ?? ''));
+        $status = (string) ($_POST['Estado'] ?? '');
 
         if ($id === false || $id === null || $id < 1) {
             http_response_code(400);
@@ -67,7 +67,7 @@ final class CategoriaController extends BaseController
 
         $error = $this->validate($name, $description, $id);
         if ($error === null && !in_array($status, ['Activo', 'Inactivo'], true)) {
-            $error = 'Selecciona un estado válido.';
+            $error = 'Selecciona un Estado válido.';
         }
 
         if ($error !== null) {
@@ -90,12 +90,12 @@ final class CategoriaController extends BaseController
         $this->requireAdministrator();
         $this->verifyCsrfToken();
 
-        $id = filter_var($_POST['id_categoria'] ?? null, FILTER_VALIDATE_INT);
-        $status = (string) ($_POST['estado'] ?? '');
+        $id = filter_var($_POST['IdCategoria'] ?? null, FILTER_VALIDATE_INT);
+        $status = (string) ($_POST['Estado'] ?? '');
 
         if ($id === false || $id === null || $id < 1 || !in_array($status, ['Activo', 'Inactivo'], true)) {
             http_response_code(400);
-            echo 'Los datos enviados para cambiar el estado no son válidos.';
+            echo 'Los datos enviados para cambiar el Estado no son válidos.';
             return;
         }
 
@@ -110,16 +110,16 @@ final class CategoriaController extends BaseController
     }
 
     /**
-     * Valida el nombre y la descripción, incluida la unicidad del nombre.
+     * Valida el Nombre y la descripción, incluida la unicidad del Nombre.
      *
      * @return string|null Mensaje de error o null si los datos son válidos.
      */
     private function validate(string $name, string $description, ?int $excludedId = null): ?string
     {
-        // VALIDACIÓN AGREGADA: Comprueba que el nombre de la categoría
-        // contenga al menos una letra, evitando nombres solo numéricos o símbolos.
+        // VALIDACIÓN AGREGADA: Comprueba que el Nombre de la categoría
+        // contenga al menos una letra, evitando Nombres solo numéricos o símbolos.
         if (preg_match('/\p{L}/u', $name) !== 1) {
-            return 'El nombre debe contener al menos una letra.';
+            return 'El Nombre debe contener al menos una letra.';
         }
 
         // VALIDACIÓN AGREGADA: Comprueba que la descripción contenga al menos
@@ -129,15 +129,15 @@ final class CategoriaController extends BaseController
             return 'La descripción debe contener texto válido.';
         }
         if ($name === '') {
-            return 'El nombre de la categoría es obligatorio.';
+            return 'El Nombre de la categoría es obligatorio.';
         }
 
         if (mb_strlen($name, 'UTF-8') > 150 || mb_strlen($description, 'UTF-8') > 500) {
-            return 'El nombre admite hasta 150 caracteres y la descripción hasta 500.';
+            return 'El Nombre admite hasta 150 caracteres y la descripción hasta 500.';
         }
 
         if ($this->categories->nameExists($name, $excludedId)) {
-            return 'Ya existe una categoría con ese nombre.';
+            return 'Ya existe una categoría con ese Nombre.';
         }
 
         return null;

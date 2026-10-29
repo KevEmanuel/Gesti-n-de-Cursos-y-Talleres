@@ -49,7 +49,7 @@ final class EstudianteController extends BaseController
             return;
         } catch (PDOException $exception) {
             if ((string) $exception->getCode() === '23000') {
-                $this->renderError('El correo ya está registrado o no se pudo reservar un carnet único.', $data);
+                $this->renderError('El Correo ya está registrado o no se pudo reservar un Carnet único.', $data);
                 return;
             }
             throw $exception;
@@ -58,13 +58,13 @@ final class EstudianteController extends BaseController
         $this->redirect('/estudiantes?mensaje=creado');
     }
     /**
-     * Actualiza los datos personales y el carnet del estudiante seleccionado.
+     * Actualiza los datos personales y el Carnet del estudiante seleccionado.
      */
     public function update(): void
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_estudiante'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdEstudiante'] ?? null, FILTER_VALIDATE_INT);
         $data = $this->submittedData(false);
 
         if ($id === false || $id === null || $id < 1) {
@@ -87,7 +87,7 @@ final class EstudianteController extends BaseController
             }
         } catch (PDOException $exception) {
             if ((string) $exception->getCode() === '23000') {
-                $this->renderError('El correo ya pertenece a otro registro', $data);
+                $this->renderError('El Correo ya pertenece a otro registro', $data);
                 return;
             }
             throw $exception;
@@ -103,12 +103,12 @@ final class EstudianteController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_estudiante'] ?? null, FILTER_VALIDATE_INT);
-        $status = (string) ($_POST['estado_cuenta'] ?? '');
+        $id = filter_var($_POST['IdEstudiante'] ?? null, FILTER_VALIDATE_INT);
+        $status = (string) ($_POST['Estado_Cuenta'] ?? '');
 
         if ($id === false || $id === null || $id < 1 || !in_array($status, ['Activo', 'Inactivo'], true)) {
             http_response_code(400);
-            echo 'Los datos enviados para el estado del estudiante no son válidos.';
+            echo 'Los datos enviados para el Estado del estudiante no son válidos.';
             return;
         }
 
@@ -128,7 +128,7 @@ final class EstudianteController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_estudiante'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdEstudiante'] ?? null, FILTER_VALIDATE_INT);
         $password = (string) ($_POST['password'] ?? '');
         $confirmation = (string) ($_POST['password_confirmation'] ?? '');
 
@@ -162,7 +162,7 @@ final class EstudianteController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_estudiante'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdEstudiante'] ?? null, FILTER_VALIDATE_INT);
 
         if ($id === false || $id === null || $id < 1) {
             http_response_code(400);
@@ -197,8 +197,8 @@ final class EstudianteController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_solicitud_estudiante'] ?? null, FILTER_VALIDATE_INT);
-        $status = (string) ($_POST['estado_solicitud'] ?? '');
+        $id = filter_var($_POST['IdSolicitudEstudiante'] ?? null, FILTER_VALIDATE_INT);
+        $status = (string) ($_POST['EstadoSolicitud'] ?? '');
 
         if ($id === false || $id === null || $id < 1
             || !in_array($status, ['Aprobada', 'Rechazada'], true)) {
@@ -222,7 +222,7 @@ final class EstudianteController extends BaseController
             return;
         } catch (PDOException $exception) {
             if ((string) $exception->getCode() === '23000') {
-                $this->renderError('No se puede aprobar: el correo ya pertenece a otra cuenta o no se pudo reservar un carnet único.');
+                $this->renderError('No se puede aprobar: el Correo ya pertenece a otra cuenta o no se pudo reservar un Carnet único.');
                 return;
             }
             throw $exception;
@@ -235,12 +235,12 @@ final class EstudianteController extends BaseController
     private function submittedData(bool $withPassword): array
     {
         $data = [
-            'correo' => trim((string) ($_POST['correo'] ?? '')),
-            'nombres' => trim((string) ($_POST['nombres'] ?? '')),
-            'apellidos' => trim((string) ($_POST['apellidos'] ?? '')),
-            'telefono' => trim((string) ($_POST['telefono'] ?? '')),
-            'edad' => trim((string) ($_POST['edad'] ?? '')),
-            'genero' => trim((string) ($_POST['genero'] ?? '')),
+            'Correo' => trim((string) ($_POST['Correo'] ?? '')),
+            'Nombres' => trim((string) ($_POST['Nombres'] ?? '')),
+            'Apellidos' => trim((string) ($_POST['Apellidos'] ?? '')),
+            'Telefono' => trim((string) ($_POST['Telefono'] ?? '')),
+            'Edad' => trim((string) ($_POST['Edad'] ?? '')),
+            'Genero' => trim((string) ($_POST['Genero'] ?? '')),
         ];
 
         if ($withPassword) {
@@ -258,28 +258,28 @@ final class EstudianteController extends BaseController
      */
     private function validate(array &$data, bool $withPassword): ?string
     {
-        if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
-            return 'Ingresa un correo electrónico válido.';
+        if (!filter_var($data['Correo'], FILTER_VALIDATE_EMAIL)) {
+            return 'Ingresa un Correo electrónico válido.';
         }
-        // Validar que los nombres contengan únicamente letras,
+        // Validar que los Nombres contengan únicamente letras,
         // espacios, guiones y apóstrofes.
-        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['nombres']) !== 1) {
-            return 'El nombre solo puede contener letras, espacios, guiones y apóstrofes.';
+        if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['Nombres']) !== 1) {
+            return 'El Nombre solo puede contener letras, espacios, guiones y apóstrofes.';
         }
 
-         // Validar que los apellidos no contengan números ni símbolos inválidos.
-         if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['apellidos']) !== 1) {
+         // Validar que los Apellidos no contengan números ni símbolos inválidos.
+         if (preg_match("/^\p{L}+(?:[ '-]\p{L}+)*$/u", $data['Apellidos']) !== 1) {
             return 'El apellido solo puede contener letras, espacios, guiones y apóstrofes.';
         }
 
-        if (mb_strlen($data['correo'], 'UTF-8') > 254 || mb_strlen($data['nombres'], 'UTF-8') > 100
-            || mb_strlen($data['apellidos'], 'UTF-8') > 100 || mb_strlen($data['telefono'], 'UTF-8') > 30) {
+        if (mb_strlen($data['Correo'], 'UTF-8') > 254 || mb_strlen($data['Nombres'], 'UTF-8') > 100
+            || mb_strlen($data['Apellidos'], 'UTF-8') > 100 || mb_strlen($data['Telefono'], 'UTF-8') > 30) {
             return 'Uno o más campos exceden la longitud permitida.';
         }
-        if (!ctype_digit($data['edad']) || (int) $data['edad'] < 17 || (int) $data['edad'] > 70) {
-            return 'La edad es obligatoria y debe estar entre 17 y 70 años.';
+        if (!ctype_digit($data['Edad']) || (int) $data['Edad'] < 17 || (int) $data['Edad'] > 70) {
+            return 'La Edad es obligatoria y debe estar entre 17 y 70 años.';
         }
-        if ($data['genero'] !== '' && !in_array($data['genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
+        if ($data['Genero'] !== '' && !in_array($data['Genero'], ['Masculino', 'Femenino', 'Otro'], true)) {
             return 'Selecciona un género válido.';
         }
         if ($withPassword && mb_strlen($data['password'], 'UTF-8') < 12) {
@@ -288,13 +288,13 @@ final class EstudianteController extends BaseController
 
         // Validar que el celular tenga exactamente 8 dígitos
         // y comience con 5, 6 o 7.
-        if ($data['telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['telefono']) !== 1) {
+        if ($data['Telefono'] !== '' && preg_match('/^[567][0-9]{7}$/', $data['Telefono']) !== 1) {
             return 'El celular debe tener 8 dígitos y comenzar con 5, 6 o 7.';
         }
 
-        $data['telefono'] = $data['telefono'] === '' ? null : $data['telefono'];
-        $data['edad'] = (int) $data['edad'];
-        $data['genero'] = $data['genero'] === '' ? null : $data['genero'];
+        $data['Telefono'] = $data['Telefono'] === '' ? null : $data['Telefono'];
+        $data['Edad'] = (int) $data['Edad'];
+        $data['Genero'] = $data['Genero'] === '' ? null : $data['Genero'];
 
         return null;
     }
@@ -303,12 +303,12 @@ final class EstudianteController extends BaseController
     private function viewData(): array
     {
         $messages = [
-            'creado' => 'Estudiante creado. El carnet generado se muestra en la lista.',
+            'creado' => 'Estudiante creado. El Carnet generado se muestra en la lista.',
             'actualizado' => 'Estudiante actualizado correctamente.',
             'estado_actualizado' => 'Estado del estudiante actualizado.',
             'contrasena_actualizada' => 'Contraseña actualizada. Comparte la nueva contraseña con el estudiante por un canal seguro.',
             'eliminado' => 'Estudiante eliminado.',
-            'solicitud_aprobada' => 'Solicitud aprobada. El carnet generado se muestra en la lista y en la cuenta del estudiante.',
+            'solicitud_aprobada' => 'Solicitud aprobada. El Carnet generado se muestra en la lista y en la cuenta del estudiante.',
             'solicitud_rechazada' => 'Solicitud rechazada.',
         ];
 

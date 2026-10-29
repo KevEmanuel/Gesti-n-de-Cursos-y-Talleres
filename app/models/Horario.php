@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 /**
- * Consulta y mantiene los horarios y valida los cruces entre instructores.
+*Consulta de horarios
+ * mantiendo los horarios 
+ * valida los cruces entre instructores.
  */
 final class Horario extends BaseModel
 {
@@ -11,13 +13,15 @@ final class Horario extends BaseModel
     public function all(): array
     {
         return $this->database->query(
-            'SELECT h.id_horario, h.id_curso, h.dia, h.hora_inicio, h.hora_finalizacion,
-                    c.nombre_curso, i.id_instructor, u.nombres, u.apellidos
+            'SELECT h.IdHorario, h.IdCurso, h.Dia, h.HoraInicio, h.Hora_finalizacion,
+                    c.Nombre_Curso, i.IdInstructor, u.Nombres, u.Apellidos
              FROM horarios AS h
-             INNER JOIN cursos AS c ON c.id_curso = h.id_curso
-             INNER JOIN instructores AS i ON i.id_instructor = c.id_instructor
-             INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-             ORDER BY c.nombre_curso, h.dia, h.hora_inicio'
+             INNER JOIN cursos AS c ON c.IdCurso = h.IdCurso
+             INNER JOIN instructores AS i ON i.IdInstructor = c.IdInstructor
+             INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+             ORDER BY c.Nombre_Curso,
+                      FIELD(h.Dia, \'Domingo\', \'Sabado\', \'Viernes\', \'Jueves\', \'Miercoles\', \'Martes\', \'Lunes\'),
+                      h.HoraInicio DESC, h.Hora_finalizacion DESC'
         )->fetchAll();
     }
 
@@ -27,9 +31,9 @@ final class Horario extends BaseModel
     public function courses(): array
     {
         return $this->database->query(
-            "SELECT id_curso, nombre_curso FROM cursos
-             WHERE estado IN ('Activo', 'Cerrado')
-             ORDER BY nombre_curso"
+            "SELECT IdCurso, Nombre_Curso FROM cursos
+             WHERE Estado IN ('Activo', 'Cerrado')
+             ORDER BY Nombre_Curso"
         )->fetchAll();
     }
 
@@ -40,22 +44,22 @@ final class Horario extends BaseModel
     {
         $sql = "SELECT 1
                 FROM horarios AS h
-                INNER JOIN cursos AS scheduled_course ON scheduled_course.id_curso = h.id_curso
-                INNER JOIN cursos AS selected_course ON selected_course.id_curso = :id_curso
-                WHERE selected_course.id_instructor = scheduled_course.id_instructor
-                  AND h.dia = :dia
-                  AND h.hora_inicio < :hora_finalizacion
-                  AND h.hora_finalizacion > :hora_inicio";
+                INNER JOIN cursos AS scheduled_course ON scheduled_course.IdCurso = h.IdCurso
+                INNER JOIN cursos AS selected_course ON selected_course.IdCurso = :IdCurso
+                WHERE selected_course.IdInstructor = scheduled_course.IdInstructor
+                  AND h.Dia = :Dia
+                  AND h.HoraInicio < :Hora_finalizacion
+                  AND h.Hora_finalizacion > :HoraInicio";
         $parameters = [
-            'id_curso' => $courseId,
-            'dia' => $day,
-            'hora_finalizacion' => $end,
-            'hora_inicio' => $start,
+            'IdCurso' => $courseId,
+            'Dia' => $day,
+            'Hora_finalizacion' => $end,
+            'HoraInicio' => $start,
         ];
 
         if ($excludedId !== null) {
-            $sql .= ' AND h.id_horario <> :id_horario';
-            $parameters['id_horario'] = $excludedId;
+            $sql .= ' AND h.IdHorario <> :IdHorario';
+            $parameters['IdHorario'] = $excludedId;
         }
 
         $statement = $this->database->prepare($sql);
@@ -68,8 +72,8 @@ final class Horario extends BaseModel
     public function create(array $data): void
     {
         $statement = $this->database->prepare(
-            'INSERT INTO horarios (id_curso, dia, hora_inicio, hora_finalizacion)
-             VALUES (:id_curso, :dia, :hora_inicio, :hora_finalizacion)'
+            'INSERT INTO horarios (IdCurso, Dia, HoraInicio, Hora_finalizacion)
+             VALUES (:IdCurso, :Dia, :HoraInicio, :Hora_finalizacion)'
         );
         $statement->execute($data);
     }
@@ -79,25 +83,25 @@ final class Horario extends BaseModel
     {
         $statement = $this->database->prepare(
             'UPDATE horarios
-             SET id_curso = :id_curso, dia = :dia,
-                 hora_inicio = :hora_inicio, hora_finalizacion = :hora_finalizacion
-             WHERE id_horario = :id_horario'
+             SET IdCurso = :IdCurso, Dia = :Dia,
+                 HoraInicio = :HoraInicio, Hora_finalizacion = :Hora_finalizacion
+             WHERE IdHorario = :IdHorario'
         );
-        $data['id_horario'] = $id;
+        $data['IdHorario'] = $id;
         $statement->execute($data);
 
         return $this->exists($id);
     }
 
     /**
-     * Valida y elimina el elemento seleccionado y sus relaciones permitidas.
+     * Valida y elimina el elemento seleccionado.
      */
     public function delete(int $id): bool
     {
         $statement = $this->database->prepare(
-            'DELETE FROM horarios WHERE id_horario = :id_horario'
+            'DELETE FROM horarios WHERE IdHorario = :IdHorario'
         );
-        $statement->execute(['id_horario' => $id]);
+        $statement->execute(['IdHorario' => $id]);
 
         return $statement->rowCount() > 0;
     }
@@ -106,9 +110,9 @@ final class Horario extends BaseModel
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(
-            'SELECT 1 FROM horarios WHERE id_horario = :id_horario'
+            'SELECT 1 FROM horarios WHERE IdHorario = :IdHorario'
         );
-        $statement->execute(['id_horario' => $id]);
+        $statement->execute(['IdHorario' => $id]);
 
         return $statement->fetchColumn() !== false;
     }

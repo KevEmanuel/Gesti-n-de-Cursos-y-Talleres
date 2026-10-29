@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * Centraliza autorizacion, proteccion CSRF, renderizado de vistas y redirecciones.
- */
 abstract class BaseController
 {
     /**
@@ -64,7 +61,7 @@ abstract class BaseController
     }
 
     /**
-     * Obtiene o genera un token CSRF aleatorio para proteger formularios de la sesión.
+     * Obtiene un token CSRF aleatorio para proteger formularios de la sesión.
      */
     protected function csrfToken(): string
     {

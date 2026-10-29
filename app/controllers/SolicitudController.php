@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Coordina la creacion y revision administrativa de inscripciones.
+ *  creacion y revision administrativa de inscripciones.
  */
 final class SolicitudController extends BaseController
 {
@@ -27,8 +27,8 @@ final class SolicitudController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $studentId = filter_var($_POST['id_estudiante'] ?? null, FILTER_VALIDATE_INT);
-        $courseId = filter_var($_POST['id_curso'] ?? null, FILTER_VALIDATE_INT);
+        $studentId = filter_var($_POST['IdEstudiante'] ?? null, FILTER_VALIDATE_INT);
+        $courseId = filter_var($_POST['IdCurso'] ?? null, FILTER_VALIDATE_INT);
 
         if ($studentId === false || $studentId === null || $studentId < 1
             || $courseId === false || $courseId === null || $courseId < 1) {
@@ -57,15 +57,15 @@ final class SolicitudController extends BaseController
     }
 
     /**
-     * Cambia el estado de la solicitud dentro de una transaccion.
+     * Cambia el Estado de la solicitud dentro de una transaccion.
      */
     public function changeStatus(): void
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_inscripcion'] ?? null, FILTER_VALIDATE_INT);
-        $status = (string) ($_POST['estado_inscripcion'] ?? '');
-        $rejectionReason = trim((string) ($_POST['motivo_rechazo'] ?? ''));
+        $id = filter_var($_POST['IdInscripcion'] ?? null, FILTER_VALIDATE_INT);
+        $status = (string) ($_POST['EstadoInscripcion'] ?? '');
+        $rejectionReason = trim((string) ($_POST['MotivoRechazo'] ?? ''));
 
         if ($id === false || $id === null || $id < 1
             || !in_array($status, ['Pendiente', 'Confirmada', 'Cancelada', 'Rechazada'], true)) {

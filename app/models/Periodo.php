@@ -7,21 +7,21 @@ declare(strict_types=1);
  */
 final class Periodo extends BaseModel
 {
-    /** Obtiene períodos con curso asociado y estado calculado según sus fechas. */
+    /** Obtiene períodos con curso asociado y Estado calculado según sus fechas. */
     public function all(): array
     {
         return $this->database->query(
-            'SELECT p.id_periodo, p.id_curso, p.fecha_inicio, p.fecha_cierre,
-                    c.nombre_curso, a.id_admin,
+            'SELECT p.IdPeriodo, p.IdCurso, p.FechaInicio, p.FechaCierre,
+                    c.Nombre_Curso, a.IdAdmin,
                     CASE
-                        WHEN CURRENT_DATE < p.fecha_inicio THEN "Programado"
-                        WHEN CURRENT_DATE > p.fecha_cierre THEN "Cerrado"
+                        WHEN CURRENT_DATE < p.FechaInicio THEN "Programado"
+                        WHEN CURRENT_DATE > p.FechaCierre THEN "Cerrado"
                         ELSE "Vigente"
                     END AS estado_periodo
              FROM periodos_inscripcion AS p
-             INNER JOIN cursos AS c ON c.id_curso = p.id_curso
-             INNER JOIN administradores AS a ON a.id_admin = p.id_admin
-             ORDER BY p.fecha_inicio DESC'
+             INNER JOIN cursos AS c ON c.IdCurso = p.IdCurso
+             INNER JOIN administradores AS a ON a.IdAdmin = p.IdAdmin
+             ORDER BY p.FechaInicio DESC'
         )->fetchAll();
     }
 
@@ -31,9 +31,9 @@ final class Periodo extends BaseModel
     public function courses(): array
     {
         return $this->database->query(
-            "SELECT id_curso, nombre_curso FROM cursos
-             WHERE estado IN ('Activo', 'Cerrado')
-             ORDER BY nombre_curso"
+            "SELECT IdCurso, Nombre_Curso FROM cursos
+             WHERE Estado IN ('Activo', 'Cerrado')
+             ORDER BY Nombre_Curso"
         )->fetchAll();
     }
 
@@ -43,18 +43,18 @@ final class Periodo extends BaseModel
     public function hasOverlappingPeriod(int $courseId, string $start, string $end, ?int $excludedId = null): bool
     {
         $sql = 'SELECT 1 FROM periodos_inscripcion
-                WHERE id_curso = :id_curso
-                  AND fecha_inicio <= :fecha_cierre
-                  AND fecha_cierre >= :fecha_inicio';
+                WHERE IdCurso = :IdCurso
+                  AND FechaInicio <= :FechaCierre
+                  AND FechaCierre >= :FechaInicio';
         $parameters = [
-            'id_curso' => $courseId,
-            'fecha_cierre' => $end,
-            'fecha_inicio' => $start,
+            'IdCurso' => $courseId,
+            'FechaCierre' => $end,
+            'FechaInicio' => $start,
         ];
 
         if ($excludedId !== null) {
-            $sql .= ' AND id_periodo <> :id_periodo';
-            $parameters['id_periodo'] = $excludedId;
+            $sql .= ' AND IdPeriodo <> :IdPeriodo';
+            $parameters['IdPeriodo'] = $excludedId;
         }
 
         $statement = $this->database->prepare($sql);
@@ -68,9 +68,9 @@ final class Periodo extends BaseModel
     {
         $statement = $this->database->prepare(
             'INSERT INTO periodos_inscripcion
-                (id_curso, id_admin, fecha_inicio, fecha_cierre)
+                (IdCurso, IdAdmin, FechaInicio, FechaCierre)
              VALUES
-                (:id_curso, :id_admin, :fecha_inicio, :fecha_cierre)'
+                (:IdCurso, :IdAdmin, :FechaInicio, :FechaCierre)'
         );
         $statement->execute($data);
     }
@@ -80,10 +80,10 @@ final class Periodo extends BaseModel
     {
         $statement = $this->database->prepare(
             'UPDATE periodos_inscripcion
-             SET id_curso = :id_curso, fecha_inicio = :fecha_inicio, fecha_cierre = :fecha_cierre
-             WHERE id_periodo = :id_periodo'
+             SET IdCurso = :IdCurso, FechaInicio = :FechaInicio, FechaCierre = :FechaCierre
+             WHERE IdPeriodo = :IdPeriodo'
         );
-        $data['id_periodo'] = $id;
+        $data['IdPeriodo'] = $id;
         $statement->execute($data);
 
         return $this->exists($id);
@@ -95,9 +95,9 @@ final class Periodo extends BaseModel
     public function delete(int $id): bool
     {
         $statement = $this->database->prepare(
-            'DELETE FROM periodos_inscripcion WHERE id_periodo = :id_periodo'
+            'DELETE FROM periodos_inscripcion WHERE IdPeriodo = :IdPeriodo'
         );
-        $statement->execute(['id_periodo' => $id]);
+        $statement->execute(['IdPeriodo' => $id]);
 
         return $statement->rowCount() > 0;
     }
@@ -106,9 +106,9 @@ final class Periodo extends BaseModel
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(
-            'SELECT 1 FROM periodos_inscripcion WHERE id_periodo = :id_periodo'
+            'SELECT 1 FROM periodos_inscripcion WHERE IdPeriodo = :IdPeriodo'
         );
-        $statement->execute(['id_periodo' => $id]);
+        $statement->execute(['IdPeriodo' => $id]);
 
         return $statement->fetchColumn() !== false;
     }

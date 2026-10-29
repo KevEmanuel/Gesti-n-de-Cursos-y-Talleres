@@ -61,6 +61,7 @@ $routes = [
     'POST periodos/actualizar' => [PeriodoController::class, 'update'],
     'POST periodos/eliminar' => [PeriodoController::class, 'delete'],
     'GET reportes' => [ReporteController::class, 'index'],
+    'GET reportes/pdf' => [ReporteController::class, 'exportPdf'],
     'GET solicitudes' => [SolicitudController::class, 'index'],
     'POST solicitudes/crear' => [SolicitudController::class, 'create'],
     'POST solicitudes/estado' => [SolicitudController::class, 'changeStatus'],

@@ -36,10 +36,10 @@ final class HorarioController extends BaseController
         }
 
         if ($this->schedules->instructorConflict(
-            $data['id_curso'],
-            $data['dia'],
-            $data['hora_inicio'],
-            $data['hora_finalizacion']
+            $data['IdCurso'],
+            $data['Dia'],
+            $data['HoraInicio'],
+            $data['Hora_finalizacion']
         )) {
             $this->renderError('El instructor ya tiene un curso asignado en ese horario.', $data);
             return;
@@ -54,7 +54,7 @@ final class HorarioController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_horario'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdHorario'] ?? null, FILTER_VALIDATE_INT);
         $data = $this->submittedData();
 
         if ($id === false || $id === null || $id < 1) {
@@ -70,10 +70,10 @@ final class HorarioController extends BaseController
         }
 
         if ($this->schedules->instructorConflict(
-            $data['id_curso'],
-            $data['dia'],
-            $data['hora_inicio'],
-            $data['hora_finalizacion'],
+            $data['IdCurso'],
+            $data['Dia'],
+            $data['HoraInicio'],
+            $data['Hora_finalizacion'],
             $id
         )) {
             $this->renderError('El instructor ya tiene un curso asignado en ese horario.', $data);
@@ -94,7 +94,7 @@ final class HorarioController extends BaseController
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_horario'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdHorario'] ?? null, FILTER_VALIDATE_INT);
 
         if ($id === false || $id === null || $id < 1) {
             http_response_code(400);
@@ -114,10 +114,10 @@ final class HorarioController extends BaseController
     private function submittedData(): array
     {
         return [
-            'id_curso' => filter_var($_POST['id_curso'] ?? null, FILTER_VALIDATE_INT),
-            'dia' => (string) ($_POST['dia'] ?? ''),
-            'hora_inicio' => (string) ($_POST['hora_inicio'] ?? ''),
-            'hora_finalizacion' => (string) ($_POST['hora_finalizacion'] ?? ''),
+            'IdCurso' => filter_var($_POST['IdCurso'] ?? null, FILTER_VALIDATE_INT),
+            'Dia' => (string) ($_POST['Dia'] ?? ''),
+            'HoraInicio' => (string) ($_POST['HoraInicio'] ?? ''),
+            'Hora_finalizacion' => (string) ($_POST['Hora_finalizacion'] ?? ''),
         ];
     }
 
@@ -129,17 +129,17 @@ final class HorarioController extends BaseController
      */
     private function validate(array &$data): ?string
     {
-        if ($data['id_curso'] === false || $data['id_curso'] === null || $data['id_curso'] < 1) {
+        if ($data['IdCurso'] === false || $data['IdCurso'] === null || $data['IdCurso'] < 1) {
             return 'Selecciona un curso válido.';
         }
-        if (!in_array($data['dia'], ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'], true)) {
+        if (!in_array($data['Dia'], ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'], true)) {
             return 'Selecciona un día válido.';
         }
-        if (!preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $data['hora_inicio'])
-            || !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $data['hora_finalizacion'])) {
+        if (!preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $data['HoraInicio'])
+            || !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $data['Hora_finalizacion'])) {
             return 'Ingresa horas válidas.';
         }
-        if ($data['hora_finalizacion'] <= $data['hora_inicio']) {
+        if ($data['Hora_finalizacion'] <= $data['HoraInicio']) {
             return 'La hora de finalización debe ser posterior a la hora de inicio.';
         }
 
@@ -166,7 +166,7 @@ final class HorarioController extends BaseController
         ];
     }
 
-    /** Renderiza la gestión de horarios con el error y los datos introducidos. */
+    /** Renderiza la gestión de horarios y los datos introducidos. */
     private function renderError(string $error, array $old = []): void
     {
         http_response_code(422);

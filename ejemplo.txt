@@ -1,4 +1,4 @@
-Nota: crear una carpte con el name de config, dentro de ella crear un archivo database.php , e incluir el siguiente codigo, reemplazar el Hots de la maquina local, el nombre de la bd, pw = null
+Nota: la configuración activa está en app/config/database.php. Los valores por defecto deben corresponder al servidor y la base de datos local; aquí se muestra la misma configuración.
 
 <?php
 
@@ -7,8 +7,8 @@ declare(strict_types=1);
 // Crea una conexion PDO segura usando la configuracion local
 function getDatabaseConnection(): PDO
 {
-    $host = getenv('DB_HOST') ?: '000.0.0.0';
-    $database = getenv('DB_NAME') ?: 'null';
+    $host = getenv('DB_HOST') ?: '127.0.0.1';
+    $database = getenv('DB_NAME') ?: 'gestiondedatos';
     $username = getenv('DB_USER') ?: 'root';
     $password = getenv('DB_PASSWORD') ?: '';
 

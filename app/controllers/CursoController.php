@@ -35,18 +35,18 @@ final class CursoController extends BaseController
             return;
         }
 
-        $data['id_admin'] = (int) $_SESSION['user']['administrator_id'];
-        $data['estado'] = 'Activo';
+        $data['IdAdmin'] = (int) $_SESSION['user']['administrator_id'];
+        $data['Estado'] = 'Activo';
         $this->courses->create($data);
         $this->redirect('/cursos?mensaje=creado');
     }
 
-    /** Valida y actualiza los datos y el estado del curso seleccionado. */
+    /** Valida y actualiza los datos y el Estado del curso seleccionado. */
     public function update(): void
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_curso'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($_POST['IdCurso'] ?? null, FILTER_VALIDATE_INT);
         $data = $this->submittedData();
 
         if ($id === false || $id === null || $id < 1) {
@@ -61,9 +61,9 @@ final class CursoController extends BaseController
             return;
         }
 
-        $data['estado'] = (string) ($_POST['estado'] ?? '');
-        if (!in_array($data['estado'], ['Activo', 'Cerrado', 'Lleno', 'Cancelado'], true)) {
-            $this->renderError('Selecciona un estado válido.', $data);
+        $data['Estado'] = (string) ($_POST['Estado'] ?? '');
+        if (!in_array($data['Estado'], ['Activo', 'Cerrado', 'Lleno', 'Cancelado'], true)) {
+            $this->renderError('Selecciona un Estado válido.', $data);
             return;
         }
 
@@ -81,18 +81,18 @@ final class CursoController extends BaseController
         $this->redirect('/cursos?mensaje=actualizado');
     }
 
-    /** Cambia el estado de un curso existente a uno de los estados permitidos. */
+    /** Cambia el Estado de un curso existente a uno de los estados permitidos. */
     public function setStatus(): void
     {
         $this->requireAdministrator();
         $this->verifyCsrfToken();
-        $id = filter_var($_POST['id_curso'] ?? null, FILTER_VALIDATE_INT);
-        $status = (string) ($_POST['estado'] ?? '');
+        $id = filter_var($_POST['IdCurso'] ?? null, FILTER_VALIDATE_INT);
+        $status = (string) ($_POST['Estado'] ?? '');
 
         if ($id === false || $id === null || $id < 1
             || !in_array($status, ['Activo', 'Cerrado', 'Lleno', 'Cancelado'], true)) {
             http_response_code(400);
-            echo 'Los datos enviados para el estado del curso no son válidos.';
+            echo 'Los datos enviados para el Estado del curso no son válidos.';
             return;
         }
 
@@ -109,15 +109,15 @@ final class CursoController extends BaseController
     private function submittedData(): array
     {
         return [
-            'id_categoria' => filter_var($_POST['id_categoria'] ?? null, FILTER_VALIDATE_INT),
-            'id_instructor' => filter_var($_POST['id_instructor'] ?? null, FILTER_VALIDATE_INT),
-            'nombre_curso' => trim((string) ($_POST['nombre_curso'] ?? '')),
-            'descripcion' => trim((string) ($_POST['descripcion'] ?? '')),
-            'duracion' => trim((string) ($_POST['duracion'] ?? '')),
-            'modalidad' => (string) ($_POST['modalidad'] ?? ''),
-            'requisitos' => trim((string) ($_POST['requisitos'] ?? '')),
-            'costo_curso' => trim((string) ($_POST['costo_curso'] ?? '')),
-            'maximo_cupos' => filter_var($_POST['maximo_cupos'] ?? null, FILTER_VALIDATE_INT),
+            'IdCategoria' => filter_var($_POST['IdCategoria'] ?? null, FILTER_VALIDATE_INT),
+            'IdInstructor' => filter_var($_POST['IdInstructor'] ?? null, FILTER_VALIDATE_INT),
+            'Nombre_Curso' => trim((string) ($_POST['Nombre_Curso'] ?? '')),
+            'Descripcion' => trim((string) ($_POST['Descripcion'] ?? '')),
+            'Duracion' => trim((string) ($_POST['Duracion'] ?? '')),
+            'Modalidad' => (string) ($_POST['Modalidad'] ?? ''),
+            'Requisitos' => trim((string) ($_POST['Requisitos'] ?? '')),
+            'Costo_curso' => trim((string) ($_POST['Costo_curso'] ?? '')),
+            'Maximo_cupos' => filter_var($_POST['Maximo_cupos'] ?? null, FILTER_VALIDATE_INT),
         ];
     }
 
@@ -129,58 +129,58 @@ final class CursoController extends BaseController
      */
     private function validate(array &$data): ?string
     {
-        if ($data['id_categoria'] === false || $data['id_categoria'] === null || $data['id_categoria'] < 1
-            || $data['id_instructor'] === false || $data['id_instructor'] === null || $data['id_instructor'] < 1) {
+        if ($data['IdCategoria'] === false || $data['IdCategoria'] === null || $data['IdCategoria'] < 1
+            || $data['IdInstructor'] === false || $data['IdInstructor'] === null || $data['IdInstructor'] < 1) {
             return 'Selecciona una categoría y un instructor válidos.';
         }
-        if ($data['nombre_curso'] === '' || $data['duracion'] === '') {
-            return 'El nombre y la duración son obligatorios.';
+        if ($data['Nombre_Curso'] === '' || $data['Duracion'] === '') {
+            return 'El Nombre y la duración son obligatorios.';
         }
-        // Validar nombre del curso
-        if (preg_match('/\p{L}/u', $data['nombre_curso']) !== 1) {
-           return 'El nombre del curso debe contener al menos una letra.';
+        // Validar Nombre del curso
+        if (preg_match('/\p{L}/u', $data['Nombre_Curso']) !== 1) {
+           return 'El Nombre del curso debe contener texto.';
         }
 
         // Validar duración
-        if (!preg_match('/^[1-9]\d*(?:\s+horas?)?$/iu', $data['duracion'])) {
+        if (!preg_match('/^[1-9]\d*(?:\s+horas?)?$/iu', $data['Duracion'])) {
             return 'La duración debe ser mayor que cero. Ejemplo: 50 o 50 horas.';
         }
 
         // Validar descripción (opcional)
-        if ($data['descripcion'] !== '' && preg_match('/\p{L}/u', $data['descripcion']) !== 1) {
-           return 'La descripción debe contener al menos una letra.';
+        if ($data['Descripcion'] !== '' && preg_match('/\p{L}/u', $data['Descripcion']) !== 1) {
+           return 'La descripción debe contener  texto.';
         }
 
-        // Validar requisitos (opcional)
-        if ($data['requisitos'] !== '' && preg_match('/\p{L}/u', $data['requisitos']) !== 1) {
-           return 'Los requisitos deben contener al menos una letra.';
+        // Validar Requisitos (opcional)
+        if ($data['Requisitos'] !== '' && preg_match('/\p{L}/u', $data['Requisitos']) !== 1) {
+           return 'Los Requisitos deben contener texto.';
         }
 
-        if (mb_strlen($data['nombre_curso'], 'UTF-8') > 200 || mb_strlen($data['duracion'], 'UTF-8') > 100) {
-            return 'El nombre o la duración exceden la longitud permitida.';
+        if (mb_strlen($data['Nombre_Curso'], 'UTF-8') > 200 || mb_strlen($data['Duracion'], 'UTF-8') > 100) {
+            return 'El Nombre o la duración exceden la longitud permitida.';
         }
-        if (!in_array($data['modalidad'], ['Presencial', 'Virtual', 'Hibrido'], true)) {
-            return 'Selecciona una modalidad válida.';
+        if (!in_array($data['Modalidad'], ['Presencial', 'Virtual', 'Hibrido'], true)) {
+            return 'Selecciona una Modalidad válida.';
         }
         if (
-            preg_match('/\A\d{1,8}(?:\.\d{1,2})?\z/', $data['costo_curso']) !== 1
-            || (float) $data['costo_curso'] > 99999999.99
+            preg_match('/\A\d{1,8}(?:\.\d{1,2})?\z/', $data['Costo_curso']) !== 1
+            || (float) $data['Costo_curso'] > 99999999.99
         ) {
             return 'El costo debe ser de 0 a 99,999,999.99 y puede tener hasta dos decimales.';
         }
         if (
-            $data['maximo_cupos'] === false
-            || $data['maximo_cupos'] === null
-            || $data['maximo_cupos'] < 1
-            || $data['maximo_cupos'] > 4294967295
+            $data['Maximo_cupos'] === false
+            || $data['Maximo_cupos'] === null
+            || $data['Maximo_cupos'] < 1
+            || $data['Maximo_cupos'] > 4294967295
         ) {
             return 'La capacidad debe ser un número entero entre 1 y 4,294,967,295.';
         }
 
-        $data['costo_curso'] = number_format((float) $data['costo_curso'], 2, '.', '');
-        $data['descripcion'] = $data['descripcion'] === '' ? null : $data['descripcion'];
-        $data['requisitos'] = $data['requisitos'] === '' ? null : $data['requisitos'];
-        $data['estado'] = 'Activo';
+        $data['Costo_curso'] = number_format((float) $data['Costo_curso'], 2, '.', '');
+        $data['Descripcion'] = $data['Descripcion'] === '' ? null : $data['Descripcion'];
+        $data['Requisitos'] = $data['Requisitos'] === '' ? null : $data['Requisitos'];
+        $data['Estado'] = 'Activo';
 
         return null;
     }
@@ -206,7 +206,7 @@ final class CursoController extends BaseController
         ];
     }
 
-    /** Renderiza el módulo de cursos con el error y los datos ingresados. */
+    /** Renderizacion del módulo de cursos con el error y los datos ingresados. */
     private function renderError(string $error, array $old = []): void
     {
         http_response_code(422);

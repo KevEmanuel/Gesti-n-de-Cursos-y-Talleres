@@ -13,7 +13,7 @@ declare(strict_types=1);
             <p class="auth-eyebrow">RECUPERA EL ACCESO</p>
             <h2>Volvamos a tu aprendizaje</h2>
             <ul>
-                <li>Recibe un enlace seguro en tu correo registrado.</li>
+                <li>Recibe un enlace seguro en tu Correo registrado.</li>
                 <li>El enlace vence en una hora y solo funciona una vez.</li>
             </ul>
         </div>
@@ -22,7 +22,7 @@ declare(strict_types=1);
     <div class="auth-content">
         <section class="card auth-card">
             <h1>Recuperar contraseña</h1>
-            <p>Escribe el correo asociado a tu cuenta. Si existe, enviaremos instrucciones para crear una nueva contraseña.</p>
+            <p>Escribe el Correo asociado a tu cuenta. Si existe, enviaremos instrucciones para crear una nueva contraseña.</p>
             <?php if ($message !== null): ?>
                 <p class="notice notice-success" role="status"><?= e($message) ?></p>
             <?php endif; ?>
@@ -31,10 +31,10 @@ declare(strict_types=1);
             <?php endif; ?>
             <form action="/password/recuperar" method="post" class="auth-form">
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                <label>Correo electrónico<input type="email" name="correo" maxlength="254" placeholder="usuario@gmail.com" required autocomplete="email" value="<?= e($old['correo'] ?? '') ?>"></label>
+                <label>Correo electrónico<input type="email" name="Correo" maxlength="254" placeholder="usuario@gmail.com" required autocomplete="email" value="<?= e($old['Correo'] ?? '') ?>"></label>
                 <button class="button" type="submit">Enviar instrucciones</button>
             </form>
-            <p class="auth-recovery-help">Si no puedes recibir el correo, solicita al administrador que cambie tu contraseña desde tu cuenta.</p>
+            <p class="auth-recovery-help">Si no puedes recibir el Correo, solicita al administrador que cambie tu contraseña desde tu cuenta.</p>
             <p class="auth-alternate"><a href="/login">Volver a iniciar sesión</a></p>
         </section>
     </div>

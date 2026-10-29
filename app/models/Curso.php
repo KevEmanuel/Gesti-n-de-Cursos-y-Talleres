@@ -11,16 +11,16 @@ final class Curso extends BaseModel
     public function all(): array
     {
         $statement = $this->database->query(
-            'SELECT c.id_curso, c.id_categoria, c.id_instructor, c.nombre_curso, c.descripcion, c.duracion, c.modalidad,
-                    c.requisitos, c.costo_curso, c.maximo_cupos, c.estado,
-                    ca.nombre AS categoria, u.nombres, u.apellidos,
-                    d.inscritos_activos, d.cupos_disponibles
+            'SELECT c.IdCurso, c.IdCategoria, c.IdInstructor, c.Nombre_Curso, c.Descripcion, c.Duracion, c.Modalidad,
+                    c.Requisitos, c.Costo_curso, c.Maximo_cupos, c.Estado,
+                    ca.Nombre AS categoria, u.Nombres, u.Apellidos,
+                    d.InscritosActivos, d.Cupos_Disponibles
              FROM cursos AS c
-             INNER JOIN categorias AS ca ON ca.id_categoria = c.id_categoria
-             INNER JOIN instructores AS i ON i.id_instructor = c.id_instructor
-             INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-             LEFT JOIN vw_cursos_disponibilidad AS d ON d.id_curso = c.id_curso
-             ORDER BY c.nombre_curso'
+             INNER JOIN categorias AS ca ON ca.IdCategoria = c.IdCategoria
+             INNER JOIN instructores AS i ON i.IdInstructor = c.IdInstructor
+             INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+             LEFT JOIN vw_cursos_disponibilidad AS d ON d.IdCurso = c.IdCurso
+             ORDER BY c.Nombre_Curso'
         );
 
         return $statement->fetchAll();
@@ -31,39 +31,39 @@ final class Curso extends BaseModel
      */
     public function publicCatalog(array $filters): array
     {
-        $sql = "SELECT c.id_curso, c.nombre_curso, c.descripcion, c.duracion,
-                       c.modalidad, c.requisitos, c.costo_curso, c.estado,
-                       ca.nombre AS categoria, u.nombres AS instructor_nombres,
-                       u.apellidos AS instructor_apellidos,
-                       d.maximo_cupos, d.inscritos_activos, d.cupos_disponibles,
-                       p.fecha_inicio AS periodo_inicio, p.fecha_cierre AS periodo_cierre
+        $sql = "SELECT c.IdCurso, c.Nombre_Curso, c.Descripcion, c.Duracion,
+                       c.Modalidad, c.Requisitos, c.Costo_curso, c.Estado,
+                       ca.Nombre AS categoria, u.Nombres AS instructor_nombres,
+                       u.Apellidos AS instructor_apellidos,
+                       d.Maximo_cupos, d.InscritosActivos, d.Cupos_Disponibles,
+                       p.FechaInicio AS periodo_inicio, p.FechaCierre AS periodo_cierre
                 FROM cursos AS c
-                INNER JOIN categorias AS ca ON ca.id_categoria = c.id_categoria
-                INNER JOIN instructores AS i ON i.id_instructor = c.id_instructor
-                INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-                LEFT JOIN vw_cursos_disponibilidad AS d ON d.id_curso = c.id_curso
+                INNER JOIN categorias AS ca ON ca.IdCategoria = c.IdCategoria
+                INNER JOIN instructores AS i ON i.IdInstructor = c.IdInstructor
+                INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+                LEFT JOIN vw_cursos_disponibilidad AS d ON d.IdCurso = c.IdCurso
                 LEFT JOIN periodos_inscripcion AS p
-                    ON p.id_curso = c.id_curso
-                    AND CURRENT_DATE BETWEEN p.fecha_inicio AND p.fecha_cierre
-                WHERE c.estado IN ('Activo', 'Lleno')
-                  AND ca.estado = 'Activo'
-                  AND u.estado_cuenta = 'Activo'";
+                    ON p.IdCurso = c.IdCurso
+                    AND CURRENT_DATE BETWEEN p.FechaInicio AND p.FechaCierre
+                WHERE c.Estado IN ('Activo', 'Lleno')
+                  AND ca.Estado = 'Activo'
+                  AND u.Estado_Cuenta = 'Activo'";
         $parameters = [];
 
-        if ($filters['id_categoria'] !== '') {
-            $sql .= ' AND c.id_categoria = :id_categoria';
-            $parameters['id_categoria'] = (int) $filters['id_categoria'];
+        if ($filters['IdCategoria'] !== '') {
+            $sql .= ' AND c.IdCategoria = :IdCategoria';
+            $parameters['IdCategoria'] = (int) $filters['IdCategoria'];
         }
-        if ($filters['modalidad'] !== '') {
-            $sql .= ' AND c.modalidad = :modalidad';
-            $parameters['modalidad'] = $filters['modalidad'];
+        if ($filters['Modalidad'] !== '') {
+            $sql .= ' AND c.Modalidad = :Modalidad';
+            $parameters['Modalidad'] = $filters['Modalidad'];
         }
         if ($filters['busqueda'] !== '') {
-            $sql .= ' AND (c.nombre_curso LIKE :busqueda_nombre
-                          OR c.descripcion LIKE :busqueda_descripcion
-                          OR ca.nombre LIKE :busqueda_categoria
-                          OR u.nombres LIKE :busqueda_instructor
-                          OR u.apellidos LIKE :busqueda_apellido)';
+            $sql .= ' AND (c.Nombre_Curso LIKE :busqueda_nombre
+                          OR c.Descripcion LIKE :busqueda_descripcion
+                          OR ca.Nombre LIKE :busqueda_categoria
+                          OR u.Nombres LIKE :busqueda_instructor
+                          OR u.Apellidos LIKE :busqueda_apellido)';
             $term = '%' . $filters['busqueda'] . '%';
             $parameters['busqueda_nombre'] = $term;
             $parameters['busqueda_descripcion'] = $term;
@@ -72,7 +72,7 @@ final class Curso extends BaseModel
             $parameters['busqueda_apellido'] = $term;
         }
 
-        $sql .= ' ORDER BY c.estado = \'Activo\' DESC, c.nombre_curso';
+        $sql .= ' ORDER BY c.Estado = \'Activo\' DESC, c.Nombre_Curso';
         $statement = $this->database->prepare($sql);
         $statement->execute($parameters);
 
@@ -85,27 +85,27 @@ final class Curso extends BaseModel
     public function publicCourse(int $courseId): ?array
     {
         $statement = $this->database->prepare(
-            "SELECT c.id_curso, c.nombre_curso, c.descripcion, c.duracion,
-                    c.modalidad, c.requisitos, c.costo_curso, c.estado,
-                    ca.nombre AS categoria, u.nombres AS instructor_nombres,
-                    u.apellidos AS instructor_apellidos,
-                    d.maximo_cupos, d.inscritos_activos, d.cupos_disponibles,
-                    p.fecha_inicio AS periodo_inicio, p.fecha_cierre AS periodo_cierre
+            "SELECT c.IdCurso, c.Nombre_Curso, c.Descripcion, c.Duracion,
+                    c.Modalidad, c.Requisitos, c.Costo_curso, c.Estado,
+                    ca.Nombre AS categoria, u.Nombres AS instructor_nombres,
+                    u.Apellidos AS instructor_apellidos,
+                    d.Maximo_cupos, d.InscritosActivos, d.Cupos_Disponibles,
+                    p.FechaInicio AS periodo_inicio, p.FechaCierre AS periodo_cierre
              FROM cursos AS c
-             INNER JOIN categorias AS ca ON ca.id_categoria = c.id_categoria
-             INNER JOIN instructores AS i ON i.id_instructor = c.id_instructor
-             INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-             LEFT JOIN vw_cursos_disponibilidad AS d ON d.id_curso = c.id_curso
+             INNER JOIN categorias AS ca ON ca.IdCategoria = c.IdCategoria
+             INNER JOIN instructores AS i ON i.IdInstructor = c.IdInstructor
+             INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+             LEFT JOIN vw_cursos_disponibilidad AS d ON d.IdCurso = c.IdCurso
              LEFT JOIN periodos_inscripcion AS p
-                ON p.id_curso = c.id_curso
-                AND CURRENT_DATE BETWEEN p.fecha_inicio AND p.fecha_cierre
-             WHERE c.id_curso = :id_curso
-               AND c.estado IN ('Activo', 'Lleno')
-               AND ca.estado = 'Activo'
-               AND u.estado_cuenta = 'Activo'
+                ON p.IdCurso = c.IdCurso
+                AND CURRENT_DATE BETWEEN p.FechaInicio AND p.FechaCierre
+             WHERE c.IdCurso = :IdCurso
+               AND c.Estado IN ('Activo', 'Lleno')
+               AND ca.Estado = 'Activo'
+               AND u.Estado_Cuenta = 'Activo'
              LIMIT 1"
         );
-        $statement->execute(['id_curso' => $courseId]);
+        $statement->execute(['IdCurso' => $courseId]);
         $course = $statement->fetch();
 
         return is_array($course) ? $course : null;
@@ -117,12 +117,12 @@ final class Curso extends BaseModel
     public function publicSchedule(int $courseId): array
     {
         $statement = $this->database->prepare(
-            'SELECT dia, hora_inicio, hora_finalizacion
+            'SELECT Dia, HoraInicio, Hora_finalizacion
              FROM horarios
-             WHERE id_curso = :id_curso
-             ORDER BY FIELD(dia, \'Lunes\', \'Martes\', \'Miercoles\', \'Jueves\', \'Viernes\', \'Sabado\', \'Domingo\'), hora_inicio'
+             WHERE IdCurso = :IdCurso
+             ORDER BY FIELD(Dia, \'Lunes\', \'Martes\', \'Miercoles\', \'Jueves\', \'Viernes\', \'Sabado\', \'Domingo\'), HoraInicio'
         );
-        $statement->execute(['id_curso' => $courseId]);
+        $statement->execute(['IdCurso' => $courseId]);
 
         return $statement->fetchAll();
     }
@@ -133,7 +133,7 @@ final class Curso extends BaseModel
     public function categories(): array
     {
         return $this->database->query(
-            "SELECT id_categoria, nombre FROM categorias WHERE estado = 'Activo' ORDER BY nombre"
+            "SELECT IdCategoria, Nombre FROM categorias WHERE Estado = 'Activo' ORDER BY Nombre"
         )->fetchAll();
     }
 
@@ -143,11 +143,11 @@ final class Curso extends BaseModel
     public function instructors(): array
     {
         return $this->database->query(
-            "SELECT i.id_instructor, u.nombres, u.apellidos
+            "SELECT i.IdInstructor, u.Nombres, u.Apellidos
              FROM instructores AS i
-             INNER JOIN usuarios AS u ON u.id_usuario = i.id_usuario
-             WHERE u.estado_cuenta = 'Activo'
-             ORDER BY u.apellidos, u.nombres"
+             INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
+             WHERE u.Estado_Cuenta = 'Activo'
+             ORDER BY u.Apellidos, u.Nombres"
         )->fetchAll();
     }
 
@@ -156,24 +156,24 @@ final class Curso extends BaseModel
     {
         $statement = $this->database->prepare(
             'INSERT INTO cursos
-                (id_categoria, id_instructor, id_admin, nombre_curso, descripcion,
-                 duracion, modalidad, requisitos, costo_curso, maximo_cupos, estado)
+                (IdCategoria, IdInstructor, IdAdmin, Nombre_Curso, Descripcion,
+                 Duracion, Modalidad, Requisitos, Costo_curso, Maximo_cupos, Estado)
              VALUES
-                (:id_categoria, :id_instructor, :id_admin, :nombre_curso, :descripcion,
-                 :duracion, :modalidad, :requisitos, :costo_curso, :maximo_cupos, :estado)'
+                (:IdCategoria, :IdInstructor, :IdAdmin, :Nombre_Curso, :Descripcion,
+                 :Duracion, :Modalidad, :Requisitos, :Costo_curso, :Maximo_cupos, :Estado)'
         );
         $statement->execute($data);
     }
 
-    /** Actualiza los datos y estado del curso dentro de una transacción. */
+    /** Actualiza los datos y Estado del curso dentro de una transacción. */
     public function update(int $id, array $data): bool
     {
         $this->database->beginTransaction();
 
         try {
             // Obtener el instructor actual antes de modificar el curso.
-            $statement = $this->database->prepare('SELECT id_instructor FROM cursos WHERE id_curso = :id_curso FOR UPDATE');
-            $statement->execute(['id_curso' => $id]);
+            $statement = $this->database->prepare('SELECT IdInstructor FROM cursos WHERE IdCurso = :IdCurso FOR UPDATE');
+            $statement->execute(['IdCurso' => $id]);
 
             $currentInstructor = $statement->fetchColumn();
 
@@ -184,13 +184,13 @@ final class Curso extends BaseModel
 
             $statement = $this->database->prepare(
                 "SELECT COUNT(*) FROM inscripciones
-                 WHERE id_curso = :id_curso
-                   AND estado_inscripcion IN ('Confirmada', 'Pendiente')"
+                 WHERE IdCurso = :IdCurso
+                   AND EstadoInscripcion IN ('Confirmada', 'Pendiente')"
             );
-            $statement->execute(['id_curso' => $id]);
+            $statement->execute(['IdCurso' => $id]);
             $activeEnrollments = (int) $statement->fetchColumn();
 
-            if ($data['maximo_cupos'] < $activeEnrollments) {
+            if ($data['Maximo_cupos'] < $activeEnrollments) {
                 $this->database->rollBack();
                 throw new DomainException(
                     'La capacidad no puede ser menor que las inscripciones activas (' . $activeEnrollments . ').'
@@ -198,27 +198,27 @@ final class Curso extends BaseModel
             }
             // Validar conflictos de horario al cambiar el instructor de un curso.
             // Impide asignar un profesor que ya imparte otra clase en el mismo horario.
-            if ((int) $currentInstructor !== (int) $data['id_instructor']) {
+            if ((int) $currentInstructor !== (int) $data['IdInstructor']) {
 
             $statement = $this->database->prepare(
         'SELECT 1
          FROM horarios AS actual
          INNER JOIN horarios AS otro
-             ON otro.dia = actual.dia
-            AND actual.hora_inicio < otro.hora_finalizacion
-            AND actual.hora_finalizacion > otro.hora_inicio
+             ON otro.Dia = actual.Dia
+            AND actual.HoraInicio < otro.Hora_finalizacion
+            AND actual.Hora_finalizacion > otro.HoraInicio
          INNER JOIN cursos AS curso_otro
-             ON curso_otro.id_curso = otro.id_curso
-         WHERE actual.id_curso = :id_curso
-           AND otro.id_curso <> :id_curso_diferente
-           AND curso_otro.id_instructor = :id_instructor
+             ON curso_otro.IdCurso = otro.IdCurso
+         WHERE actual.IdCurso = :IdCurso
+           AND otro.IdCurso <> :id_curso_diferente
+           AND curso_otro.IdInstructor = :IdInstructor
          LIMIT 1'
     );
 
     $statement->execute([
-        'id_curso' => $id,
+        'IdCurso' => $id,
         'id_curso_diferente' => $id,
-        'id_instructor' => $data['id_instructor'],
+        'IdInstructor' => $data['IdInstructor'],
     ]);
 
     if ($statement->fetchColumn() !== false) {
@@ -230,13 +230,13 @@ final class Curso extends BaseModel
 
             $statement = $this->database->prepare(
                 'UPDATE cursos
-                 SET id_categoria = :id_categoria, id_instructor = :id_instructor,
-                     nombre_curso = :nombre_curso, descripcion = :descripcion,
-                     duracion = :duracion, modalidad = :modalidad, requisitos = :requisitos,
-                     costo_curso = :costo_curso, maximo_cupos = :maximo_cupos, estado = :estado
-                 WHERE id_curso = :id_curso'
+                 SET IdCategoria = :IdCategoria, IdInstructor = :IdInstructor,
+                     Nombre_Curso = :Nombre_Curso, Descripcion = :Descripcion,
+                     Duracion = :Duracion, Modalidad = :Modalidad, Requisitos = :Requisitos,
+                     Costo_curso = :Costo_curso, Maximo_cupos = :Maximo_cupos, Estado = :Estado
+                 WHERE IdCurso = :IdCurso'
             );
-            $data['id_curso'] = $id;
+            $data['IdCurso'] = $id;
             $statement->execute($data);
             $this->database->commit();
 
@@ -249,13 +249,13 @@ final class Curso extends BaseModel
         }
     }
 
-    /** Cambia el estado del curso y comprueba que exista el registro. */
+    /** Cambia el Estado del curso y comprueba que exista el registro. */
     public function setStatus(int $id, string $status): bool
     {
         $statement = $this->database->prepare(
-            'UPDATE cursos SET estado = :estado WHERE id_curso = :id_curso'
+            'UPDATE cursos SET Estado = :Estado WHERE IdCurso = :IdCurso'
         );
-        $statement->execute(['estado' => $status, 'id_curso' => $id]);
+        $statement->execute(['Estado' => $status, 'IdCurso' => $id]);
 
         return $this->exists($id);
     }
@@ -264,9 +264,9 @@ final class Curso extends BaseModel
     private function exists(int $id): bool
     {
         $statement = $this->database->prepare(
-            'SELECT 1 FROM cursos WHERE id_curso = :id_curso'
+            'SELECT 1 FROM cursos WHERE IdCurso = :IdCurso'
         );
-        $statement->execute(['id_curso' => $id]);
+        $statement->execute(['IdCurso' => $id]);
 
         return $statement->fetchColumn() !== false;
     }

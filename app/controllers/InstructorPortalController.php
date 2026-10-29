@@ -23,7 +23,7 @@ final class InstructorPortalController extends BaseController
         $studentsByCourse = $this->instructors->confirmedStudentsByCourse((int) $user['instructor_id']);
 
         foreach ($courses as &$course) {
-            $course['estudiantes'] = $studentsByCourse[$course['id_curso']] ?? [];
+            $course['estudiantes'] = $studentsByCourse[$course['IdCurso']] ?? [];
         }
         unset($course);
 

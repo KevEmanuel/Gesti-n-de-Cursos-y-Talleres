@@ -5,7 +5,8 @@ declare(strict_types=1);
 use PHPMailer\PHPMailer\PHPMailer;
 
 /**
- * Envía enlaces de recuperación usando el SMTP configurado en el entorno.
+ * No se implementara en la Etapa 2
+ * se actualizara en etapas futuras
  */
 final class PasswordResetMailer
 {
@@ -19,8 +20,6 @@ final class PasswordResetMailer
     private string $fromName;
 
     /**
-     * Lee y valida APP_URL, SMTP y la dirección remitente desde el entorno.
-     *
      * @throws RuntimeException Si falta o no es válida una variable requerida.
      */
     public function __construct()
@@ -54,7 +53,7 @@ final class PasswordResetMailer
     }
 
     /**
-     * Envía el enlace sin exponer el token en recursos de terceros.
+     * Envía el enlace sin exponer el token los datos .
      */
     public function send(string $email, string $name, string $token): void
     {
