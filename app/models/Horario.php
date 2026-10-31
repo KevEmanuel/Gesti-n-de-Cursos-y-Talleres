@@ -20,8 +20,8 @@ final class Horario extends BaseModel
              INNER JOIN instructores AS i ON i.IdInstructor = c.IdInstructor
              INNER JOIN usuarios AS u ON u.IdUsuario = i.IdUsuario
              ORDER BY c.Nombre_Curso,
-                      FIELD(h.Dia, \'Domingo\', \'Sabado\', \'Viernes\', \'Jueves\', \'Miercoles\', \'Martes\', \'Lunes\'),
-                      h.HoraInicio DESC, h.Hora_finalizacion DESC'
+                      FIELD(h.Dia, \'Lunes\', \'Martes\', \'Miercoles\', \'Jueves\', \'Viernes\', \'Sabado\', \'Domingo\'),
+                      h.HoraInicio, h.Hora_finalizacion'
         )->fetchAll();
     }
 

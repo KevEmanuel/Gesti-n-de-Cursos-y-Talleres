@@ -1,7 +1,7 @@
 # Gestión de Cursos y Talleres
 
 Aplicación web para administrar cursos, estudiantes, instructores e
-inscripciones. Está desarrollada en PHP y usa MySQL o MariaDB.
+inscripciones, desarrollada en PHP, mySql, mediante el MVC
 
 ## Requisitos
 
@@ -45,10 +45,4 @@ inscripciones. Está desarrollada en PHP y usa MySQL o MariaDB.
 ## Si ya tienes una base de datos
 
 `database/schema.sql` es para instalaciones nuevas; no lo importes sobre una
-base con datos. Para renombrar las columnas en una base existente con el esquema
-reflejado en el respaldo `gestiondedatos (2).sql`, exporta primero un respaldo
-y ejecuta `database/renombrar_columnas_existentes.sql` desde la pestaña **SQL**
-de phpMyAdmin. El script también crea `password_reset_tokens`, que no aparece
-en ese respaldo. Usa `CHANGE COLUMN`, compatible con MariaDB 10.4.32. Está
-preparado para esa estructura parcial, no es genérico, y no debe ejecutarse más
-de una vez.
+base con datos.
