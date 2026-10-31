@@ -1,4 +1,5 @@
-Nota: la configuración activa está en app/config/database.php. Los valores por defecto deben corresponder al servidor y la base de datos local; aquí se muestra la misma configuración.
+Nota: la configuración activa está en app/config/database.php. Los valores por defecto deben corresponder al servidor y la base de datos local; aquí se muestra la configuración utilizada pero debera usar segun las definidas en su maquina local
+tanto para usuario como la contraseña que tenga utiliza en Xammp
 
 <?php
 
