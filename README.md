@@ -12,7 +12,7 @@ inscripciones, desarrollada en PHP, mySql, mediante el MVC
 ## Instalación
 
 1. Abre la carpeta `cursoTaller` en la terminal.
-2. Crea la base de datos importando `database/schema.sql`. En phpMyAdmin,
+2. Crea la base de datos importando `database/Grupo04_BDAppWeb.sql`. En phpMyAdmin,
    selecciona **Importar**, elige ese archivo y pulsa **Importar**. Este esquema
    es para una base nueva y crea `gestiondedatos`.
 3. Si tu usuario de MySQL no es `root` o tiene contraseña, configura los datos
@@ -44,5 +44,5 @@ inscripciones, desarrollada en PHP, mySql, mediante el MVC
 
 ## Si ya tienes una base de datos
 
-`database/schema.sql` es para instalaciones nuevas; no lo importes sobre una
+`database/Grupo04_BDAppWeb.sql` es para instalaciones nuevas; no lo importes sobre una
 base con datos.
